@@ -63,11 +63,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.username = (user as any).username
-        token.isAdmin = (user as any).isAdmin
-        token.isVerifiedSeller = (user as any).isVerifiedSeller
-        token.stripeOnboarded = (user as any).stripeOnboarded
+        const customUser = user as {
+          id: string
+          username: string
+          isAdmin: boolean
+          isVerifiedSeller: boolean
+          stripeOnboarded: boolean
+        }
+        token.id = customUser.id
+        token.username = customUser.username
+        token.isAdmin = customUser.isAdmin
+        token.isVerifiedSeller = customUser.isVerifiedSeller
+        token.stripeOnboarded = customUser.stripeOnboarded
       }
       return token
     },

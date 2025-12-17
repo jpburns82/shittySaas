@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { ListingGrid } from '@/components/listings/listing-grid'
-import { Badge, VerifiedBadge } from '@/components/ui/badge'
+import { VerifiedBadge } from '@/components/ui/badge'
 import { formatRelativeTime } from '@/lib/utils'
 
 interface Props {

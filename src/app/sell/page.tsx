@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { ListingForm } from '@/components/listings/listing-form'
 import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
-import { Button } from '@/components/ui/button'
 
 export const metadata = {
   title: 'Sell Your Project',

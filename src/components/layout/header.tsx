@@ -1,6 +1,23 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { Nav } from './nav'
 import { SearchBar } from '../search/search-bar'
+
+function SearchBarFallback() {
+  return (
+    <div className="flex">
+      <input
+        type="search"
+        placeholder="Search projects..."
+        className="flex-1"
+        disabled
+      />
+      <button type="button" className="btn ml-1" disabled>
+        Go
+      </button>
+    </div>
+  )
+}
 
 export function Header() {
   return (
@@ -14,7 +31,9 @@ export function Header() {
 
           {/* Search (desktop) */}
           <div className="hidden md:block flex-1 max-w-md mx-4">
-            <SearchBar />
+            <Suspense fallback={<SearchBarFallback />}>
+              <SearchBar />
+            </Suspense>
           </div>
 
           {/* Navigation */}
@@ -23,7 +42,9 @@ export function Header() {
 
         {/* Search (mobile) */}
         <div className="md:hidden mt-2">
-          <SearchBar />
+          <Suspense fallback={<SearchBarFallback />}>
+            <SearchBar />
+          </Suspense>
         </div>
       </div>
     </header>

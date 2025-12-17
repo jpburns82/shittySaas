@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { ListingDetail } from '@/components/listings/listing-detail'
@@ -107,11 +108,11 @@ export default async function ListingPage({ params }: ListingPageProps) {
     <div className="container py-8">
       {/* Breadcrumb */}
       <nav className="breadcrumbs mb-4">
-        <a href="/">Home</a>
+        <Link href="/">Home</Link>
         <span>&gt;</span>
-        <a href="/listings">Listings</a>
+        <Link href="/listings">Listings</Link>
         <span>&gt;</span>
-        <a href={`/category/${listing.category.slug}`}>{listing.category.name}</a>
+        <Link href={`/category/${listing.category.slug}`}>{listing.category.name}</Link>
         <span>&gt;</span>
         <span>{listing.title}</span>
       </nav>

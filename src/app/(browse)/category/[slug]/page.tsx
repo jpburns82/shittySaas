@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { PaginatedListingGrid } from '@/components/listings/listing-grid'
 import { CategoryNav } from '@/components/search/category-nav'
@@ -84,9 +85,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     <div className="container py-8">
       {/* Breadcrumb */}
       <nav className="breadcrumbs mb-4">
-        <a href="/">Home</a>
+        <Link href="/">Home</Link>
         <span>&gt;</span>
-        <a href="/listings">Listings</a>
+        <Link href="/listings">Listings</Link>
         <span>&gt;</span>
         <span>{category.name}</span>
       </nav>

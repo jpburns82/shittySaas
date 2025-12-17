@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { formatRelativeTime } from '@/lib/utils'
 import { PriceBadge } from './price-badge'
 import { TechStackTags } from './tech-stack-tags'
-import { FeaturedBadge, VerifiedBadge } from '../ui/badge'
+import { FeaturedBadge } from '../ui/badge'
 import type { ListingCard as ListingCardType } from '@/types/listing'
 
 interface ListingCardProps {

@@ -15,8 +15,8 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   const sender = message.sender
   const isAdmin = sender.isAdmin
 
-  // Determine sender display name
-  const senderName = isMe
+  // Determine sender display name (used for display/accessibility)
+  const _senderName = isMe
     ? 'You'
     : sender.displayName || `@${sender.username}`
 

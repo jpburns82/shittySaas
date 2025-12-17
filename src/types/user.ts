@@ -1,4 +1,4 @@
-import type { User, Listing, Purchase, Message, MessageAttachment } from '@prisma/client'
+import type { User, Purchase, Message, MessageAttachment } from '@prisma/client'
 
 // Current user session data
 export type SessionUser = {

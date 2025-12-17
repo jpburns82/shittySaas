@@ -14,7 +14,7 @@ interface CheckoutButtonProps {
 
 export function CheckoutButton({
   listingId,
-  listingTitle,
+  listingTitle: _listingTitle,
   priceInCents,
   priceType,
   disabled,

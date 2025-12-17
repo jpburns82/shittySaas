@@ -49,7 +49,10 @@ model User {
   isBanned          Boolean   @default(false)
   bannedAt          DateTime?
   banReason         String?
-  
+
+  // Notification Preferences
+  messageNotifications String @default("instant") // "instant" | "digest" | "off"
+
   // Timestamps
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -381,31 +384,50 @@ model Comment {
 
 model Message {
   id          String   @id @default(cuid())
-  
+
   // Conversation context (optional - can be general or about a listing)
   listing     Listing? @relation(fields: [listingId], references: [id])
   listingId   String?
-  
+
   // Participants
   sender      User     @relation("SentMessages", fields: [senderId], references: [id])
   senderId    String
-  
+
   receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
   receiverId  String
-  
+
   // Content
   content     String   @db.Text
-  
+
+  // Attachments
+  attachments MessageAttachment[]
+
   // Status
   readAt      DateTime?
-  
+
   // Timestamps
   createdAt   DateTime @default(now())
-  
+
   @@index([listingId])
   @@index([senderId])
   @@index([receiverId])
   @@index([createdAt])
+}
+
+model MessageAttachment {
+  id         String   @id @default(cuid())
+
+  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId  String
+
+  fileName   String
+  fileSize   Int      // bytes
+  fileKey    String   // R2 object key
+  mimeType   String?
+
+  createdAt  DateTime @default(now())
+
+  @@index([messageId])
 }
 
 // ============================================

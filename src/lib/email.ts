@@ -194,19 +194,19 @@ export async function sendSaleNotificationEmail(
 export async function sendMessageNotificationEmail(
   email: string,
   senderUsername: string,
-  listingTitle?: string
+  attachmentInfo?: string
 ): Promise<EmailResult> {
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: `New message from @${senderUsername}`,
+      subject: `New message from @${senderUsername}${attachmentInfo || ''}`,
       html: `
         <div style="font-family: 'Courier New', monospace; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f0;">
           <h1 style="font-size: 24px; border-bottom: 2px solid #333; padding-bottom: 10px;">
             New Message
           </h1>
-          <p>You have a new message from @${senderUsername}${listingTitle ? ` about "${listingTitle}"` : ''}.</p>
+          <p>You have a new message from @${senderUsername}${attachmentInfo || ''}.</p>
           <p style="margin: 20px 0;">
             <a href="${APP_URL}/dashboard/messages" style="background: #e0e0e0; border: 2px outset #ccc; padding: 8px 16px; text-decoration: none; color: #000;">
               View Message

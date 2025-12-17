@@ -31,8 +31,10 @@ export async function GET(request: NextRequest) {
         },
         orderBy: { createdAt: 'asc' },
         include: {
-          sender: { select: { username: true, displayName: true, avatarUrl: true } },
+          sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+          receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
           listing: { select: { id: true, title: true, slug: true } },
+          attachments: true,
         },
       })
 
@@ -59,9 +61,10 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
       include: {
-        sender: { select: { id: true, username: true, displayName: true, avatarUrl: true } },
-        receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true } },
+        sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+        receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
         listing: { select: { id: true, title: true, slug: true } },
+        attachments: true,
       },
     })
 
@@ -99,7 +102,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { receiverId, content, listingId } = validation.data
+    const { receiverId, content, listingId, attachments } = validation.data
 
     // Prevent messaging yourself
     if (receiverId === session.user.id) {
@@ -109,10 +112,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if blocked
+    const blockExists = await prisma.blockedUser.findFirst({
+      where: {
+        OR: [
+          { blockerId: session.user.id, blockedId: receiverId },
+          { blockerId: receiverId, blockedId: session.user.id },
+        ],
+      },
+    })
+
+    if (blockExists) {
+      return NextResponse.json(
+        { success: false, error: 'Cannot send message to this user' },
+        { status: 403 }
+      )
+    }
+
     // Verify receiver exists
     const receiver = await prisma.user.findUnique({
       where: { id: receiverId },
-      select: { id: true, email: true, username: true },
+      select: { id: true, email: true, username: true, messageNotifications: true },
     })
 
     if (!receiver) {
@@ -122,25 +142,39 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create message
+    // Create message with attachments
     const message = await prisma.message.create({
       data: {
         senderId: session.user.id,
         receiverId,
         content,
         listingId: listingId || null,
+        attachments: attachments && attachments.length > 0
+          ? {
+              create: attachments.map((att) => ({
+                fileName: att.fileName,
+                fileSize: att.fileSize,
+                fileKey: att.key,
+                mimeType: att.mimeType,
+              })),
+            }
+          : undefined,
       },
       include: {
-        sender: { select: { username: true, displayName: true, avatarUrl: true } },
+        sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+        receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
         listing: { select: { id: true, title: true, slug: true } },
+        attachments: true,
       },
     })
 
-    // Send email notification
-    if (receiver.email) {
+    // Send email notification if user wants instant notifications
+    if (receiver.email && receiver.messageNotifications === 'instant') {
+      const attachmentCount = attachments?.length || 0
       await sendMessageNotificationEmail(
         receiver.email,
-        session.user.username || 'Someone'
+        session.user.username || 'Someone',
+        attachmentCount > 0 ? ` (${attachmentCount} attachment${attachmentCount > 1 ? 's' : ''})` : ''
       )
     }
 

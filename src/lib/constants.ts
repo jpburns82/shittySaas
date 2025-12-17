@@ -103,6 +103,23 @@ export const TECH_STACK_OPTIONS = [
   'Electron', 'Tauri',
 ] as const
 
+// ----- MESSAGES -----
+
+export const MESSAGE_LIMITS = {
+  MAX_CONTENT_LENGTH: 5000,
+  MAX_ATTACHMENTS: 3,
+  MAX_ATTACHMENT_SIZE: 5 * 1024 * 1024, // 5MB
+  ALLOWED_ATTACHMENT_TYPES: [
+    'image/png',
+    'image/jpeg',
+    'image/gif',
+    'image/webp',
+    'application/pdf',
+    'text/plain',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+  ],
+} as const
+
 // ----- PAGINATION -----
 
 export const PAGINATION = {

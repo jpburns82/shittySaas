@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { LISTING_LIMITS, USERNAME_REGEX } from './constants'
+import { LISTING_LIMITS, MESSAGE_LIMITS, USERNAME_REGEX } from './constants'
 
 // ----- USER SCHEMAS -----
 
@@ -90,13 +90,24 @@ export const createCommentSchema = z.object({
 
 // ----- MESSAGE SCHEMAS -----
 
+export const messageAttachmentSchema = z.object({
+  key: z.string().min(1, 'Attachment key is required'),
+  fileName: z.string().min(1, 'File name is required'),
+  fileSize: z.number().min(1).max(MESSAGE_LIMITS.MAX_ATTACHMENT_SIZE),
+  mimeType: z.string().min(1, 'MIME type is required'),
+})
+
 export const sendMessageSchema = z.object({
   content: z
     .string()
     .min(1, 'Message cannot be empty')
-    .max(5000, 'Message is too long'),
+    .max(MESSAGE_LIMITS.MAX_CONTENT_LENGTH, 'Message is too long'),
   receiverId: z.string().min(1, 'Recipient is required'),
   listingId: z.string().optional(),
+  attachments: z
+    .array(messageAttachmentSchema)
+    .max(MESSAGE_LIMITS.MAX_ATTACHMENTS, `Maximum ${MESSAGE_LIMITS.MAX_ATTACHMENTS} attachments allowed`)
+    .optional(),
 })
 
 // ----- REPORT SCHEMAS -----

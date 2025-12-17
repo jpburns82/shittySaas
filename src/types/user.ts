@@ -1,4 +1,4 @@
-import type { User, Listing, Purchase, Message } from '@prisma/client'
+import type { User, Listing, Purchase, Message, MessageAttachment } from '@prisma/client'
 
 // Current user session data
 export type SessionUser = {
@@ -116,4 +116,34 @@ export type MessageWithUsers = Message & {
     title: string
     slug: string
   } | null
+  attachments?: MessageAttachment[]
+}
+
+// Message with attachments included
+export type MessageWithAttachments = Message & {
+  sender: Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl' | 'isAdmin'>
+  receiver: Pick<User, 'id' | 'username' | 'displayName' | 'avatarUrl' | 'isAdmin'>
+  listing?: {
+    id: string
+    title: string
+    slug: string
+  } | null
+  attachments: MessageAttachment[]
+}
+
+// Attachment data for upload/send
+export type AttachmentUpload = {
+  key: string
+  url: string
+  fileName: string
+  fileSize: number
+  mimeType: string
+}
+
+// Attachment data for sending with message
+export type AttachmentInput = {
+  key: string
+  fileName: string
+  fileSize: number
+  mimeType: string
 }

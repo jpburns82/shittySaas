@@ -21,7 +21,7 @@ const BUCKET_NAME = process.env.R2_BUCKET_NAME!
 const PUBLIC_URL = process.env.R2_PUBLIC_URL!
 
 // File type definitions
-type FileCategory = 'screenshots' | 'files' | 'avatars'
+type FileCategory = 'screenshots' | 'files' | 'avatars' | 'message-attachments'
 
 function getKeyPrefix(category: FileCategory): string {
   switch (category) {
@@ -31,6 +31,8 @@ function getKeyPrefix(category: FileCategory): string {
       return 'deliverables'
     case 'avatars':
       return 'avatars'
+    case 'message-attachments':
+      return 'message-attachments'
   }
 }
 
@@ -127,6 +129,15 @@ export function isAllowedFileType(
       'application/vnd.rar',
     ],
     avatars: ['image/png', 'image/jpeg', 'image/webp'],
+    'message-attachments': [
+      'image/png',
+      'image/jpeg',
+      'image/gif',
+      'image/webp',
+      'application/pdf',
+      'text/plain',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+    ],
   }
 
   return allowedTypes[category].includes(mimeType)
@@ -141,6 +152,7 @@ export function isValidFileSize(
     screenshots: 5 * 1024 * 1024, // 5MB
     files: 100 * 1024 * 1024, // 100MB
     avatars: 2 * 1024 * 1024, // 2MB
+    'message-attachments': 5 * 1024 * 1024, // 5MB
   }
 
   return sizeInBytes <= maxSizes[category]

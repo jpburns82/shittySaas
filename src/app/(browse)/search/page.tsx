@@ -22,8 +22,8 @@ export async function generateMetadata({ searchParams }: SearchPageProps) {
   return {
     title: query ? `Search: ${query}` : 'Search Listings',
     description: query
-      ? `Search results for "${query}" on SideProject.deals`
-      : 'Search for software projects, SaaS apps, and boilerplates.',
+      ? `Search results for "${query}" on UndeadList`
+      : 'Search for abandoned projects, SaaS apps, and boilerplates on UndeadList.',
   }
 }
 

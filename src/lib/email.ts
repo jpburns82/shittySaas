@@ -2,8 +2,8 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM_EMAIL = process.env.EMAIL_FROM || 'noreply@sideproject.deals'
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'SideProject.deals'
+const FROM_EMAIL = process.env.EMAIL_FROM || 'noreply@undeadlist.com'
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'UndeadList'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 // ----- EMAIL TEMPLATES -----

@@ -45,7 +45,7 @@ const ADMIN_TEMPLATES = [
   { label: 'Listing flagged for review', content: 'Your listing has been flagged for review by our moderation team. Please ensure it complies with our terms of service.' },
   { label: 'Account warning', content: 'This is a warning regarding your recent activity on the platform. Please review our community guidelines.' },
   { label: 'Payout issue', content: 'We noticed an issue with your payout information. Please update your payment details in Settings.' },
-  { label: 'Welcome / onboarding', content: 'Welcome to SideProject.deals! We\'re excited to have you. Let us know if you have any questions.' },
+  { label: 'Welcome / onboarding', content: 'Welcome to UndeadList! We\'re excited to have you. Let us know if you have any questions.' },
   { label: 'Verification approved', content: 'Great news! Your seller verification has been approved. You now have the verified seller badge.' },
 ]
 

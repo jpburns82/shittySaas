@@ -1,6 +1,6 @@
-# SideProject.deals — Feature Overview & User Experience
+# UndeadList — Feature Overview & User Experience
 
-> A community marketplace for indie software. Buy it, sell it, move on. We take a cut, you do the rest.
+> Where dead code gets a second life. A community marketplace for indie software with a Tokyo underground aesthetic. Buy it, sell it, resurrect it.
 
 ---
 
@@ -19,7 +19,7 @@
 | Admin moderation | ✅ Complete | Warn users, suspend threads, listing moderation |
 | Notification settings | ✅ Complete | Message notification preferences (instant/digest/off) |
 | Voting | ⚠️ Partial | UI exists but non-functional (no API) |
-| Comments | 📋 Planned | Schema ready, API/UI not implemented |
+| Comments | ✅ Complete | Threaded (3-level), 500 char limit, 15-min edit window |
 | Admin users/reports | 📋 Planned | Pages not built |
 
 ---
@@ -59,7 +59,7 @@
 
 ### The Vibe
 
-Think Craigslist had a baby with itch.io and Gumroad was the midwife. Raw, simple, community-trusted. The kind of place where you might find a gem or you might find garbage — and that's on you to figure out.
+Think a Tokyo underground market where dead code gets resurrected. Dark, atmospheric, community-trusted. Neon-lit listings in a graveyard of abandoned projects. The kind of place where you might find a gem or you might find garbage — and that's on you to figure out.
 
 ---
 
@@ -206,9 +206,9 @@ Simple thumbs up / thumbs down on listings.
 - "Top" sort option on browse page
 - Helps surface quality, bury garbage
 
-### Comments System
+### Comments System (WHISPERS FROM THE CRYPT)
 
-Open comments on every listing. This is the community Q&A.
+Open comments on every listing. This is the community Q&A — where the dead speak.
 
 **Use Cases:**
 - Buyers asking questions before purchase
@@ -217,16 +217,18 @@ Open comments on every listing. This is the community Q&A.
 - Warnings from community
 
 **Features:**
-- Threaded replies (1 level deep only, keep it simple)
-- Markdown support (basic: bold, italic, code, links)
+- Threaded replies (3 levels deep)
+- 500 character limit per comment
 - Seller's comments highlighted with "Seller" badge
-- Verified buyers get "Purchased" badge on comments
-- Newest first by default, can sort by oldest
-- No editing after 15 minutes (prevents bait-and-switch)
+- Listing owner gets "OP" badge with green glow border
+- Verified buyers get "Verified Purchase" badge
+- 15-minute edit window (prevents bait-and-switch)
 - Delete own comments anytime
+- Real-time character counter (turns red near limit)
 
 **Moderation:**
 - Report button on every comment
+- Report reasons: Spam, Harassment, Misleading, Scam, Malware, etc.
 - Seller can hide (not delete) comments on their listings
 - Hidden comments show "[Hidden by seller]" — transparency
 - Community can still see hidden comments by clicking "show"
@@ -567,11 +569,11 @@ View Listing → Scroll to Comments → "Ask a question"
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│ [LOGO] SideProject.deals          [Browse] [Sell] [Login]        │
+│ [LOGO] 蘇生 UndeadList              [Browse] [Sell] [Login]      │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│         THE FLEA MARKET FOR SOFTWARE                             │
-│   Buy and sell side projects, SaaS apps, scripts, and more.     │
+│         墓場 THE GRAVEYARD                                       │
+│   Where dead code gets a second life.                            │
 │                                                                  │
 │   [ Browse Listings ]    [ Sell Your Project ]                   │
 │                                                                  │
@@ -841,7 +843,7 @@ View Listing → Scroll to Comments → "Ask a question"
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│ ⚠️ BUYER NOTICE: SideProject.deals is a community marketplace. │
+│ ⚠️ BUYER NOTICE: UndeadList is a community marketplace.        │
 │ We do not verify listings, guarantee quality, or provide       │
 │ refunds. Review carefully before purchasing. All sales final.  │
 │ [Learn more]                                                   │
@@ -851,7 +853,7 @@ View Listing → Scroll to Comments → "Ask a question"
 ### Copyright / DMCA
 
 - We respond to valid DMCA takedown requests
-- File via email to dmca@sideproject.deals
+- File via email to dmca@undeadlist.com
 - We remove first, ask questions later
 - False claims get you banned
 
@@ -885,7 +887,7 @@ View Listing → Scroll to Comments → "Ask a question"
 
 ### The Bottom Line
 
-We built the flea market. We sweep the floors and collect the rent. We don't inspect the merchandise, negotiate prices, or referee arguments. 
+We built the graveyard. We sweep the crypts and collect the toll. We don't inspect the merchandise, negotiate prices, or referee arguments. 
 
 You're adults. Act like it.
 

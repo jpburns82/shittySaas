@@ -7,7 +7,7 @@ import { StripeConnectButton } from '@/components/payments/stripe-connect-button
 
 export const metadata = {
   title: 'Sell Your Project',
-  description: 'List your side project, SaaS app, or software for sale on SideProject.deals.',
+  description: 'List your abandoned project, SaaS app, or software for sale on UndeadList. Where dead code gets a second life.',
 }
 
 export default async function SellPage() {

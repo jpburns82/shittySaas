@@ -84,8 +84,15 @@ export const createCommentSchema = z.object({
   content: z
     .string()
     .min(1, 'Comment cannot be empty')
-    .max(2000, 'Comment is too long'),
+    .max(500, 'Comment must be under 500 characters'),
   parentId: z.string().optional(),
+})
+
+export const editCommentSchema = z.object({
+  content: z
+    .string()
+    .min(1, 'Comment cannot be empty')
+    .max(500, 'Comment must be under 500 characters'),
 })
 
 // ----- MESSAGE SCHEMAS -----
@@ -153,6 +160,7 @@ export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
 export type CreateListingInput = z.infer<typeof createListingSchema>
 export type UpdateListingInput = z.infer<typeof updateListingSchema>
 export type CreateCommentInput = z.infer<typeof createCommentSchema>
+export type EditCommentInput = z.infer<typeof editCommentSchema>
 export type SendMessageInput = z.infer<typeof sendMessageSchema>
 export type CreateReportInput = z.infer<typeof createReportSchema>
 export type SearchInput = z.infer<typeof searchSchema>

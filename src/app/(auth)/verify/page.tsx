@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { Button } from '@/components/ui/button'
+import { APP_NAME } from '@/lib/constants'
 
 interface VerifyPageProps {
   searchParams: Promise<{ token?: string }>
@@ -61,7 +62,7 @@ export default async function VerifyPage({ searchParams }: VerifyPageProps) {
       <div className="max-w-md mx-auto card text-center">
         <h1 className="font-display text-2xl mb-4 text-accent-green">Email Verified!</h1>
         <p className="text-text-secondary mb-6">
-          Your email has been verified. You can now log in and start using SideProject.deals.
+          Your email has been verified. You can now log in and start using {APP_NAME}.
         </p>
         <Link href="/login">
           <Button variant="primary">Login to Your Account</Button>

@@ -88,7 +88,7 @@ export async function createCheckoutSession({
           currency: 'usd',
           product_data: {
             name: listingTitle,
-            description: `Purchase from SideProject.deals`,
+            description: `Purchase from UndeadList`,
           },
           unit_amount: priceInCents,
         },

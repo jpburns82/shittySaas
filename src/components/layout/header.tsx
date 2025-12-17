@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { Nav } from './nav'
 import { SearchBar } from '../search/search-bar'
+import { APP_NAME, JP_ACCENTS } from '@/lib/constants'
 
 function SearchBarFallback() {
   return (
@@ -26,7 +27,8 @@ export function Header() {
         <div className="header-inner">
           {/* Logo */}
           <Link href="/" className="logo">
-            SideProject.deals
+            <span className="text-text-dust text-sm jp-accent mr-1">{JP_ACCENTS.RESURRECTION}</span>
+            {APP_NAME}
           </Link>
 
           {/* Search (desktop) */}

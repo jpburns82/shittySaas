@@ -7,38 +7,49 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Backgrounds
-        'bg-primary': '#f5f5f0',
-        'bg-secondary': '#ffffff',
-        'bg-accent': '#fffde7',
-        'bg-dark': '#1a1a1a',
+        // UndeadList Dark Theme — Tokyo Underground
+        'bg-crypt': '#0d0d0d',       // Page background (near black)
+        'bg-grave': '#1a1a1a',       // Card backgrounds
+        'bg-tombstone': '#2a2a2a',   // Elevated surfaces
+        'text-bone': '#e8e8e8',      // Primary text
+        'text-dust': '#888888',      // Secondary/muted text
+        'accent-reanimate': '#39ff14', // Neon green (primary action, upvotes)
+        'accent-bury': '#ff2d6a',      // Neon pink (destructive, downvotes)
+        'accent-electric': '#00d4ff',  // Cyan (links, highlights)
+        'border-crypt': '#333333',     // Borders
+
+        // Backgrounds (mapped to dark theme)
+        'bg-primary': '#0d0d0d',
+        'bg-secondary': '#1a1a1a',
+        'bg-accent': '#2a2a2a',
+        'bg-dark': '#0d0d0d',
 
         // Borders
-        'border-light': '#d0d0c8',
-        'border-medium': '#999999',
-        'border-dark': '#333333',
+        'border-light': '#333333',
+        'border-medium': '#444444',
+        'border-dark': '#555555',
 
         // Text
-        'text-primary': '#1a1a1a',
-        'text-secondary': '#555555',
+        'text-primary': '#e8e8e8',
+        'text-secondary': '#b0b0b0',
         'text-muted': '#888888',
 
         // Links
-        'link': '#0000ee',
-        'link-visited': '#551a8b',
-        'link-hover': '#0000cc',
+        'link': '#00d4ff',
+        'link-visited': '#00a8cc',
+        'link-hover': '#39ff14',
 
         // Accents
-        'accent-green': '#008000',
-        'accent-red': '#cc0000',
+        'accent-green': '#39ff14',
+        'accent-red': '#ff2d6a',
         'accent-yellow': '#ffcc00',
-        'accent-blue': '#0066cc',
+        'accent-blue': '#00d4ff',
 
-        // Buttons
-        'btn-bg': '#e0e0e0',
-        'btn-highlight': '#ffffff',
-        'btn-shadow': '#808080',
-        'btn-dark-shadow': '#404040',
+        // Buttons (dark theme)
+        'btn-bg': '#2a2a2a',
+        'btn-highlight': '#3a3a3a',
+        'btn-shadow': '#1a1a1a',
+        'btn-dark-shadow': '#0d0d0d',
       },
       fontFamily: {
         'body': ['IBM Plex Sans', 'system-ui', 'sans-serif'],

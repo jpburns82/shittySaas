@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { APP_NAME } from '@/lib/constants'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -88,7 +89,7 @@ export default function RegisterPage() {
             We&apos;ve sent a verification link to <strong>{formData.email}</strong>.
           </p>
           <p className="text-sm text-text-muted">
-            Click the link in the email to verify your account and start using SideProject.deals.
+            Click the link in the email to verify your account and start using {APP_NAME}.
           </p>
           <Link href="/login" className="btn mt-6 inline-block">
             Go to Login

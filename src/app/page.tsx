@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ListingGrid } from '@/components/listings/listing-grid'
 import { CategoryNav } from '@/components/search/category-nav'
 import { Button } from '@/components/ui/button'
+import { APP_TAGLINE, JP_ACCENTS } from '@/lib/constants'
 
 export default async function HomePage() {
   // Fetch categories
@@ -60,13 +61,13 @@ export default async function HomePage() {
   return (
     <div className="container py-8">
       {/* Hero */}
-      <section className="text-center mb-12 py-8 border-b border-border-dark">
-        <h1 className="font-display text-4xl mb-4">
-          THE FLEA MARKET FOR SOFTWARE
+      <section className="text-center mb-12 py-8 border-b border-border-crypt">
+        <p className="text-text-dust text-sm jp-accent mb-2">{JP_ACCENTS.GRAVEYARD}</p>
+        <h1 className="font-display text-4xl mb-4 text-accent-reanimate">
+          THE GRAVEYARD
         </h1>
-        <p className="text-text-secondary max-w-2xl mx-auto mb-6">
-          Buy and sell side projects, SaaS apps, scripts, and boilerplates.
-          Where indie projects find second lives.
+        <p className="text-text-bone max-w-2xl mx-auto mb-6">
+          {APP_TAGLINE}. Buy and sell abandoned projects, SaaS apps, scripts, and boilerplates.
         </p>
         <div className="flex gap-4 justify-center">
           <Link href="/listings">
@@ -106,8 +107,8 @@ export default async function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="my-12 py-8 border-t border-b border-border-dark">
-        <h2 className="font-display text-xl text-center mb-8">HOW IT WORKS</h2>
+      <section className="my-12 py-8 border-t border-b border-border-crypt">
+        <h2 className="font-display text-xl text-center mb-8 text-accent-reanimate">HOW IT WORKS</h2>
         <div className="grid md:grid-cols-2 gap-8">
           <div className="card">
             <h3 className="font-display text-lg mb-4">FOR SELLERS</h3>
@@ -138,10 +139,10 @@ export default async function HomePage() {
 
       {/* CTA */}
       <section className="text-center py-8">
-        <p className="text-lg mb-4">Got a side project collecting dust?</p>
+        <p className="text-lg mb-4 text-text-bone">Got a dead project collecting dust?</p>
         <Link href="/sell">
           <Button variant="primary" size="lg">
-            List It Now — It&apos;s Free
+            Resurrect It — List for Free
           </Button>
         </Link>
       </section>

@@ -126,8 +126,8 @@ export default async function PurchasePage({ params }: PurchasePageProps) {
           </div>
 
           {/* Disclaimer */}
-          <div className="mb-6 p-3 bg-bg-primary border border-border-light text-xs text-text-muted">
-            <strong>Notice:</strong> All sales are final. SideProject.deals is a marketplace
+          <div className="mb-6 p-3 bg-bg-grave border border-border-crypt text-xs text-text-dust">
+            <strong>Notice:</strong> All sales are final. UndeadList is a marketplace
             and does not guarantee code quality. Review the listing carefully before purchasing.
             Refunds are at the seller&apos;s discretion.
           </div>

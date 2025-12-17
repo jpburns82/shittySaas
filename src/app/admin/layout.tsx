@@ -4,7 +4,7 @@ import { AdminSidebar } from '@/components/layout/sidebar'
 
 export const metadata = {
   title: {
-    template: '%s | Admin - SideProject.deals',
+    template: '%s | Admin - UndeadList',
     default: 'Admin Dashboard',
   },
 }

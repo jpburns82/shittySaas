@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { ListingDetail } from '@/components/listings/listing-detail'
+import { CommentSection } from '@/components/comments/comment-section'
 
 interface ListingPageProps {
   params: Promise<{ id: string }>
@@ -123,13 +124,12 @@ export default async function ListingPage({ params }: ListingPageProps) {
         currentUserVote={currentUserVote}
       />
 
-      {/* Comments section would go here */}
-      <section className="mt-12">
-        <h2 className="font-display text-xl mb-4">
-          Comments ({listing._count.comments})
-        </h2>
-        <p className="text-text-muted">Comments coming soon...</p>
-      </section>
+      {/* Comments Section */}
+      <CommentSection
+        listingId={listing.id}
+        listingOwnerId={listing.sellerId}
+        initialCommentCount={listing._count.comments}
+      />
     </div>
   )
 }

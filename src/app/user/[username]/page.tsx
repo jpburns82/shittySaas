@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props) {
 
   return {
     title: `${user.displayName || `@${user.username}`} - Seller Profile`,
-    description: `View listings from ${user.displayName || `@${user.username}`} on SideProject.deals`,
+    description: `View listings from ${user.displayName || `@${user.username}`} on UndeadList`,
   }
 }
 

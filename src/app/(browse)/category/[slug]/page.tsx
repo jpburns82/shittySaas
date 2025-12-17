@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: CategoryPageProps) {
 
   return {
     title: `${category.name} — Browse Projects`,
-    description: category.description || `Browse ${category.name} projects on SideProject.deals`,
+    description: category.description || `Browse ${category.name} projects on UndeadList`,
   }
 }
 

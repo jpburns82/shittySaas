@@ -1,8 +1,8 @@
-# SideProject.deals
+# UndeadList
 
-> The flea market for software. Buy and sell side projects, SaaS apps, scripts, and boilerplates.
+> Where dead code gets a second life.
 
-A community marketplace where indie developers can list and sell their software projects. Think Craigslist meets itch.io for code.
+A dark-themed marketplace where indie developers resurrect abandoned projects. Buy and sell side projects, SaaS apps, scripts, and boilerplates. Think Craigslist meets itch.io for code — with a Tokyo underground aesthetic.
 
 ## Tech Stack
 
@@ -89,7 +89,8 @@ src/
 │   ├── listings/          # Listing components
 │   ├── search/            # Search & filter components
 │   ├── payments/          # Stripe components
-│   └── messages/          # Messaging components
+│   ├── messages/          # Messaging components
+│   └── comments/          # Comment components
 ├── lib/                   # Utilities & configs
 │   ├── prisma.ts          # Prisma client
 │   ├── auth.ts            # Auth.js config
@@ -121,7 +122,7 @@ The database includes models for:
 - **Categories** - Listing categories (SaaS, Extensions, etc.)
 - **Purchases** - Transaction records
 - **Votes** - Community upvotes/downvotes
-- **Comments** - Listing discussions
+- **Comments** - Threaded listing discussions
 - **Messages** - Direct buyer/seller messaging
 - **Reports** - Community moderation
 
@@ -166,6 +167,13 @@ See `prisma/schema.prisma` for the full schema.
 - User warning system
 - Thread suspension
 
+**Community**
+- Threaded comments system (3-level depth)
+- Comment composer with 500 char limit
+- Edit window (15 minutes)
+- Report system for comments
+- Verified Purchase and OP badges
+
 ### Development Setup
 - Neon serverless database with @prisma/adapter-neon
 - Stripe CLI configured for local webhooks
@@ -174,14 +182,27 @@ See `prisma/schema.prisma` for the full schema.
 ### Remaining Work
 | Phase | Feature | Status |
 |-------|---------|--------|
-| 5 | Comments CRUD API (`/api/listings/[id]/comments`) | Not started |
-| 5 | Comments UI components | Not started |
 | 5 | Voting API (`/api/listings/[id]/vote`) | Not started |
 | 5 | Wire vote buttons to API | UI exists, needs backend |
 | 6 | Password change | Not started |
 | 6 | Account deletion | Not started |
 | 7 | Admin users management page | Not started |
 | 7 | Admin reports page | Not started |
+
+## Design System
+
+UndeadList uses a dark "Tokyo Underground" theme with neon accents:
+
+| Element | Color |
+|---------|-------|
+| Background (crypt) | `#0d0d0d` |
+| Background (grave) | `#1a1a1a` |
+| Text (bone) | `#e8e8e8` |
+| Accent (reanimate) | `#39ff14` (neon green) |
+| Accent (bury) | `#ff2d6a` (neon pink) |
+| Accent (electric) | `#00d4ff` (cyan) |
+
+Japanese character accents are used throughout for atmosphere.
 
 ## Documentation
 

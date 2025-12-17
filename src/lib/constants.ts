@@ -1,9 +1,23 @@
 // ===========================================
-// App Constants & Configuration
+// UndeadList — App Constants & Configuration
+// "Where dead code gets a second life"
 // ===========================================
 
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'SideProject.deals'
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'UndeadList'
+export const APP_TAGLINE = 'Where dead code gets a second life'
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+// Japanese accent text for UI decoration
+export const JP_ACCENTS = {
+  RESURRECTION: '蘇生',      // Resurrection (logo accent)
+  GRAVEYARD: '墓場',         // Graveyard (section headers)
+  NOTHING_HERE: '何もない',  // Nothing here (empty states)
+  MARKET_OF_DEAD: '死者の市場', // Market of the Dead (footer)
+  REVIVAL: '復活',           // Revival (featured badge)
+  LOADING: '読込中...',      // Loading...
+  LOST: '迷子',              // Lost (404 page)
+  COMPLETE: '完了',          // Complete (success toast)
+} as const
 
 // ----- PRICING -----
 
@@ -157,16 +171,25 @@ export const SLUG_REGEX = /^[a-z0-9-]+$/
 // ----- EXTERNAL LINKS -----
 
 export const EXTERNAL_LINKS = {
-  TWITTER: 'https://twitter.com/sideprojectdeals',
-  GITHUB: 'https://github.com/sideprojectdeals',
-  DISCORD: 'https://discord.gg/sideprojectdeals',
+  TWITTER: 'https://twitter.com/undeadlist',
+  GITHUB: 'https://github.com/undeadlist',
+  DISCORD: 'https://discord.gg/undeadlist',
   ESCROW_SERVICE: 'https://escrow.com', // For high-value transfers
 } as const
 
 // ----- SEO -----
 
 export const SEO = {
-  DEFAULT_TITLE: 'SideProject.deals — The Flea Market for Software',
-  DEFAULT_DESCRIPTION: 'Buy and sell side projects, SaaS apps, scripts, and boilerplates. Where indie projects find second lives.',
+  DEFAULT_TITLE: 'UndeadList — Where Dead Code Gets a Second Life',
+  DEFAULT_DESCRIPTION: 'The graveyard marketplace for abandoned software. Buy and sell dead SaaS, scripts, boilerplates, and side projects. Resurrect. Reanimate. Respawn.',
   OG_IMAGE: '/og-image.png',
+} as const
+
+// ----- COMMENT SYSTEM -----
+
+export const COMMENT_LIMITS = {
+  MAX_CONTENT_LENGTH: 500,
+  MAX_REPORT_DETAILS_LENGTH: 300,
+  EDIT_WINDOW_MINUTES: 15,
+  MAX_THREAD_DEPTH: 3,
 } as const

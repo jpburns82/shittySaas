@@ -1,6 +1,6 @@
-# SideProject.deals — Project Roadmap
+# UndeadList — Project Roadmap
 
-> Craigslist meets itch.io for software. A raw, low-friction marketplace where anyone can list and sell their SaaS, apps, scripts, and side projects.
+> Where dead code gets a second life. A dark-themed marketplace with Tokyo underground aesthetics where indie developers buy and sell abandoned projects, SaaS apps, scripts, and side projects.
 
 ---
 
@@ -48,7 +48,7 @@
 ## Project Structure
 
 ```
-sideproject-deals/
+undeadlist/
 ├── .env.local                    # Local environment variables
 ├── .env.example                  # Template for env vars
 ├── .gitignore
@@ -451,9 +451,9 @@ model AuditLog {
 
 ```bash
 # Create Next.js project
-pnpm create next-app@latest sideproject-deals --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
+pnpm create next-app@latest undeadlist --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
 
-cd sideproject-deals
+cd undeadlist
 ```
 
 ### 2. Install Dependencies
@@ -490,7 +490,7 @@ cp .env.example .env.local
 # .env.example
 
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/sideproject_deals"
+DATABASE_URL="postgresql://user:password@localhost:5432/undeadlist"
 
 # Auth
 NEXTAUTH_URL="http://localhost:3000"
@@ -506,16 +506,16 @@ STRIPE_PLATFORM_FEE_PERCENT="10"
 R2_ACCOUNT_ID="your-account-id"
 R2_ACCESS_KEY_ID="your-access-key"
 R2_SECRET_ACCESS_KEY="your-secret-key"
-R2_BUCKET_NAME="sideproject-deals"
+R2_BUCKET_NAME="undeadlist"
 R2_PUBLIC_URL="https://your-bucket.r2.cloudflarestorage.com"
 
 # Email (Resend)
 RESEND_API_KEY="re_..."
-EMAIL_FROM="noreply@sideproject.deals"
+EMAIL_FROM="noreply@undeadlist.com"
 
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NEXT_PUBLIC_APP_NAME="SideProject.deals"
+NEXT_PUBLIC_APP_NAME="UndeadList"
 ```
 
 ### 4. Initialize Prisma
@@ -615,15 +615,18 @@ pnpm dev
 
 **Deliverable:** Buyers and sellers can communicate
 
-### Phase 5: Community Features 📋 IN PROGRESS
+### Phase 5: Community Features ✅ COMPLETE
 
-- [ ] Comments CRUD API (`/api/listings/[id]/comments`)
-- [ ] Comment list component
-- [ ] Comment composer component
+- [x] Comments CRUD API (`/api/listings/[id]/comments`)
+- [x] Comment list component (threaded, 3-level depth)
+- [x] Comment composer component (500 char limit)
+- [x] Comment item with badges (OP, Verified Purchase, Seller)
+- [x] Report comment modal
+- [x] 15-minute edit window
 - [ ] Voting API (`/api/listings/[id]/vote`)
 - [ ] Wire vote buttons to backend (UI exists, non-functional)
 
-**Deliverable:** Community engagement features
+**Deliverable:** Threaded comments system complete, voting pending
 
 ### Phase 6: Account & Settings 📋 PLANNED
 
@@ -667,61 +670,72 @@ pnpm dev
 
 ---
 
-## Design System (Retro Aesthetic)
+## Design System (Tokyo Underground)
 
 ### Inspiration
 
-The vibe is **early 2000s web meets Craigslist meets old-school shareware sites**. Think:
+The vibe is **dark Tokyo underground meets cyberpunk marketplace**. Think:
 
-- Craigslist's raw simplicity
-- Old eBay (pre-2010)
-- Tucows/Download.com
-- itch.io's indie feel
-- Windows 95/98 UI elements
-- Early web forums
+- Neon-lit alleyways in Shinjuku
+- Underground hacker markets
+- itch.io's indie feel with a darker edge
+- Retro CRT monitors and scan lines
+- Japanese arcade aesthetics
 
-**NOT:** Glossy, gradient-heavy Web 2.0. Not modern minimalist SaaS. Not Material Design.
+**NOT:** Clean corporate SaaS. Not bright and friendly. Not Material Design.
 
 ### Core Principles
 
-1. **Text-first** — Content over chrome
+1. **Dark-first** — Black backgrounds, neon accents
 2. **Visible borders** — Things have edges, boxes, outlines
-3. **System-ish fonts** — Monospace accents, simple sans-serif body
-4. **Limited palette** — 4-6 colors max
-5. **No bullshit** — Every element earns its place
+3. **Monospace accents** — Code aesthetic throughout
+4. **Neon glow** — Subtle glow effects on interactive elements
+5. **Japanese accents** — Kanji characters for atmosphere
 6. **Dense but readable** — More content per screen than modern sites
 
 ### Color Palette
 
 ```css
 :root {
-  /* Backgrounds */
-  --bg-primary: #f5f5f0;        /* Warm off-white, like old paper */
-  --bg-secondary: #ffffff;       /* Pure white for cards */
-  --bg-accent: #fffde7;          /* Pale yellow highlight */
-  
+  /* Backgrounds - The Crypt */
+  --bg-crypt: #0d0d0d;           /* Deep black */
+  --bg-grave: #1a1a1a;           /* Dark gray for cards */
+  --bg-tombstone: #2a2a2a;       /* Slightly lighter for hover */
+
   /* Borders */
-  --border-light: #d0d0c8;       /* Subtle borders */
-  --border-dark: #333333;        /* Strong borders */
-  
+  --border-crypt: #333333;       /* Subtle dark borders */
+  --border-glow: #39ff14;        /* Neon green glow borders */
+
   /* Text */
-  --text-primary: #1a1a1a;       /* Near black */
-  --text-secondary: #555555;     /* Gray */
-  --text-muted: #888888;         /* Light gray */
-  
-  /* Accent */
-  --accent-blue: #0000ee;        /* Classic link blue */
-  --accent-blue-visited: #551a8b;/* Visited link purple */
-  --accent-green: #008000;       /* Success, money */
-  --accent-red: #cc0000;         /* Error, danger */
-  --accent-yellow: #ffcc00;      /* Warning, featured */
-  
-  /* Interactive */
-  --button-bg: #e0e0e0;
-  --button-border: #999999;
-  --button-hover: #d0d0d0;
+  --text-bone: #e8e8e8;          /* Primary text - off-white */
+  --text-dust: #888888;          /* Muted text */
+  --text-muted: #666666;         /* Even more muted */
+
+  /* Accent - Neon */
+  --accent-reanimate: #39ff14;   /* Neon green - primary actions */
+  --accent-bury: #ff2d6a;        /* Neon pink - danger/delete */
+  --accent-electric: #00d4ff;    /* Cyan - links */
+
+  /* Glow Effects */
+  --glow-green: 0 0 10px #39ff14, 0 0 20px #39ff1466;
+  --glow-pink: 0 0 10px #ff2d6a;
+  --glow-cyan: 0 0 8px #00d4ff;
 }
 ```
+
+### Japanese Accents
+
+Used sparingly for atmosphere (decorative, not replacing English):
+
+| Placement | Text | Meaning |
+|-----------|------|---------|
+| Logo accent | 蘇生 | "Resurrection" |
+| Section headers | 墓場 | "Graveyard" |
+| Empty states | 何もない | "Nothing here" |
+| Footer | 死者の市場 | "Market of the Dead" |
+| Featured badge | 復活 | "Revival" |
+| Loading state | 読込中... | "Loading..." |
+| Comments section | 墓場 | "WHISPERS FROM THE CRYPT" |
 
 ### Typography
 
@@ -854,7 +868,7 @@ tr:hover {
 
 ```
 +------------------------------------------------------------------+
-| [LOGO] SideProject.deals    [Browse] [Sell] [Login] [Register]   |
+| [LOGO] 蘇生 UndeadList      [Browse] [Sell] [Login] [Register]   |
 +------------------------------------------------------------------+
 | [ Search................................ ] [Go]  [Category ▼]    |
 +------------------------------------------------------------------+
@@ -1024,7 +1038,7 @@ export default config
 
 ### Domain
 
-1. Buy domain (sideproject.deals or similar)
+1. Buy domain (undeadlist.com or similar)
 2. Configure in Vercel
 3. Update `NEXT_PUBLIC_APP_URL`
 

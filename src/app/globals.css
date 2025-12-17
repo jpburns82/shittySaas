@@ -1,0 +1,704 @@
+/* ===========================================
+   SideProject.deals — Global Styles
+   Aesthetic: Retro 90s/2000s Web (Craigslist meets itch.io)
+   =========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=VT323&display=swap');
+@import "tailwindcss";
+
+/* ----- CSS VARIABLES ----- */
+
+:root {
+  /* Backgrounds */
+  --bg-primary: #f5f5f0;
+  --bg-secondary: #ffffff;
+  --bg-accent: #fffde7;
+  --bg-dark: #1a1a1a;
+  
+  /* Borders */
+  --border-light: #d0d0c8;
+  --border-medium: #999999;
+  --border-dark: #333333;
+  
+  /* Text */
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  
+  /* Links - Classic web colors */
+  --link-color: #0000ee;
+  --link-visited: #551a8b;
+  --link-hover: #0000cc;
+  
+  /* Accents */
+  --accent-green: #008000;
+  --accent-red: #cc0000;
+  --accent-yellow: #ffcc00;
+  --accent-blue: #0066cc;
+  
+  /* Buttons (Windows 95/98 style) */
+  --btn-bg: #e0e0e0;
+  --btn-highlight: #ffffff;
+  --btn-shadow: #808080;
+  --btn-dark-shadow: #404040;
+  
+  /* Fonts */
+  --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Consolas', 'Courier New', monospace;
+  --font-display: 'VT323', 'IBM Plex Mono', monospace;
+  
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+}
+
+/* ----- BASE RESET ----- */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 15px; /* Slightly smaller than default, more retro */
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: auto; /* Slightly less smooth = more retro */
+}
+
+/* ----- TYPOGRAPHY ----- */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 400; /* VT323 doesn't have weights */
+  line-height: 1.2;
+  margin: 0 0 var(--space-md) 0;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.125rem; }
+
+p {
+  margin: 0 0 var(--space-md) 0;
+}
+
+/* ----- LINKS ----- */
+
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+a:visited {
+  color: var(--link-visited);
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+a:active {
+  color: var(--accent-red);
+}
+
+/* No underline variant */
+a.no-underline {
+  text-decoration: none;
+}
+
+a.no-underline:hover {
+  text-decoration: underline;
+}
+
+/* ----- BUTTONS (Windows 95/98 Style) ----- */
+
+.btn {
+  display: inline-block;
+  padding: 6px 16px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  background: var(--btn-bg);
+  color: var(--text-primary);
+  border: 2px solid;
+  border-color: var(--btn-highlight) var(--btn-shadow) var(--btn-shadow) var(--btn-highlight);
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  user-select: none;
+}
+
+.btn:hover {
+  background: #d4d4d4;
+}
+
+.btn:active,
+.btn.active {
+  border-color: var(--btn-shadow) var(--btn-highlight) var(--btn-highlight) var(--btn-shadow);
+  padding: 7px 15px 5px 17px; /* Shift content on press */
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary button */
+.btn-primary {
+  background: var(--accent-blue);
+  color: white;
+  border-color: #3399ff var(--btn-shadow) var(--btn-shadow) #3399ff;
+}
+
+.btn-primary:hover {
+  background: #0055aa;
+}
+
+/* Danger button */
+.btn-danger {
+  background: var(--accent-red);
+  color: white;
+  border-color: #ff6666 var(--btn-shadow) var(--btn-shadow) #ff6666;
+}
+
+/* Link-style button */
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--link-color);
+  text-decoration: underline;
+  padding: 0;
+  cursor: pointer;
+}
+
+.btn-link:hover {
+  color: var(--link-hover);
+}
+
+/* ----- FORM INPUTS (Inset 3D Effect) ----- */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="search"],
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  padding: 6px 8px;
+  background: white;
+  color: var(--text-primary);
+  border: 2px solid;
+  border-color: var(--btn-shadow) var(--btn-highlight) var(--btn-highlight) var(--btn-shadow);
+  outline: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 1px dotted var(--text-primary);
+  outline-offset: 2px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+select {
+  cursor: pointer;
+}
+
+/* Checkbox and radio - keep native styling for retro feel */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* ----- CARDS ----- */
+
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-dark);
+  padding: var(--space-md);
+}
+
+.card-highlight {
+  background: var(--bg-accent);
+  border: 2px solid var(--accent-yellow);
+}
+
+/* ----- TABLES ----- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+th {
+  background: var(--btn-bg);
+  border: 1px solid var(--border-dark);
+  padding: var(--space-sm);
+  text-align: left;
+  font-weight: 600;
+}
+
+td {
+  border: 1px solid var(--border-light);
+  padding: var(--space-sm);
+}
+
+tr:hover {
+  background: var(--bg-accent);
+}
+
+/* ----- BADGES ----- */
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  border: 1px solid var(--border-dark);
+  background: var(--btn-bg);
+}
+
+.badge-green {
+  background: #c8ffc8;
+  border-color: var(--accent-green);
+  color: #006600;
+}
+
+.badge-yellow {
+  background: #ffffcc;
+  border-color: #cc9900;
+  color: #665500;
+}
+
+.badge-red {
+  background: #ffc8c8;
+  border-color: var(--accent-red);
+  color: #660000;
+}
+
+.badge-blue {
+  background: #c8e0ff;
+  border-color: var(--accent-blue);
+  color: #003366;
+}
+
+/* ----- PRICE DISPLAY ----- */
+
+.price {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent-green);
+}
+
+.price-free {
+  color: var(--accent-blue);
+}
+
+.price-contact {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ----- DIVIDERS ----- */
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-light);
+  margin: var(--space-lg) 0;
+}
+
+hr.thick {
+  border-top: 2px solid var(--border-dark);
+}
+
+/* ASCII-style divider */
+.divider-ascii {
+  text-align: center;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin: var(--space-lg) 0;
+}
+
+.divider-ascii::before {
+  content: "• • •";
+}
+
+/* ----- LAYOUT ----- */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+.container-narrow {
+  max-width: 800px;
+}
+
+/* ----- HEADER ----- */
+
+.header {
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-dark);
+  padding: var(--space-sm) 0;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.logo:hover {
+  color: var(--accent-blue);
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.nav a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+/* ----- FOOTER ----- */
+
+.footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-dark);
+  padding: var(--space-lg) 0;
+  margin-top: var(--space-xl);
+  font-size: 0.8125rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  justify-content: center;
+  margin-bottom: var(--space-md);
+}
+
+.footer-copy {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ----- LISTING CARD ----- */
+
+.listing-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-dark);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.listing-card:hover {
+  background: var(--bg-accent);
+}
+
+.listing-card-title {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--link-color);
+  text-decoration: underline;
+  margin: 0;
+}
+
+.listing-card-title:hover {
+  color: var(--link-hover);
+}
+
+.listing-card-desc {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+  /* Clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.listing-card-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ----- LISTING GRID ----- */
+
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+/* ----- PAGINATION ----- */
+
+.pagination {
+  display: flex;
+  gap: var(--space-xs);
+  justify-content: center;
+  margin: var(--space-lg) 0;
+  font-family: var(--font-mono);
+}
+
+.pagination a,
+.pagination span {
+  padding: 4px 10px;
+  border: 1px solid var(--border-dark);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.pagination a:hover {
+  background: var(--bg-accent);
+}
+
+.pagination .current {
+  background: var(--text-primary);
+  color: white;
+}
+
+/* ----- TECH TAGS ----- */
+
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.tech-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 0.6875rem;
+  font-family: var(--font-mono);
+  background: var(--btn-bg);
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+}
+
+/* ----- CATEGORY NAV ----- */
+
+.category-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.category-nav a {
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 4px 8px;
+}
+
+.category-nav a:hover {
+  background: var(--bg-accent);
+}
+
+.category-nav a.active {
+  background: var(--text-primary);
+  color: white;
+}
+
+/* ----- ALERTS / NOTICES ----- */
+
+.alert {
+  padding: var(--space-md);
+  border: 2px solid;
+  margin-bottom: var(--space-md);
+}
+
+.alert-info {
+  background: #e8f4ff;
+  border-color: var(--accent-blue);
+}
+
+.alert-success {
+  background: #e8ffe8;
+  border-color: var(--accent-green);
+}
+
+.alert-warning {
+  background: #fff8e8;
+  border-color: #cc9900;
+}
+
+.alert-error {
+  background: #ffe8e8;
+  border-color: var(--accent-red);
+}
+
+/* ----- NEW! BADGE ----- */
+
+.badge-new {
+  display: inline-block;
+  background: var(--accent-yellow);
+  color: var(--text-primary);
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 1px 4px;
+  margin-left: 4px;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.5; }
+}
+
+/* ----- BREADCRUMBS ----- */
+
+.breadcrumbs {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+.breadcrumbs a {
+  color: var(--text-secondary);
+}
+
+.breadcrumbs span {
+  margin: 0 4px;
+}
+
+/* ----- FEATURED MARKER ----- */
+
+.featured-marker {
+  display: inline-block;
+  background: var(--accent-yellow);
+  color: var(--text-primary);
+  font-size: 0.6875rem;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border: 1px solid #cc9900;
+}
+
+/* ----- SOLD OVERLAY ----- */
+
+.sold-overlay {
+  position: relative;
+}
+
+.sold-overlay::after {
+  content: "SOLD";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--accent-red);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* ----- VIEW COUNTER ----- */
+
+.view-counter {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.view-counter::before {
+  content: "👁 ";
+}
+
+/* ----- UTILITY CLASSES ----- */
+
+.mono { font-family: var(--font-mono); }
+.display { font-family: var(--font-display); }
+.text-muted { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.text-success { color: var(--accent-green); }
+.text-error { color: var(--accent-red); }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ----- RESPONSIVE ----- */
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .header-inner {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .listing-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-nav {
+    gap: var(--space-xs);
+  }
+}
+
+/* ----- PRINT ----- */
+
+@media print {
+  .btn, .nav, .footer {
+    display: none;
+  }
+}

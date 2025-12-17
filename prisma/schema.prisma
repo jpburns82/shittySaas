@@ -1,0 +1,569 @@
+// ===========================================
+// SideProject.deals — Database Schema
+// ===========================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USERS
+// ============================================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  username        String    @unique
+  passwordHash    String
+  
+  // Profile
+  displayName     String?
+  bio             String?   @db.Text
+  avatarUrl       String?
+  websiteUrl      String?
+  twitterHandle   String?
+  githubHandle    String?
+  
+  // Stripe Connect (for sellers)
+  stripeAccountId   String?   @unique
+  stripeOnboarded   Boolean   @default(false)
+  stripePayoutsEnabled Boolean @default(false)
+  
+  // Status & Verification
+  emailVerified     DateTime?
+  emailVerifyToken  String?
+  passwordResetToken String?
+  passwordResetExpires DateTime?
+  
+  // Trust
+  isVerifiedSeller  Boolean   @default(false)
+  verifiedAt        DateTime?
+  
+  // Admin
+  isAdmin           Boolean   @default(false)
+  isBanned          Boolean   @default(false)
+  bannedAt          DateTime?
+  banReason         String?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Relations
+  listings          Listing[]
+  purchases         Purchase[]        @relation("BuyerPurchases")
+  sales             Purchase[]        @relation("SellerSales")
+  votes             Vote[]
+  comments          Comment[]
+  sentMessages      Message[]         @relation("SentMessages")
+  receivedMessages  Message[]         @relation("ReceivedMessages")
+  reports           Report[]          @relation("ReportedBy")
+  blockedUsers      BlockedUser[]     @relation("Blocker")
+  blockedBy         BlockedUser[]     @relation("Blocked")
+  
+  @@index([email])
+  @@index([username])
+  @@index([stripeAccountId])
+}
+
+model BlockedUser {
+  id          String   @id @default(cuid())
+  
+  blocker     User     @relation("Blocker", fields: [blockerId], references: [id])
+  blockerId   String
+  
+  blocked     User     @relation("Blocked", fields: [blockedId], references: [id])
+  blockedId   String
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+// ============================================
+// LISTINGS
+// ============================================
+
+model Listing {
+  id                String    @id @default(cuid())
+  slug              String    @unique
+  
+  // Basic Info
+  title             String    @db.VarChar(100)
+  shortDescription  String    @db.VarChar(280)
+  description       String    @db.Text
+  
+  // Pricing
+  priceType         PriceType @default(FIXED)
+  priceInCents      Int?      // null for FREE or CONTACT
+  minPriceInCents   Int?      // for PAY_WHAT_YOU_WANT
+  
+  // What's Included (structured)
+  includesSourceCode    Boolean @default(true)
+  includesDatabase      Boolean @default(false)
+  includesDocs          Boolean @default(false)
+  includesDeployGuide   Boolean @default(false)
+  includesSupport       Boolean @default(false)
+  supportDays           Int?    // e.g., 30 days
+  includesUpdates       Boolean @default(false)
+  includesCommercialLicense Boolean @default(true)
+  includesWhiteLabel    Boolean @default(false)
+  whatsIncludedCustom   String? @db.Text // additional items
+  
+  // Tech Stack
+  techStack             String[] // array of tags
+  
+  // Links
+  liveUrl               String?
+  repoUrl               String?
+  videoUrl              String?
+  
+  // Media
+  screenshots           String[] // array of URLs
+  thumbnailUrl          String?
+  
+  // Delivery
+  deliveryMethod        DeliveryMethod @default(INSTANT_DOWNLOAD)
+  deliveryTimeframeDays Int            @default(0) // 0 = instant
+  
+  // Categorization
+  category              Category @relation(fields: [categoryId], references: [id])
+  categoryId            String
+  
+  // Status
+  status                ListingStatus @default(DRAFT)
+  publishedAt           DateTime?
+  
+  // Featured
+  featured              Boolean   @default(false)
+  featuredUntil         DateTime?
+  
+  // Stats (denormalized for performance)
+  viewCount             Int       @default(0)
+  voteScore             Int       @default(0) // upvotes - downvotes
+  upvoteCount           Int       @default(0)
+  downvoteCount         Int       @default(0)
+  commentCount          Int       @default(0)
+  purchaseCount         Int       @default(0)
+  
+  // Ownership
+  seller                User      @relation(fields: [sellerId], references: [id])
+  sellerId              String
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  // Relations
+  files                 ListingFile[]
+  purchases             Purchase[]
+  votes                 Vote[]
+  comments              Comment[]
+  messages              Message[]
+  reports               Report[]
+  views                 ListingView[]
+  featuredPurchases     FeaturedPurchase[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([voteScore])
+  @@index([publishedAt])
+}
+
+model ListingFile {
+  id          String   @id @default(cuid())
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId   String
+  
+  fileName    String
+  fileSize    Int      // bytes
+  fileKey     String   // R2/S3 object key
+  mimeType    String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([listingId])
+}
+
+enum PriceType {
+  FREE
+  FIXED
+  PAY_WHAT_YOU_WANT
+  CONTACT
+}
+
+enum DeliveryMethod {
+  INSTANT_DOWNLOAD    // Files on platform
+  REPOSITORY_ACCESS   // Seller adds to repo
+  MANUAL_TRANSFER     // Seller sends manually
+  DOMAIN_TRANSFER     // Domain/account transfer
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  SOLD          // One-time sale, now unavailable
+  ARCHIVED      // Seller took down
+  REMOVED       // Platform removed
+}
+
+// ============================================
+// CATEGORIES
+// ============================================
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String?   // emoji
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  
+  listings    Listing[]
+  
+  @@index([slug])
+  @@index([sortOrder])
+}
+
+// ============================================
+// PURCHASES / TRANSACTIONS
+// ============================================
+
+model Purchase {
+  id                String   @id @default(cuid())
+  
+  // What was bought
+  listing           Listing  @relation(fields: [listingId], references: [id])
+  listingId         String
+  
+  // Who bought it
+  buyer             User?    @relation("BuyerPurchases", fields: [buyerId], references: [id])
+  buyerId           String?  // null for guest checkout
+  guestEmail        String?  // for guest checkout
+  
+  // Who sold it
+  seller            User     @relation("SellerSales", fields: [sellerId], references: [id])
+  sellerId          String
+  
+  // Payment details
+  amountPaidCents   Int      // what buyer paid
+  platformFeeCents  Int      // our cut
+  sellerAmountCents Int      // what seller gets (before Stripe fees)
+  
+  // Stripe references
+  stripePaymentIntentId String?  @unique
+  stripeCheckoutSessionId String? @unique
+  stripeTransferId  String?  // transfer to seller's connected account
+  
+  // Status
+  status            PurchaseStatus @default(PENDING)
+  
+  // Delivery tracking
+  deliveryStatus    DeliveryStatus @default(PENDING)
+  deliveredAt       DateTime?
+  deliveryNotes     String?  // seller can add notes
+  buyerConfirmedAt  DateTime? // buyer marked as received
+  
+  // Auto-complete after X days
+  autoCompleteAt    DateTime?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([stripePaymentIntentId])
+}
+
+enum PurchaseStatus {
+  PENDING           // Payment initiated
+  COMPLETED         // Payment successful
+  FAILED            // Payment failed
+  REFUNDED          // Seller issued refund
+  DISPUTED          // Chargeback initiated
+}
+
+enum DeliveryStatus {
+  PENDING           // Awaiting delivery
+  DELIVERED         // Seller marked delivered
+  CONFIRMED         // Buyer confirmed receipt
+  AUTO_COMPLETED    // Auto-completed after X days
+}
+
+// ============================================
+// VOTES (Thumbs Up / Thumbs Down)
+// ============================================
+
+model Vote {
+  id          String   @id @default(cuid())
+  
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId   String
+  
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  
+  // +1 for upvote, -1 for downvote
+  value       Int      // 1 or -1
+  
+  // Did they actually buy it?
+  isVerifiedPurchase Boolean @default(false)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([listingId, userId]) // one vote per user per listing
+  @@index([listingId])
+  @@index([userId])
+}
+
+// ============================================
+// COMMENTS
+// ============================================
+
+model Comment {
+  id          String   @id @default(cuid())
+  
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId   String
+  
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    String
+  
+  // Content
+  content     String   @db.Text
+  
+  // Threading (one level only)
+  parentId    String?
+  parent      Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[] @relation("CommentReplies")
+  
+  // Trust signals
+  isVerifiedPurchase Boolean @default(false)
+  isSeller          Boolean @default(false) // auto-set if author is listing seller
+  
+  // Moderation
+  isHiddenBySeller  Boolean @default(false)
+  isRemoved         Boolean @default(false)
+  removedReason     String?
+  
+  // Edit window
+  canEditUntil      DateTime? // 15 min after creation
+  editedAt          DateTime?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([listingId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+// ============================================
+// MESSAGES (Direct Messages)
+// ============================================
+
+model Message {
+  id          String   @id @default(cuid())
+  
+  // Conversation context (optional - can be general or about a listing)
+  listing     Listing? @relation(fields: [listingId], references: [id])
+  listingId   String?
+  
+  // Participants
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  senderId    String
+  
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  receiverId  String
+  
+  // Content
+  content     String   @db.Text
+  
+  // Status
+  readAt      DateTime?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  @@index([listingId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
+// ============================================
+// REPORTS (Community Moderation)
+// ============================================
+
+model Report {
+  id          String     @id @default(cuid())
+  
+  // Who reported
+  reporter    User       @relation("ReportedBy", fields: [reporterId], references: [id])
+  reporterId  String
+  
+  // What was reported
+  entityType  ReportEntityType
+  
+  // Reference to reported entity (polymorphic)
+  listingId   String?
+  listing     Listing?   @relation(fields: [listingId], references: [id])
+  
+  commentId   String?
+  // Note: Add Comment relation if needed
+  
+  userId      String?    // if reporting a user directly
+  
+  // Report details
+  reason      ReportReason
+  details     String?    @db.Text
+  
+  // Status
+  status      ReportStatus @default(PENDING)
+  reviewedAt  DateTime?
+  reviewedBy  String?    // admin user id
+  resolution  String?
+  
+  // Timestamps
+  createdAt   DateTime   @default(now())
+  
+  @@index([entityType, status])
+  @@index([reporterId])
+  @@index([listingId])
+}
+
+enum ReportEntityType {
+  LISTING
+  COMMENT
+  USER
+  MESSAGE
+}
+
+enum ReportReason {
+  SPAM
+  STOLEN_CODE
+  MISLEADING
+  SCAM
+  MALWARE
+  HARASSMENT
+  ILLEGAL
+  COPYRIGHT
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  ACTION_TAKEN
+  DISMISSED
+}
+
+// ============================================
+// AUDIT LOG (Admin)
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  
+  // What happened
+  action      String   // e.g., "listing.removed", "user.banned"
+  entityType  String   // e.g., "listing", "user"
+  entityId    String
+  
+  // Who did it
+  actorId     String?  // admin user id, null for system actions
+  
+  // Details
+  metadata    Json?    // additional context
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+
+// ============================================
+// FEATURED LISTING PURCHASES (Future)
+// ============================================
+
+model FeaturedPurchase {
+  id          String   @id @default(cuid())
+  
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  listingId   String
+  
+  // Duration
+  startDate   DateTime
+  endDate     DateTime
+  daysCount   Int
+  
+  // Payment
+  amountPaidCents Int
+  stripePaymentIntentId String? @unique
+  
+  // Status
+  status      FeaturedStatus @default(ACTIVE)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([listingId])
+  @@index([status, endDate])
+}
+
+enum FeaturedStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  REFUNDED
+}
+
+// ============================================
+// VIEWS (Optional - for analytics)
+// ============================================
+
+model ListingView {
+  id          String   @id @default(cuid())
+  
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId   String
+  
+  // Viewer (optional - can be anonymous)
+  userId      String?
+  
+  // Fingerprint for anonymous deduplication
+  fingerprint String?
+  ipHash      String?  // hashed for privacy
+  
+  // Context
+  referrer    String?
+  userAgent   String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([listingId])
+  @@index([createdAt])
+}
+
+// Add relation to Listing model
+// views ListingView[]
+
+// Add relation to FeaturedPurchase in Listing
+// featuredPurchases FeaturedPurchase[]

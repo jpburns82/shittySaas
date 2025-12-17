@@ -601,13 +601,14 @@ pnpm dev
 
 **Deliverable:** Full purchase flow working, money moves, files delivered
 
-### Phase 4: Communication 🔄 IN PROGRESS
+### Phase 4: Communication ✅ COMPLETE
 
 - [x] Buyer → Seller messaging
 - [x] Message notifications (email)
 - [x] Message inbox UI (conversation list)
-- [ ] Message thread detail page
+- [x] Message thread detail page with attachments
 - [x] "Contact seller" on listings
+- [x] Message notification preferences (instant/digest/off)
 
 **Deliverable:** Buyers and sellers can communicate
 

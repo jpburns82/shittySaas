@@ -129,7 +129,7 @@ See `prisma/schema.prisma` for the full schema.
 
 ## Current Status
 
-### Core Platform Complete (90%)
+### Core Platform Complete (95%)
 
 **Authentication & Users**
 - User registration, login, email verification
@@ -155,6 +155,8 @@ See `prisma/schema.prisma` for the full schema.
 - Seller dashboard (overview, listings, sales, payouts)
 - Buyer dashboard (purchases, downloads)
 - Messaging inbox (conversation list)
+- Message thread detail page with attachments
+- Message notification preferences
 - Account settings
 
 **Admin**
@@ -169,12 +171,11 @@ See `prisma/schema.prisma` for the full schema.
 ### Remaining Work
 | Phase | Feature | Status |
 |-------|---------|--------|
-| 4 | Message thread detail page | Not started |
 | 5 | Comments system (API + UI) | Not started |
-| 6 | Voting system (wire up UI) | UI ready, needs API |
-| 7 | Account management (password, deletion) | Not started |
-| 8 | Listing archive functionality | Not started |
-| 9 | Admin users/reports pages | Not started |
+| 5 | Voting system (wire up UI) | UI ready, needs API |
+| 6 | Account management (password, deletion) | Not started |
+| 6 | Listing archive functionality | Not started |
+| 7 | Admin users/reports pages | Not started |
 
 ## Documentation
 

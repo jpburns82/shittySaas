@@ -18,12 +18,13 @@ Build the thread detail page where users view full message history and reply wit
 | 4 | Enhanced Send Message API | ✅ Complete |
 | 5 | Reply Composer with Attachments | ✅ Complete |
 | 6 | Message Bubble with Attachments | ✅ Complete |
-| 7 | Mark as Read Endpoint | ⏳ (integrated into page load) |
+| 7 | Mark as Read Endpoint | ✅ (integrated into page load) |
 | 8 | Block User API | ✅ Complete |
 | 9 | Report Message API | ✅ Complete |
-| 10 | Notification Settings | ⏳ Pending |
+| 10 | Notification Settings | ✅ Complete |
 
 **Last Updated:** December 17, 2025
+**Phase 3 Status:** ✅ ALL STEPS COMPLETE
 
 ---
 
@@ -323,9 +324,10 @@ src/components/messages/message-bubble.tsx              # Individual message dis
 src/components/messages/attachment-preview.tsx          # Pending attachment in composer
 src/components/messages/attachment-display.tsx          # Sent attachment display
 src/components/messages/system-message.tsx              # System notification display
+src/app/api/settings/notifications/route.ts            # Notification preferences API
 ```
 
-### Files Modified
+### Files Modified (Steps 1-10)
 ```
 prisma/schema.prisma          # Added MessageAttachment, updated Message & User
 src/app/api/messages/route.ts # Added attachment support, block checking
@@ -334,6 +336,7 @@ src/lib/r2.ts                 # Added message-attachments category
 src/lib/constants.ts          # Added MESSAGE_LIMITS
 src/lib/email.ts              # Updated sendMessageNotificationEmail
 src/types/user.ts             # Added MessageWithAttachments, AttachmentInput types
+src/app/dashboard/settings/page.tsx  # Added notification preferences section
 ```
 
 ---

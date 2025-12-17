@@ -20,6 +20,11 @@ export default function DashboardSettingsPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
+  // Notification settings state
+  const [notificationPreference, setNotificationPreference] = useState<'instant' | 'digest' | 'off'>('instant')
+  const [notificationLoading, setNotificationLoading] = useState(false)
+  const [notificationMessage, setNotificationMessage] = useState('')
+
   useEffect(() => {
     // Fetch current profile data
     fetch('/api/user/profile')
@@ -33,6 +38,16 @@ export default function DashboardSettingsPage() {
             twitterHandle: data.data.twitterHandle || '',
             githubHandle: data.data.githubHandle || '',
           })
+        }
+      })
+      .catch(console.error)
+
+    // Fetch current notification settings
+    fetch('/api/settings/notifications')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setNotificationPreference(data.data.messageNotifications)
         }
       })
       .catch(console.error)
@@ -60,6 +75,38 @@ export default function DashboardSettingsPage() {
       setMessage('An error occurred.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleNotificationUpdate = async (value: 'instant' | 'digest' | 'off') => {
+    setNotificationLoading(true)
+    setNotificationMessage('')
+    setNotificationPreference(value)
+
+    try {
+      const res = await fetch('/api/settings/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageNotifications: value }),
+      })
+
+      if (res.ok) {
+        setNotificationMessage('Notification preferences saved!')
+      } else {
+        setNotificationMessage('Failed to update preferences.')
+        // Revert on error
+        fetch('/api/settings/notifications')
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              setNotificationPreference(data.data.messageNotifications)
+            }
+          })
+      }
+    } catch {
+      setNotificationMessage('An error occurred.')
+    } finally {
+      setNotificationLoading(false)
     }
   }
 
@@ -150,6 +197,76 @@ export default function DashboardSettingsPage() {
             Save Profile
           </Button>
         </form>
+      </section>
+
+      {/* Notification settings section */}
+      <section className="card mb-8">
+        <h2 className="font-display text-lg mb-4">Message Notifications</h2>
+        <p className="text-sm text-text-muted mb-4">
+          Choose how you want to be notified when you receive new messages.
+        </p>
+
+        {notificationMessage && (
+          <div className={`alert ${notificationMessage.includes('saved') ? 'alert-success' : 'alert-error'} mb-4`}>
+            {notificationMessage}
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="notifications"
+              value="instant"
+              checked={notificationPreference === 'instant'}
+              onChange={() => handleNotificationUpdate('instant')}
+              disabled={notificationLoading}
+              className="mt-1"
+            />
+            <div>
+              <span className="font-medium">Instant</span>
+              <p className="text-sm text-text-muted">
+                Get email notifications immediately when you receive a message.
+              </p>
+            </div>
+          </label>
+
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="notifications"
+              value="digest"
+              checked={notificationPreference === 'digest'}
+              onChange={() => handleNotificationUpdate('digest')}
+              disabled={notificationLoading}
+              className="mt-1"
+            />
+            <div>
+              <span className="font-medium">Daily digest</span>
+              <p className="text-sm text-text-muted">
+                Get a daily summary of unread messages (coming soon).
+              </p>
+            </div>
+          </label>
+
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="notifications"
+              value="off"
+              checked={notificationPreference === 'off'}
+              onChange={() => handleNotificationUpdate('off')}
+              disabled={notificationLoading}
+              className="mt-1"
+            />
+            <div>
+              <span className="font-medium">Off</span>
+              <p className="text-sm text-text-muted">
+                Don&apos;t send email notifications for messages.
+              </p>
+            </div>
+          </label>
+        </div>
       </section>
 
       {/* Password section */}

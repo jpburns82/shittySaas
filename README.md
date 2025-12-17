@@ -129,40 +129,52 @@ See `prisma/schema.prisma` for the full schema.
 
 ## Current Status
 
-### Production Ready (90%)
-- Full authentication flow (register, login, email verification)
-- Homepage with listing grid and category filtering
-- Browse listings with search and filters
-- Listing detail pages with purchase flow
-- Create/edit listing forms with validation
-- Dashboard (overview, listings, sales, purchases, payouts)
-- Stripe Connect integration for seller payouts
-- Stripe Checkout for purchases
-- Public seller profiles
-- Buyer/seller messaging system
-- Admin dashboard with stats
-- Admin listing moderation
-- R2 file storage integration
-- Email notifications via Resend
-- UI component library (retro aesthetic)
+### Core Platform Complete (90%)
 
-### Phase 1 Bug Fixes Complete
-- Fixed R2 upload exports and validation
-- Fixed Stripe parameter naming inconsistencies
-- Fixed email function signatures
-- Fixed schema import names
-- Fixed admin role checks
-- Fixed listing status enums
+**Authentication & Users**
+- User registration, login, email verification
+- User profiles with settings (display name, bio, social links)
+- Stripe Connect seller onboarding
+- Admin role system
+
+**Marketplace**
+- Homepage with featured and latest listings
+- Browse/search with category filtering
+- Full listing detail pages with SEO
+- Create/edit listing forms with validation
+- File upload to Cloudflare R2
+
+**Payments & Delivery**
+- Stripe Checkout integration
+- Stripe Connect for seller payouts
+- Webhook handling (checkout, payments, account updates)
+- File download system with presigned URLs
+- Purchase confirmation emails
+
+**Dashboard**
+- Seller dashboard (overview, listings, sales, payouts)
+- Buyer dashboard (purchases, downloads)
+- Messaging inbox (conversation list)
+- Account settings
+
+**Admin**
+- Admin dashboard with platform stats
+- Listing moderation (approve/reject/remove)
+
+### Development Setup
+- Stripe CLI v1.33.2 configured
+- Local webhook forwarding working
 - All TypeScript errors resolved
 
-### Remaining Work (Phases 2-8)
-- **Phase 2:** File download endpoint for purchases
-- **Phase 3:** Message thread detail page
-- **Phase 4:** Comments system (API + UI)
-- **Phase 5:** Voting system (UI integration)
-- **Phase 6:** Account management (password change, deletion)
-- **Phase 7:** Listing archive functionality
-- **Phase 8:** Admin users/reports pages
+### Remaining Work
+| Phase | Feature | Status |
+|-------|---------|--------|
+| 4 | Message thread detail page | Not started |
+| 5 | Comments system (API + UI) | Not started |
+| 6 | Voting system (wire up UI) | UI ready, needs API |
+| 7 | Account management (password, deletion) | Not started |
+| 8 | Listing archive functionality | Not started |
+| 9 | Admin users/reports pages | Not started |
 
 ## Documentation
 

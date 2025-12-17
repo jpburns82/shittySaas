@@ -588,50 +588,65 @@ pnpm dev
 
 **Deliverable:** Can create listings, browse, view details
 
-### Phase 3: Payments ✅ MOSTLY COMPLETE
+### Phase 3: Payments ✅ COMPLETE
 
 - [x] Stripe Connect onboarding flow
 - [x] Checkout session creation
 - [x] Webhook handling
 - [x] Purchase confirmation (email)
-- [ ] File delivery (download access) - **Phase 2 remaining work**
+- [x] File delivery (download access with presigned URLs)
 - [x] Seller dashboard (sales, payouts)
 - [x] Buyer purchases page
+- [x] Stripe CLI local testing configured
 
-**Deliverable:** Full purchase flow working, money moves
+**Deliverable:** Full purchase flow working, money moves, files delivered
 
-### Phase 4: Communication 🔄 MOSTLY COMPLETE
+### Phase 4: Communication 🔄 IN PROGRESS
 
 - [x] Buyer → Seller messaging
 - [x] Message notifications (email)
-- [x] Message inbox UI
-- [ ] Message thread detail page - **Phase 3 remaining work**
+- [x] Message inbox UI (conversation list)
+- [ ] Message thread detail page
 - [x] "Contact seller" on listings
 
 **Deliverable:** Buyers and sellers can communicate
 
-### Phase 5: Polish & Launch Prep 🔄 IN PROGRESS
+### Phase 5: Community Features 📋 PLANNED
+
+- [ ] Comments system (API + UI)
+- [ ] Voting system (wire up existing UI to API)
+- [ ] User blocking functionality
+
+**Deliverable:** Community engagement features
+
+### Phase 6: Account & Settings 📋 PLANNED
+
+- [ ] Password change
+- [ ] Account deletion
+- [ ] Listing archive functionality
+
+**Deliverable:** Full account management
+
+### Phase 7: Admin Expansion 📋 PLANNED
 
 - [x] Admin moderation panel (listings)
-- [ ] Admin users management - **Phase 8**
-- [ ] Admin reports page - **Phase 8**
+- [ ] Admin users management
+- [ ] Admin reports page
 - [ ] Featured listings logic
+
+**Deliverable:** Complete admin tools
+
+### Phase 8: Launch Prep 📋 PLANNED
+
 - [ ] SEO (meta tags, OG images)
-- [x] Email templates (purchase, message, verification)
-- [x] Error handling + loading states
 - [ ] Mobile responsive check
 - [ ] Performance audit
-
-**Deliverable:** Production-ready
-
-### Phase 6: Launch (Day 19-21)
-
 - [ ] Deploy to Vercel
 - [ ] Set up production database
 - [ ] Configure production Stripe
-- [ ] Seed 5-10 real listings
-- [ ] Launch posts (Reddit, IH, Twitter, HN)
-- [ ] Monitor, fix critical bugs
+- [ ] Seed initial listings
+
+**Deliverable:** Production-ready launch
 
 ### Future (Post-Launch)
 
@@ -641,7 +656,6 @@ pnpm dev
 - [ ] Rating/review system
 - [ ] Improved search (Meilisearch)
 - [ ] API for external integrations
-- [ ] Mobile app?
 
 ---
 

@@ -4,6 +4,23 @@
 
 ---
 
+## Implementation Status
+
+| Feature Area | Status | Notes |
+|--------------|--------|-------|
+| User accounts & auth | ✅ Complete | Register, login, email verify, profiles |
+| Listings (create/edit/browse) | ✅ Complete | Full CRUD, search, categories |
+| Payments (Stripe) | ✅ Complete | Checkout, Connect, webhooks |
+| File delivery | ✅ Complete | R2 upload, presigned download URLs |
+| Seller dashboard | ✅ Complete | Stats, sales, payouts |
+| Buyer dashboard | ✅ Complete | Purchases, downloads |
+| Messaging | 🔄 Partial | Inbox works, thread detail page pending |
+| Voting | 🔄 Partial | UI ready, API integration pending |
+| Comments | 📋 Planned | Schema ready, API/UI pending |
+| Admin panel | 🔄 Partial | Listing moderation done, users/reports pending |
+
+---
+
 ## Table of Contents
 
 1. [Platform Philosophy](#platform-philosophy)

@@ -10,8 +10,8 @@ A community marketplace where indie developers can list and sell their software 
 |-------|------------|
 | Framework | Next.js 15 (App Router, React 19) |
 | Language | TypeScript |
-| Database | PostgreSQL (Neon) |
-| ORM | Prisma |
+| Database | PostgreSQL (Neon serverless) |
+| ORM | Prisma with @prisma/adapter-neon |
 | Auth | Auth.js (NextAuth v5) |
 | Payments | Stripe Connect |
 | File Storage | Cloudflare R2 |
@@ -129,13 +129,14 @@ See `prisma/schema.prisma` for the full schema.
 
 ## Current Status
 
-### Core Platform Complete (95%)
+### Core Platform Complete
 
 **Authentication & Users**
 - User registration, login, email verification
 - User profiles with settings (display name, bio, social links)
 - Stripe Connect seller onboarding
 - Admin role system
+- User blocking functionality
 
 **Marketplace**
 - Homepage with featured and latest listings
@@ -154,28 +155,33 @@ See `prisma/schema.prisma` for the full schema.
 **Dashboard**
 - Seller dashboard (overview, listings, sales, payouts)
 - Buyer dashboard (purchases, downloads)
-- Messaging inbox (conversation list)
+- Messaging inbox with conversation list
 - Message thread detail page with attachments
-- Message notification preferences
+- Message notification preferences (instant/digest/off)
 - Account settings
 
 **Admin**
 - Admin dashboard with platform stats
 - Listing moderation (approve/reject/remove)
+- User warning system
+- Thread suspension
 
 ### Development Setup
-- Stripe CLI v1.33.2 configured
-- Local webhook forwarding working
+- Neon serverless database with @prisma/adapter-neon
+- Stripe CLI configured for local webhooks
 - All TypeScript errors resolved
 
 ### Remaining Work
 | Phase | Feature | Status |
 |-------|---------|--------|
-| 5 | Comments system (API + UI) | Not started |
-| 5 | Voting system (wire up UI) | UI ready, needs API |
-| 6 | Account management (password, deletion) | Not started |
-| 6 | Listing archive functionality | Not started |
-| 7 | Admin users/reports pages | Not started |
+| 5 | Comments CRUD API (`/api/listings/[id]/comments`) | Not started |
+| 5 | Comments UI components | Not started |
+| 5 | Voting API (`/api/listings/[id]/vote`) | Not started |
+| 5 | Wire vote buttons to API | UI exists, needs backend |
+| 6 | Password change | Not started |
+| 6 | Account deletion | Not started |
+| 7 | Admin users management page | Not started |
+| 7 | Admin reports page | Not started |
 
 ## Documentation
 

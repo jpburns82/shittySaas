@@ -609,14 +609,19 @@ pnpm dev
 - [x] Message thread detail page with attachments
 - [x] "Contact seller" on listings
 - [x] Message notification preferences (instant/digest/off)
+- [x] User blocking functionality (block/unblock via API)
+- [x] Admin warn user functionality
+- [x] Admin suspend thread functionality
 
 **Deliverable:** Buyers and sellers can communicate
 
-### Phase 5: Community Features 📋 PLANNED
+### Phase 5: Community Features 📋 IN PROGRESS
 
-- [ ] Comments system (API + UI)
-- [ ] Voting system (wire up existing UI to API)
-- [ ] User blocking functionality
+- [ ] Comments CRUD API (`/api/listings/[id]/comments`)
+- [ ] Comment list component
+- [ ] Comment composer component
+- [ ] Voting API (`/api/listings/[id]/vote`)
+- [ ] Wire vote buttons to backend (UI exists, non-functional)
 
 **Deliverable:** Community engagement features
 
@@ -631,7 +636,9 @@ pnpm dev
 ### Phase 7: Admin Expansion 📋 PLANNED
 
 - [x] Admin moderation panel (listings)
-- [ ] Admin users management
+- [x] Admin user warning system
+- [x] Admin thread suspension
+- [ ] Admin users management page
 - [ ] Admin reports page
 - [ ] Featured listings logic
 

@@ -14,10 +14,13 @@
 | File delivery | ✅ Complete | R2 upload, presigned download URLs |
 | Seller dashboard | ✅ Complete | Stats, sales, payouts |
 | Buyer dashboard | ✅ Complete | Purchases, downloads |
-| Messaging | 🔄 Partial | Inbox works, thread detail page pending |
-| Voting | 🔄 Partial | UI ready, API integration pending |
-| Comments | 📋 Planned | Schema ready, API/UI pending |
-| Admin panel | 🔄 Partial | Listing moderation done, users/reports pending |
+| Messaging | ✅ Complete | Inbox, thread detail, attachments, notifications |
+| User blocking | ✅ Complete | Block/unblock users from messaging |
+| Admin moderation | ✅ Complete | Warn users, suspend threads, listing moderation |
+| Notification settings | ✅ Complete | Message notification preferences (instant/digest/off) |
+| Voting | ⚠️ Partial | UI exists but non-functional (no API) |
+| Comments | 📋 Planned | Schema ready, API/UI not implemented |
+| Admin users/reports | 📋 Planned | Pages not built |
 
 ---
 

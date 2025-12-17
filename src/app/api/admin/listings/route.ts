@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !session.user.isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         title: true,
         slug: true,
         status: true,
-        priceCents: true,
+        priceInCents: true,
         priceType: true,
         createdAt: true,
         seller: { select: { username: true, email: true } },

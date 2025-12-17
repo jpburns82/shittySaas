@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
 
     // Create Stripe Connect account if not exists
     if (!accountId) {
-      accountId = await createConnectAccount(user.email!)
+      const account = await createConnectAccount(session.user.id, user.email!)
+      accountId = account.id
 
       await prisma.user.update({
         where: { id: session.user.id },
@@ -40,15 +41,14 @@ export async function POST(request: NextRequest) {
 
     // Create onboarding link
     const { origin } = new URL(request.url)
-    const accountLink = await createAccountLink(
+    const accountLinkUrl = await createAccountLink(
       accountId,
-      `${origin}/dashboard/payouts`,
       `${origin}/dashboard/payouts`
     )
 
     return NextResponse.json({
       success: true,
-      data: { url: accountLink.url },
+      data: { url: accountLinkUrl },
     })
   } catch (error) {
     console.error('POST /api/stripe/connect error:', error)

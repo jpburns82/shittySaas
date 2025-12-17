@@ -18,7 +18,7 @@ export default async function AdminDashboardPage() {
   ] = await Promise.all([
     prisma.user.count(),
     prisma.listing.count(),
-    prisma.listing.count({ where: { status: 'PENDING' } }),
+    prisma.listing.count({ where: { status: 'DRAFT' } }),
     prisma.purchase.count({ where: { status: 'COMPLETED' } }),
     prisma.purchase.aggregate({
       where: { status: 'COMPLETED' },
@@ -30,7 +30,7 @@ export default async function AdminDashboardPage() {
   const stats = [
     { label: 'Total Users', value: totalUsers },
     { label: 'Total Listings', value: totalListings },
-    { label: 'Pending Review', value: pendingListings, highlight: pendingListings > 0 },
+    { label: 'Draft Listings', value: pendingListings, highlight: pendingListings > 0 },
     { label: 'Total Sales', value: totalSales },
     { label: 'Platform Revenue', value: formatPrice(totalRevenue._sum.platformFeeCents || 0), isMoney: true },
     { label: 'Open Reports', value: recentReports, highlight: recentReports > 0 },
@@ -105,7 +105,7 @@ export default async function AdminDashboardPage() {
                 </div>
                 <span
                   className={`text-xs px-2 py-0.5 ${
-                    listing.status === 'PENDING'
+                    listing.status === 'DRAFT'
                       ? 'bg-accent-yellow text-black'
                       : listing.status === 'ACTIVE'
                       ? 'bg-accent-green text-black'
@@ -151,8 +151,8 @@ export default async function AdminDashboardPage() {
       <div className="mt-8 card">
         <h2 className="font-display text-lg mb-4">Quick Actions</h2>
         <div className="flex gap-4">
-          <Link href="/admin/listings?status=PENDING" className="btn btn-primary">
-            Review Pending ({pendingListings})
+          <Link href="/admin/listings?status=DRAFT" className="btn btn-primary">
+            Review Drafts ({pendingListings})
           </Link>
           <Link href="/admin/reports" className="btn">
             View Reports ({recentReports})

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         email,
         username,
         passwordHash: hashedPassword,
-        verificationToken,
+        emailVerifyToken: verificationToken,
       },
       select: {
         id: true,
@@ -66,11 +66,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Send verification email
-    const { origin } = new URL(request.url)
-    await sendVerificationEmail(email, {
-      verifyUrl: `${origin}/verify?token=${verificationToken}`,
-      username,
-    })
+    await sendVerificationEmail(email, verificationToken, username)
 
     return NextResponse.json({
       success: true,

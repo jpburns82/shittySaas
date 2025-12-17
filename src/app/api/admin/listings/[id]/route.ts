@@ -10,7 +10,7 @@ interface RouteContext {
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     const session = await auth()
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !session.user.isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }
@@ -21,7 +21,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const body = await request.json()
     const { status } = body
 
-    const validStatuses = ['DRAFT', 'PENDING', 'ACTIVE', 'SOLD', 'REJECTED']
+    const validStatuses = ['DRAFT', 'ACTIVE', 'SOLD', 'ARCHIVED', 'REMOVED']
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
         { success: false, error: 'Invalid status' },
@@ -33,7 +33,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       where: { id },
       data: {
         status,
-        ...(status === 'ACTIVE' ? { approvedAt: new Date() } : {}),
+        ...(status === 'ACTIVE' ? { publishedAt: new Date() } : {}),
       },
     })
 
@@ -54,7 +54,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     const session = await auth()
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !session.user.isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }

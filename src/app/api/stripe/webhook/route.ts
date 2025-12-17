@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { constructWebhookEvent } from '@/lib/stripe'
-import { sendPurchaseConfirmation, sendSaleNotification } from '@/lib/email'
+import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail } from '@/lib/email'
 import Stripe from 'stripe'
 
 // Disable body parsing for webhooks
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const event = constructWebhookEvent(body, signature)
+    const event = constructWebhookEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
 
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -86,19 +86,20 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Send confirmation emails
   const buyerEmail = purchase.buyer?.email || purchase.guestEmail
   if (buyerEmail) {
-    await sendPurchaseConfirmation(buyerEmail, {
-      listingTitle: purchase.listing.title,
-      amount: purchase.amountPaidCents,
-      purchaseId: purchase.id,
-    })
+    await sendPurchaseConfirmationEmail(
+      buyerEmail,
+      purchase.listing.title,
+      purchase.amountPaidCents
+    )
   }
 
   if (purchase.seller.email) {
-    await sendSaleNotification(purchase.seller.email, {
-      listingTitle: purchase.listing.title,
-      amount: purchase.sellerAmountCents,
-      buyerUsername: purchase.buyer?.username || 'Guest',
-    })
+    await sendSaleNotificationEmail(
+      purchase.seller.email,
+      purchase.listing.title,
+      purchase.sellerAmountCents,
+      purchase.buyer?.username || 'Guest'
+    )
   }
 }
 

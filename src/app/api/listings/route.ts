@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { listingSchema } from '@/lib/validations'
+import { createListingSchema } from '@/lib/validations'
 import { slugify } from '@/lib/utils'
 
 // GET /api/listings - Get all listings with filters
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (minPrice || maxPrice) {
-      where.priceCents = {}
-      if (minPrice) where.priceCents.gte = parseInt(minPrice) * 100
-      if (maxPrice) where.priceCents.lte = parseInt(maxPrice) * 100
+      where.priceInCents = {}
+      if (minPrice) (where.priceInCents as Record<string, number>).gte = parseInt(minPrice) * 100
+      if (maxPrice) (where.priceInCents as Record<string, number>).lte = parseInt(maxPrice) * 100
     }
 
     const orderBy: Record<string, string> = {}
@@ -50,10 +50,10 @@ export async function GET(request: NextRequest) {
         orderBy.createdAt = 'asc'
         break
       case 'price-low':
-        orderBy.priceCents = 'asc'
+        orderBy.priceInCents = 'asc'
         break
       case 'price-high':
-        orderBy.priceCents = 'desc'
+        orderBy.priceInCents = 'desc'
         break
       case 'popular':
         orderBy.viewCount = 'desc'
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const validation = listingSchema.safeParse(body)
+    const validation = createListingSchema.safeParse(body)
 
     if (!validation.success) {
       return NextResponse.json(
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
         ...data,
         slug,
         sellerId: session.user.id,
-        status: 'PENDING', // Require admin approval
+        status: 'DRAFT', // Start as draft, seller publishes when ready
       },
     })
 

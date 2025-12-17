@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { ListingCard, ListingFilters } from '@/types/listing'
-import type { PaginatedResponse } from '@/types/api'
+import type { PaginatedResponse, ApiResponse } from '@/types/api'
 
 interface UseListingsOptions {
   initialFilters?: ListingFilters
@@ -27,12 +27,11 @@ interface UseListingsReturn {
 }
 
 const defaultFilters: ListingFilters = {
-  category: undefined,
+  categorySlug: undefined,
   priceType: undefined,
   minPrice: undefined,
   maxPrice: undefined,
-  sort: 'newest',
-  search: undefined,
+  query: undefined,
 }
 
 export function useListings(options: UseListingsOptions = {}): UseListingsReturn {
@@ -59,27 +58,28 @@ export function useListings(options: UseListingsOptions = {}): UseListingsReturn
       const params = new URLSearchParams()
       params.set('page', pagination.page.toString())
 
-      if (filters.category) params.set('category', filters.category)
-      if (filters.priceType) params.set('priceType', filters.priceType)
+      if (filters.categorySlug) params.set('category', filters.categorySlug)
+      if (filters.priceType && filters.priceType !== 'ALL') params.set('priceType', filters.priceType)
       if (filters.minPrice) params.set('minPrice', filters.minPrice.toString())
       if (filters.maxPrice) params.set('maxPrice', filters.maxPrice.toString())
-      if (filters.sort) params.set('sort', filters.sort)
-      if (filters.search) params.set('q', filters.search)
+      if (filters.query) params.set('q', filters.query)
 
       const res = await fetch(`/api/listings?${params}`)
-      const data: PaginatedResponse<ListingCard> = await res.json()
+      const data: PaginatedResponse<ListingCard> | ApiResponse = await res.json()
 
-      if (data.success && data.data) {
+      if (data.success && 'data' in data && Array.isArray(data.data)) {
         setListings(data.data)
-        if (data.pagination) {
+        if ('pagination' in data && data.pagination) {
           setPagination({
             page: data.pagination.page,
             totalPages: data.pagination.totalPages,
             total: data.pagination.total,
           })
         }
-      } else {
+      } else if (!data.success && 'error' in data) {
         setError(data.error || 'Failed to fetch listings')
+      } else {
+        setError('Failed to fetch listings')
       }
     } catch {
       setError('Failed to fetch listings')

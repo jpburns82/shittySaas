@@ -145,3 +145,33 @@ export function isValidFileSize(
 
   return sizeInBytes <= maxSizes[category]
 }
+
+// ----- EXPORTED CONSTANTS FOR API ROUTES -----
+
+export const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+export const ALLOWED_FILE_TYPES = [
+  ...ALLOWED_IMAGE_TYPES,
+  'application/zip',
+  'application/x-tar',
+  'application/gzip',
+  'application/x-7z-compressed',
+  'application/vnd.rar',
+  'application/x-zip-compressed',
+]
+export const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
+export const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
+
+// Validate file helper for API routes
+export function validateFile(
+  file: { type: string; size: number },
+  allowedTypes: string[],
+  maxSize: number
+): { valid: boolean; error?: string } {
+  if (!allowedTypes.includes(file.type)) {
+    return { valid: false, error: `Invalid file type. Allowed: ${allowedTypes.join(', ')}` }
+  }
+  if (file.size > maxSize) {
+    return { valid: false, error: `File too large. Max size: ${Math.round(maxSize / 1024 / 1024)}MB` }
+  }
+  return { valid: true }
+}

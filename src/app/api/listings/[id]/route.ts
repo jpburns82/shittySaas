@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { listingSchema } from '@/lib/validations'
+import { updateListingSchema } from '@/lib/validations'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -88,7 +88,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       )
     }
 
-    if (listing.sellerId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (listing.sellerId !== session.user.id && !session.user.isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }
@@ -96,7 +96,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     const body = await request.json()
-    const validation = listingSchema.partial().safeParse(body)
+    const validation = updateListingSchema.safeParse(body)
 
     if (!validation.success) {
       return NextResponse.json(
@@ -148,7 +148,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       )
     }
 
-    if (listing.sellerId !== session.user.id && session.user.role !== 'ADMIN') {
+    if (listing.sellerId !== session.user.id && !session.user.isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }

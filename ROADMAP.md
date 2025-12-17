@@ -557,57 +557,68 @@ pnpm dev
 
 ## Development Phases
 
-### Phase 1: Foundation (Days 1-3) ✅ COMPLETE
+### Phase 1: Foundation ✅ COMPLETE
 
 - [x] Project setup, dependencies, env config
 - [x] Prisma schema + initial migration
 - [x] Auth setup (register, login, email verify)
 - [x] Basic layout (header, footer, nav)
 - [x] Homepage with listings grid and categories
+- [x] Bug fixes (Phase 1 fixes applied)
+  - [x] R2 exports and validation functions
+  - [x] Stripe parameter naming (priceInCents)
+  - [x] Email function signatures
+  - [x] Schema import names
+  - [x] Admin role checks (isAdmin boolean)
+  - [x] Listing status enums (DRAFT, not PENDING)
+  - [x] All TypeScript errors resolved
 
 **Deliverable:** Can register, login, see homepage with listings
 
-### Phase 2: Listings Core (Days 4-7) 🔄 IN PROGRESS
+### Phase 2: Listings Core ✅ COMPLETE
 
-- [x] Create listing form (all fields) - Component created
-- [ ] File upload to R2 - API route created, needs testing
-- [ ] Screenshot upload - Needs implementation
-- [x] Listing detail page - Page created
-- [x] Browse listings page - Page created
-- [x] Category filtering - CategoryNav component done
-- [x] Search (basic) - Search components created
-- [x] Seller profile page - User profile page created
+- [x] Create listing form (all fields)
+- [x] File upload to R2 (API route working)
+- [x] Screenshot upload
+- [x] Listing detail page
+- [x] Browse listings page
+- [x] Category filtering
+- [x] Search (basic)
+- [x] Seller profile page
 
 **Deliverable:** Can create listings, browse, view details
 
-### Phase 3: Payments (Days 8-11) 🔄 SCAFFOLDED
+### Phase 3: Payments ✅ MOSTLY COMPLETE
 
-- [x] Stripe Connect onboarding flow - API route created
-- [x] Checkout session creation - API route created
-- [x] Webhook handling - API route created
-- [ ] Purchase confirmation - Needs implementation
-- [ ] File delivery (download access) - Needs implementation
-- [x] Seller dashboard (sales, payouts) - Pages created
-- [x] Buyer purchases page - Page created
+- [x] Stripe Connect onboarding flow
+- [x] Checkout session creation
+- [x] Webhook handling
+- [x] Purchase confirmation (email)
+- [ ] File delivery (download access) - **Phase 2 remaining work**
+- [x] Seller dashboard (sales, payouts)
+- [x] Buyer purchases page
 
 **Deliverable:** Full purchase flow working, money moves
 
-### Phase 4: Communication (Days 12-14) 🔄 SCAFFOLDED
+### Phase 4: Communication 🔄 MOSTLY COMPLETE
 
-- [x] Buyer → Seller messaging - API route & components created
-- [ ] Message notifications (email) - Needs implementation
-- [x] Message inbox UI - Dashboard messages page created
-- [ ] "Contact seller" on listings - Needs implementation
+- [x] Buyer → Seller messaging
+- [x] Message notifications (email)
+- [x] Message inbox UI
+- [ ] Message thread detail page - **Phase 3 remaining work**
+- [x] "Contact seller" on listings
 
 **Deliverable:** Buyers and sellers can communicate
 
-### Phase 5: Polish & Launch Prep (Days 15-18)
+### Phase 5: Polish & Launch Prep 🔄 IN PROGRESS
 
-- [x] Admin moderation panel - Pages created (needs functionality)
-- [ ] Featured listings logic - Schema supports it, needs UI
+- [x] Admin moderation panel (listings)
+- [ ] Admin users management - **Phase 8**
+- [ ] Admin reports page - **Phase 8**
+- [ ] Featured listings logic
 - [ ] SEO (meta tags, OG images)
-- [ ] Email templates (purchase, message, etc.)
-- [x] Error handling + loading states - Basic error.tsx/loading.tsx created
+- [x] Email templates (purchase, message, verification)
+- [x] Error handling + loading states
 - [ ] Mobile responsive check
 - [ ] Performance audit
 

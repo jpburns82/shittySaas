@@ -20,7 +20,7 @@ export default async function AdminLayout({
     redirect('/login?callbackUrl=/admin')
   }
 
-  if (session.user.role !== 'ADMIN') {
+  if (!session.user.isAdmin) {
     redirect('/dashboard')
   }
 

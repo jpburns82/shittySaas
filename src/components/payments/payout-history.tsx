@@ -1,15 +1,10 @@
 import { formatPrice, formatDate } from '@/lib/utils'
+import type Stripe from 'stripe'
 
-interface Payout {
-  id: string
-  amount: number
-  status: 'paid' | 'pending' | 'in_transit' | 'canceled' | 'failed'
-  arrival_date: number
-  created: number
-}
+type PayoutStatus = 'paid' | 'pending' | 'in_transit' | 'canceled' | 'failed'
 
 interface PayoutHistoryProps {
-  payouts: Payout[]
+  payouts: Stripe.Payout[]
   availableBalance: number
   pendingBalance: number
 }
@@ -55,7 +50,7 @@ export function PayoutHistory({ payouts, availableBalance, pendingBalance }: Pay
                   <td>{formatDate(new Date(payout.created * 1000))}</td>
                   <td className="font-mono">{formatPrice(payout.amount)}</td>
                   <td>
-                    <PayoutStatus status={payout.status} />
+                    <PayoutStatusBadge status={payout.status as PayoutStatus} />
                   </td>
                   <td className="text-text-muted">
                     {formatDate(new Date(payout.arrival_date * 1000))}
@@ -70,7 +65,7 @@ export function PayoutHistory({ payouts, availableBalance, pendingBalance }: Pay
   )
 }
 
-function PayoutStatus({ status }: { status: Payout['status'] }) {
+function PayoutStatusBadge({ status }: { status: PayoutStatus }) {
   const statusConfig = {
     paid: { label: 'Paid', className: 'badge-green' },
     pending: { label: 'Pending', className: 'badge-yellow' },

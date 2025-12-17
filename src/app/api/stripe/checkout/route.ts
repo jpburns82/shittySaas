@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createCheckoutSession } from '@/lib/stripe'
-import { PLATFORM_FEE_PERCENTAGE } from '@/lib/constants'
+import { calculatePlatformFee } from '@/lib/constants'
 
 // POST /api/stripe/checkout - Create a checkout session
 export async function POST(request: NextRequest) {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (listing.priceType !== 'FIXED' || listing.priceCents <= 0) {
+    if (listing.priceType !== 'FIXED' || !listing.priceInCents || listing.priceInCents <= 0) {
       return NextResponse.json(
         { success: false, error: 'This listing cannot be purchased directly' },
         { status: 400 }
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate platform fee
-    const platformFeeCents = Math.round(listing.priceCents * (PLATFORM_FEE_PERCENTAGE / 100))
+    const platformFeeCents = calculatePlatformFee(listing.priceInCents)
 
     // Create purchase record
     const purchase = await prisma.purchase.create({
@@ -71,9 +71,9 @@ export async function POST(request: NextRequest) {
         sellerId: listing.sellerId,
         buyerId: session?.user.id || null,
         guestEmail: guestEmail || null,
-        amountPaidCents: listing.priceCents,
+        amountPaidCents: listing.priceInCents,
         platformFeeCents,
-        sellerAmountCents: listing.priceCents - platformFeeCents,
+        sellerAmountCents: listing.priceInCents - platformFeeCents,
         status: 'PENDING',
         deliveryStatus: 'PENDING',
       },
@@ -84,12 +84,11 @@ export async function POST(request: NextRequest) {
     const checkoutSession = await createCheckoutSession({
       listingId: listing.id,
       listingTitle: listing.title,
-      priceCents: listing.priceCents,
-      sellerStripeAccountId: listing.seller.stripeAccountId,
-      platformFeeCents,
-      purchaseId: purchase.id,
-      customerEmail: session?.user.email || guestEmail,
-      successUrl: `${origin}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
+      priceInCents: listing.priceInCents,
+      sellerStripeAccountId: listing.seller.stripeAccountId!,
+      buyerId: session?.user.id,
+      buyerEmail: session?.user.email || guestEmail,
+      successUrl: `${origin}/purchase/success?session_id={CHECKOUT_SESSION_ID}&purchaseId=${purchase.id}`,
       cancelUrl: `${origin}/listing/${listing.slug}`,
     })
 

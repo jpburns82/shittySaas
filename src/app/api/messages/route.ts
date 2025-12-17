@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { messageSchema } from '@/lib/validations'
-import { sendMessageNotification } from '@/lib/email'
+import { sendMessageSchema } from '@/lib/validations'
+import { sendMessageNotificationEmail } from '@/lib/email'
 
 // GET /api/messages - Get messages/conversations
 export async function GET(request: NextRequest) {
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const validation = messageSchema.safeParse(body)
+    const validation = sendMessageSchema.safeParse(body)
 
     if (!validation.success) {
       return NextResponse.json(
@@ -138,10 +138,10 @@ export async function POST(request: NextRequest) {
 
     // Send email notification
     if (receiver.email) {
-      await sendMessageNotification(receiver.email, {
-        senderUsername: session.user.username || 'Someone',
-        messagePreview: content.slice(0, 100),
-      })
+      await sendMessageNotificationEmail(
+        receiver.email,
+        session.user.username || 'Someone'
+      )
     }
 
     return NextResponse.json({

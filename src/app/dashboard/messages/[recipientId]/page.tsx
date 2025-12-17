@@ -106,6 +106,20 @@ export default async function ThreadDetailPage({ params, searchParams }: PagePro
     data: { readAt: new Date() },
   })
 
+  // Get or find thread for this conversation
+  const thread = await prisma.messageThread.findFirst({
+    where: {
+      OR: [
+        { buyerId: currentUserId, sellerId: recipientId, listingId: listingId || null },
+        { buyerId: recipientId, sellerId: currentUserId, listingId: listingId || null },
+      ],
+    },
+    include: {
+      buyer: { select: { id: true, username: true } },
+      seller: { select: { id: true, username: true } },
+    },
+  })
+
   // Get conversation start date
   const firstMessage = messages[0]
   const conversationStarted = firstMessage?.createdAt
@@ -200,10 +214,16 @@ export default async function ThreadDetailPage({ params, searchParams }: PagePro
         currentUserId={currentUserId}
         recipientId={recipientId}
         listingId={listingId}
+        listingSlug={listing?.slug}
+        threadId={thread?.id}
+        threadStatus={thread?.status}
+        suspendReason={thread?.suspendReason}
         isBlocked={isBlocked}
         blockedByMe={blockedByMe}
         isAdmin={currentUser?.isAdmin || false}
         recipient={recipient}
+        buyer={thread?.buyer}
+        seller={thread?.seller}
         reportCount={reportCount}
         lastReport={lastReport}
       />

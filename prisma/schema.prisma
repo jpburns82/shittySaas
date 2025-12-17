@@ -69,7 +69,10 @@ model User {
   reports           Report[]          @relation("ReportedBy")
   blockedUsers      BlockedUser[]     @relation("Blocker")
   blockedBy         BlockedUser[]     @relation("Blocked")
-  
+  buyerThreads      MessageThread[]   @relation("BuyerThreads")
+  sellerThreads     MessageThread[]   @relation("SellerThreads")
+  warnings          UserWarning[]
+
   @@index([email])
   @@index([username])
   @@index([stripeAccountId])
@@ -174,6 +177,7 @@ model Listing {
   reports               Report[]
   views                 ListingView[]
   featuredPurchases     FeaturedPurchase[]
+  threads               MessageThread[]    @relation("ThreadListing")
 
   @@index([sellerId])
   @@index([categoryId])
@@ -379,11 +383,100 @@ model Comment {
 }
 
 // ============================================
+// MESSAGE THREADS (Explicit Thread Management)
+// ============================================
+
+model MessageThread {
+  id            String        @id @default(cuid())
+
+  // Participants
+  buyer         User          @relation("BuyerThreads", fields: [buyerId], references: [id])
+  buyerId       String
+
+  seller        User          @relation("SellerThreads", fields: [sellerId], references: [id])
+  sellerId      String
+
+  // Context
+  listing       Listing?      @relation("ThreadListing", fields: [listingId], references: [id])
+  listingId     String?
+
+  // Status
+  status        ThreadStatus  @default(ACTIVE)
+
+  // Suspension tracking
+  suspendedAt   DateTime?
+  suspendedBy   String?       // Admin user ID who suspended
+  suspendReason String?       @db.Text
+
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  messages      Message[]
+  warnings      UserWarning[]
+
+  @@unique([buyerId, sellerId, listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([listingId])
+  @@index([status])
+}
+
+enum ThreadStatus {
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+// ============================================
+// USER WARNINGS (Admin Moderation)
+// ============================================
+
+model UserWarning {
+  id          String         @id @default(cuid())
+
+  // Who was warned
+  user        User           @relation(fields: [userId], references: [id])
+  userId      String
+
+  // Context (optional - warning may be thread-specific)
+  thread      MessageThread? @relation(fields: [threadId], references: [id])
+  threadId    String?
+
+  // Warning details
+  reason      WarningReason
+  notes       String?        @db.Text
+
+  // Who issued it
+  issuedBy    String         // Admin user ID
+
+  // Timestamps
+  createdAt   DateTime       @default(now())
+
+  @@index([userId])
+  @@index([threadId])
+  @@index([createdAt])
+}
+
+enum WarningReason {
+  INAPPROPRIATE
+  HARASSMENT
+  SCAM
+  POLICY_VIOLATION
+  OTHER
+}
+
+// ============================================
 // MESSAGES (Direct Messages)
 // ============================================
 
 model Message {
   id          String   @id @default(cuid())
+
+  // Thread reference
+  thread      MessageThread? @relation(fields: [threadId], references: [id])
+  threadId    String?
 
   // Conversation context (optional - can be general or about a listing)
   listing     Listing? @relation(fields: [listingId], references: [id])
@@ -408,6 +501,7 @@ model Message {
   // Timestamps
   createdAt   DateTime @default(now())
 
+  @@index([threadId])
   @@index([listingId])
   @@index([senderId])
   @@index([receiverId])

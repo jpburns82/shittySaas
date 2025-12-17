@@ -6,6 +6,8 @@ import { MessageBubble } from '@/components/messages/message-bubble'
 import { MessageComposer } from '@/components/messages/message-composer'
 import { Modal, ConfirmModal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
+import { WarnUserModal } from '@/components/messages/warn-user-modal'
+import { SuspendThreadModal } from '@/components/messages/suspend-thread-modal'
 import type { MessageWithAttachments, AttachmentInput } from '@/types/user'
 
 interface ThreadClientProps {
@@ -13,6 +15,10 @@ interface ThreadClientProps {
   currentUserId: string
   recipientId: string
   listingId?: string
+  listingSlug?: string
+  threadId?: string
+  threadStatus?: 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED'
+  suspendReason?: string | null
   isBlocked: boolean
   blockedByMe: boolean
   isAdmin: boolean
@@ -22,6 +28,14 @@ interface ThreadClientProps {
     displayName: string | null
     avatarUrl: string | null
     isAdmin: boolean
+  }
+  buyer?: {
+    id: string
+    username: string
+  }
+  seller?: {
+    id: string
+    username: string
   }
   reportCount?: number
   lastReport?: { reason: string; createdAt: Date } | null
@@ -47,10 +61,16 @@ export function ThreadClient({
   currentUserId,
   recipientId,
   listingId,
+  listingSlug,
+  threadId,
+  threadStatus = 'ACTIVE',
+  suspendReason,
   isBlocked,
   blockedByMe,
   isAdmin,
   recipient,
+  buyer,
+  seller,
   reportCount = 0,
   lastReport,
 }: ThreadClientProps) {
@@ -58,10 +78,15 @@ export function ThreadClient({
   const [messages, setMessages] = useState(initialMessages)
   const [showBlockModal, setShowBlockModal] = useState(false)
   const [showReportModal, setShowReportModal] = useState(false)
+  const [showWarnBuyerModal, setShowWarnBuyerModal] = useState(false)
+  const [showWarnSellerModal, setShowWarnSellerModal] = useState(false)
+  const [showSuspendModal, setShowSuspendModal] = useState(false)
   const [reportReason, setReportReason] = useState('')
   const [reportDetails, setReportDetails] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  const isSuspended = threadStatus === 'SUSPENDED'
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -152,8 +177,45 @@ export function ThreadClient({
     }
   }
 
+  const handleUnsuspend = async () => {
+    if (!threadId) return
+
+    setActionLoading(true)
+    try {
+      const res = await fetch(`/api/admin/messages/${threadId}/unsuspend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+
+      if (res.ok) {
+        router.refresh()
+      }
+    } catch (error) {
+      console.error('Failed to unsuspend:', error)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
   return (
     <>
+      {/* Suspended Thread Banner */}
+      {isSuspended && (
+        <div className="p-4 bg-red-100 border border-accent-red text-accent-red text-sm">
+          <div className="flex items-start gap-2">
+            <span className="text-lg">&#128274;</span>
+            <div>
+              <p className="font-medium">This conversation has been suspended by a moderator</p>
+              <p className="text-text-secondary mt-1">Replies are disabled. Contact support if you have questions.</p>
+              {isAdmin && suspendReason && (
+                <p className="text-xs text-text-muted mt-2">Admin note: {suspendReason}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto border border-border-dark bg-bg-secondary p-4 space-y-4">
         {messages.length === 0 ? (
@@ -174,8 +236,8 @@ export function ThreadClient({
         )}
       </div>
 
-      {/* Composer */}
-      {!isBlocked && (
+      {/* Composer - hidden when blocked or suspended */}
+      {!isBlocked && !isSuspended && (
         <MessageComposer
           onSend={handleSend}
           isAdmin={isAdmin}
@@ -229,9 +291,53 @@ export function ThreadClient({
             <a href={`/admin/users/${recipientId}`} className="btn-secondary px-2 py-1">
               User Admin
             </a>
+            {listingSlug && (
+              <a href={`/listing/${listingSlug}`} className="btn-secondary px-2 py-1">
+                View Listing
+              </a>
+            )}
           </div>
+
+          {/* Warn/Suspend buttons */}
+          {threadId && (
+            <div className="flex flex-wrap gap-2 text-xs mt-2 pt-2 border-t border-red-200">
+              {buyer && (
+                <button
+                  onClick={() => setShowWarnBuyerModal(true)}
+                  className="btn-secondary px-2 py-1 text-amber-700 border-amber-400 hover:bg-amber-50"
+                >
+                  ⚠ Warn Buyer
+                </button>
+              )}
+              {seller && (
+                <button
+                  onClick={() => setShowWarnSellerModal(true)}
+                  className="btn-secondary px-2 py-1 text-amber-700 border-amber-400 hover:bg-amber-50"
+                >
+                  ⚠ Warn Seller
+                </button>
+              )}
+              {!isSuspended ? (
+                <button
+                  onClick={() => setShowSuspendModal(true)}
+                  className="btn-secondary px-2 py-1 text-accent-red border-accent-red hover:bg-red-100"
+                >
+                  &#128274; Suspend Thread
+                </button>
+              ) : (
+                <button
+                  onClick={handleUnsuspend}
+                  disabled={actionLoading}
+                  className="btn-secondary px-2 py-1 text-green-700 border-green-500 hover:bg-green-50"
+                >
+                  {actionLoading ? 'Working...' : '&#128275; Unsuspend Thread'}
+                </button>
+              )}
+            </div>
+          )}
+
           {reportCount > 0 && (
-            <div className="text-xs text-text-muted mt-2">
+            <div className="text-xs text-text-muted mt-2 pt-2 border-t border-red-200">
               Reports: {reportCount}
               {lastReport && (
                 <>
@@ -303,6 +409,42 @@ export function ThreadClient({
           />
         </div>
       </Modal>
+
+      {/* Warn Buyer Modal */}
+      {threadId && buyer && (
+        <WarnUserModal
+          isOpen={showWarnBuyerModal}
+          onClose={() => setShowWarnBuyerModal(false)}
+          onSuccess={() => router.refresh()}
+          threadId={threadId}
+          userId={buyer.id}
+          username={buyer.username}
+          userRole="buyer"
+        />
+      )}
+
+      {/* Warn Seller Modal */}
+      {threadId && seller && (
+        <WarnUserModal
+          isOpen={showWarnSellerModal}
+          onClose={() => setShowWarnSellerModal(false)}
+          onSuccess={() => router.refresh()}
+          threadId={threadId}
+          userId={seller.id}
+          username={seller.username}
+          userRole="seller"
+        />
+      )}
+
+      {/* Suspend Thread Modal */}
+      {threadId && (
+        <SuspendThreadModal
+          isOpen={showSuspendModal}
+          onClose={() => setShowSuspendModal(false)}
+          onSuccess={() => router.refresh()}
+          threadId={threadId}
+        />
+      )}
     </>
   )
 }

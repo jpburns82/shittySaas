@@ -142,13 +142,49 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create message with attachments
+    // Find or create thread
+    // For threads, we need to determine buyer/seller. When someone contacts about a listing,
+    // the sender is typically the buyer (potential purchaser) and receiver is the seller.
+    // For non-listing conversations, use alphabetical ordering of IDs for consistency.
+    const isSenderBuyer = listingId
+      ? true // Person contacting about a listing is the buyer
+      : session.user.id < receiverId // Consistent ordering for non-listing threads
+
+    let thread = await prisma.messageThread.findFirst({
+      where: {
+        OR: [
+          { buyerId: session.user.id, sellerId: receiverId, listingId: listingId || null },
+          { buyerId: receiverId, sellerId: session.user.id, listingId: listingId || null },
+        ],
+      },
+    })
+
+    if (!thread) {
+      thread = await prisma.messageThread.create({
+        data: {
+          buyerId: isSenderBuyer ? session.user.id : receiverId,
+          sellerId: isSenderBuyer ? receiverId : session.user.id,
+          listingId: listingId || null,
+        },
+      })
+    }
+
+    // Check if thread is suspended
+    if (thread.status === 'SUSPENDED') {
+      return NextResponse.json(
+        { success: false, error: 'This conversation has been suspended by a moderator' },
+        { status: 403 }
+      )
+    }
+
+    // Create message with attachments (linked to thread)
     const message = await prisma.message.create({
       data: {
         senderId: session.user.id,
         receiverId,
         content,
         listingId: listingId || null,
+        threadId: thread.id,
         attachments: attachments && attachments.length > 0
           ? {
               create: attachments.map((att) => ({

@@ -164,8 +164,11 @@ See `prisma/schema.prisma` for the full schema.
 **Admin**
 - Admin dashboard with platform stats
 - Listing moderation (approve/reject/remove)
-- User warning system
+- User management (search, warn, ban, toggle admin)
+- Reports management (view, review, take action)
+- Featured listings (admin control + paid promotion via Stripe)
 - Thread suspension
+- Cron job for expiring featured listings
 
 **Community**
 - Voting system (⚡ Reanimate / ⚰️ Bury) with neon glow effects
@@ -183,9 +186,9 @@ See `prisma/schema.prisma` for the full schema.
 ### Remaining Work
 | Phase | Feature | Status |
 |-------|---------|--------|
-| 7 | Admin users management page | Not started |
-| 7 | Admin reports page | Not started |
-| 7 | Featured listings controls | Not started |
+| 7 | Admin users management page | ✅ Complete |
+| 7 | Admin reports page | ✅ Complete |
+| 7 | Featured listings (admin + paid promotion) | ✅ Complete |
 | 8 | SEO & meta tags | Not started |
 | 8 | Mobile responsiveness audit | Not started |
 | 8 | Production deployment | Not started |

@@ -648,6 +648,7 @@ model FeaturedPurchase {
 }
 
 enum FeaturedStatus {
+  PENDING
   ACTIVE
   EXPIRED
   CANCELLED

@@ -35,6 +35,8 @@ export async function GET(request: NextRequest) {
         status: true,
         priceInCents: true,
         priceType: true,
+        featured: true,
+        featuredUntil: true,
         createdAt: true,
         seller: { select: { username: true, email: true } },
       },

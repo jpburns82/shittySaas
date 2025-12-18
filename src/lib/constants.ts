@@ -46,6 +46,15 @@ export function calculatePlatformFee(priceInCents: number): number {
 // Featured listing price (in cents)
 export const FEATURED_LISTING_PRICE = 1999 // $19.99/week
 
+// Featured duration options with pricing for seller self-promotion
+export const FEATURED_DURATION_OPTIONS = {
+  WEEK_1: { days: 7, priceInCents: 1999, label: '1 Week', description: '$19.99' },
+  WEEK_2: { days: 14, priceInCents: 3499, label: '2 Weeks', description: '$34.99', badge: 'Popular' },
+  MONTH_1: { days: 30, priceInCents: 5999, label: '1 Month', description: '$59.99', badge: 'Best Value' },
+} as const
+
+export type FeaturedDurationKey = keyof typeof FEATURED_DURATION_OPTIONS
+
 // ----- LISTINGS -----
 
 export const LISTING_LIMITS = {

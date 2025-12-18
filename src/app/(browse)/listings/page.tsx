@@ -48,22 +48,27 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     ]
   }
 
-  // Build orderBy
-  let orderBy: Prisma.ListingOrderByWithRelationInput = { createdAt: 'desc' }
+  // Build orderBy - always prioritize featured listings first
+  let secondaryOrder: Prisma.ListingOrderByWithRelationInput = { createdAt: 'desc' }
   switch (params.sort) {
     case 'oldest':
-      orderBy = { createdAt: 'asc' }
+      secondaryOrder = { createdAt: 'asc' }
       break
     case 'top':
-      orderBy = { voteScore: 'desc' }
+      secondaryOrder = { voteScore: 'desc' }
       break
     case 'price_asc':
-      orderBy = { priceInCents: 'asc' }
+      secondaryOrder = { priceInCents: 'asc' }
       break
     case 'price_desc':
-      orderBy = { priceInCents: 'desc' }
+      secondaryOrder = { priceInCents: 'desc' }
       break
   }
+  // Featured listings first (descending so true comes before false), then secondary sort
+  const orderBy: Prisma.ListingOrderByWithRelationInput[] = [
+    { featured: 'desc' },
+    secondaryOrder,
+  ]
 
   // Fetch data
   const [categories, listings, total] = await Promise.all([
@@ -76,7 +81,21 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
       orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      include: {
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        shortDescription: true,
+        priceType: true,
+        priceInCents: true,
+        thumbnailUrl: true,
+        techStack: true,
+        voteScore: true,
+        upvoteCount: true,
+        downvoteCount: true,
+        featured: true,
+        featuredUntil: true,
+        createdAt: true,
         seller: {
           select: { username: true, isVerifiedSeller: true },
         },

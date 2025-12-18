@@ -642,16 +642,19 @@ pnpm dev
 
 **Deliverable:** Full account management (archive pending)
 
-### Phase 7: Admin Expansion 📋 PLANNED
+### Phase 7: Admin Expansion ✅ COMPLETE
 
 - [x] Admin moderation panel (listings)
 - [x] Admin user warning system
 - [x] Admin thread suspension
-- [ ] Admin users management page
-- [ ] Admin reports page
-- [ ] Featured listings logic
+- [x] Admin users management page (search, filter, warn, ban, toggle admin)
+- [x] Admin reports page (view, filter, take action on reports)
+- [x] Featured listings - admin manual control (7/14/30 days or indefinite)
+- [x] Featured listings - paid seller self-promotion ($19.99/week via Stripe)
+- [x] Featured listings sorted first in browse/search
+- [x] Vercel cron job for featured expiration
 
-**Deliverable:** Complete admin tools
+**Deliverable:** Complete admin tools and featured listings system
 
 ### Phase 8: Launch Prep 📋 PLANNED
 
@@ -668,7 +671,7 @@ pnpm dev
 ### Future (Post-Launch)
 
 - [ ] "Pay what you want" pricing
-- [ ] Featured listing purchases
+- [x] Featured listing purchases (completed in Phase 7)
 - [ ] Seller analytics
 - [ ] Rating/review system
 - [ ] Improved search (Meilisearch)

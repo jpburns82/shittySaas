@@ -21,7 +21,9 @@
 | Account management | ✅ Complete | Password change, account deletion (soft delete) |
 | Voting | ✅ Complete | ⚡ Reanimate / ⚰️ Bury with neon glow effects |
 | Comments | ✅ Complete | Threaded (3-level), 500 char limit, 15-min edit window |
-| Admin users/reports | 📋 Planned | Pages not built |
+| Admin users management | ✅ Complete | Search, filter, warn, ban, toggle admin |
+| Admin reports page | ✅ Complete | View, review, take moderation actions |
+| Featured listings | ✅ Complete | Admin control + paid Stripe promotion |
 
 ---
 

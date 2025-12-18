@@ -27,7 +27,12 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        await handleCheckoutCompleted(session)
+        // Check if this is a featured purchase or regular purchase
+        if (session.metadata?.type === 'featured_purchase') {
+          await handleFeaturedPurchaseCompleted(session)
+        } else {
+          await handleCheckoutCompleted(session)
+        }
         break
       }
 
@@ -122,4 +127,51 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
     where: { id: purchaseId },
     data: { status: 'FAILED' },
   })
+}
+
+async function handleFeaturedPurchaseCompleted(session: Stripe.Checkout.Session) {
+  const featuredPurchaseId = session.metadata?.featuredPurchaseId
+  if (!featuredPurchaseId) return
+
+  // Update featured purchase status
+  const featuredPurchase = await prisma.featuredPurchase.update({
+    where: { id: featuredPurchaseId },
+    data: {
+      stripePaymentIntentId: session.payment_intent as string,
+      status: 'ACTIVE',
+    },
+    include: {
+      listing: {
+        select: {
+          id: true,
+          title: true,
+          sellerId: true,
+        },
+      },
+    },
+  })
+
+  // Update the listing to be featured
+  await prisma.listing.update({
+    where: { id: featuredPurchase.listingId },
+    data: {
+      featured: true,
+      featuredUntil: featuredPurchase.endDate,
+    },
+  })
+
+  // Get seller email for confirmation
+  const seller = await prisma.user.findUnique({
+    where: { id: featuredPurchase.listing.sellerId },
+    select: { email: true },
+  })
+
+  // Send confirmation email (optional - can add this to email.ts later)
+  if (seller?.email) {
+    console.log(
+      `Featured purchase completed for listing "${featuredPurchase.listing.title}", ` +
+        `featured until ${featuredPurchase.endDate.toISOString()}`
+    )
+    // TODO: Add sendFeaturedConfirmationEmail to email.ts
+  }
 }

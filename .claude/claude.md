@@ -1,0 +1,1 @@
+Always close the app and restart it after changes. 

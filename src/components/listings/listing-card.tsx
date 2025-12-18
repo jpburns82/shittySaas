@@ -38,7 +38,15 @@ export function ListingCard({ listing }: ListingCardProps) {
         <span>·</span>
         <span>{listing.category.name}</span>
         <span>·</span>
-        <span>👍 {listing.voteScore}</span>
+        <span className="flex items-center gap-1">
+          <span>⚡</span>
+          <span className="font-mono">{listing.upvoteCount ?? 0}</span>
+        </span>
+        <span>·</span>
+        <span className="flex items-center gap-1">
+          <span>⚰️</span>
+          <span className="font-mono">{listing.downvoteCount ?? 0}</span>
+        </span>
         <span>·</span>
         <span>{formatRelativeTime(listing.createdAt)}</span>
       </div>

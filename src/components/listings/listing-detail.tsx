@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { formatRelativeTime, formatDate } from '@/lib/utils'
 import { PriceBadge } from './price-badge'
 import { TechStackTags } from './tech-stack-tags'
+import { VoteButtons } from './vote-buttons'
 import { VerifiedBadge, FeaturedBadge } from '../ui/badge'
 import { Button } from '../ui/button'
 import type { ListingDetail as ListingDetailType } from '@/types/listing'
@@ -208,26 +209,16 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
           {/* Voting */}
           <div className="card">
             <h3 className="font-display text-base mb-3">Community</h3>
-            <div className="flex items-center gap-4">
-              <button
-                className={`text-2xl ${currentUserVote === 1 ? 'text-accent-green' : 'opacity-50 hover:opacity-100'}`}
-                aria-label="Upvote"
-              >
-                👍
-              </button>
-              <span className="font-mono text-lg">
-                {listing.voteScore >= 0 ? '+' : ''}{listing.voteScore}
-              </span>
-              <button
-                className={`text-2xl ${currentUserVote === -1 ? 'text-accent-red' : 'opacity-50 hover:opacity-100'}`}
-                aria-label="Downvote"
-              >
-                👎
-              </button>
-            </div>
-            <div className="text-xs text-text-muted mt-2">
-              {listing.upvoteCount} up / {listing.downvoteCount} down
-            </div>
+            <VoteButtons
+              listingId={listing.id}
+              initialCounts={{
+                score: listing.voteScore ?? 0,
+                upvotes: listing.upvoteCount ?? 0,
+                downvotes: listing.downvoteCount ?? 0,
+              }}
+              initialUserVote={currentUserVote ?? null}
+              sellerId={listing.sellerId}
+            />
           </div>
         </aside>
       </div>

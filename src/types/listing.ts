@@ -18,6 +18,8 @@ export type ListingCard = Pick<
   | 'thumbnailUrl'
   | 'techStack'
   | 'voteScore'
+  | 'upvoteCount'
+  | 'downvoteCount'
   | 'createdAt'
   | 'featured'
 > & {

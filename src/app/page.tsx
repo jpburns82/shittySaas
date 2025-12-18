@@ -1,39 +1,48 @@
 import Link from 'next/link'
+import Image from 'next/image'
+import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { ListingGrid } from '@/components/listings/listing-grid'
 import { CategoryNav } from '@/components/search/category-nav'
 import { Button } from '@/components/ui/button'
 import { APP_TAGLINE, JP_ACCENTS } from '@/lib/constants'
 
-export default async function HomePage() {
-  // Fetch categories
+// Skeleton components for loading states
+function CategorySkeleton() {
+  return (
+    <div className="flex gap-2 mb-6 overflow-x-auto py-2">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="h-8 w-24 bg-bg-grave rounded animate-pulse" />
+      ))}
+    </div>
+  )
+}
+
+function ListingGridSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[...Array(count)].map((_, i) => (
+        <div key={i} className="bg-bg-grave rounded-lg p-4 animate-pulse">
+          <div className="h-40 bg-bg-tombstone rounded mb-3" />
+          <div className="h-4 bg-bg-tombstone rounded w-3/4 mb-2" />
+          <div className="h-3 bg-bg-tombstone rounded w-1/2" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Async components for data fetching with Suspense
+async function CategoriesSection() {
   const categories = await prisma.category.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: 'asc' },
   })
 
-  // Fetch latest listings
-  const listings = await prisma.listing.findMany({
-    where: { status: 'ACTIVE' },
-    orderBy: { createdAt: 'desc' },
-    take: 12,
-    include: {
-      seller: {
-        select: {
-          username: true,
-          isVerifiedSeller: true,
-        },
-      },
-      category: {
-        select: {
-          slug: true,
-          name: true,
-        },
-      },
-    },
-  })
+  return <CategoryNav categories={categories} />
+}
 
-  // Fetch featured listings
+async function FeaturedListingsSection() {
   const featuredListings = await prisma.listing.findMany({
     where: {
       status: 'ACTIVE',
@@ -58,58 +67,114 @@ export default async function HomePage() {
     },
   })
 
+  if (featuredListings.length === 0) {
+    return null
+  }
+
   return (
-    <div className="container py-8">
-      {/* Hero */}
-      <section className="text-center mb-12 py-8 border-b border-border-crypt">
-        <p className="text-text-dust text-sm jp-accent mb-2">{JP_ACCENTS.GRAVEYARD}</p>
-        <h1 className="font-display text-4xl mb-4 text-accent-reanimate">
-          THE GRAVEYARD
-        </h1>
-        <p className="text-text-bone max-w-2xl mx-auto mb-6">
-          {APP_TAGLINE}. Buy and sell abandoned projects, SaaS apps, scripts, and boilerplates.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Link href="/listings">
-            <Button size="lg">Browse Listings</Button>
-          </Link>
-          <Link href="/sell">
-            <Button size="lg" variant="primary">Sell Your Project</Button>
-          </Link>
+    <section className="my-8">
+      <h2 className="font-display text-xl mb-4 flex items-center gap-2">
+        <span className="featured-marker">★ FEATURED</span>
+      </h2>
+      <ListingGrid listings={featuredListings} />
+    </section>
+  )
+}
+
+async function LatestListingsSection() {
+  const listings = await prisma.listing.findMany({
+    where: { status: 'ACTIVE' },
+    orderBy: { createdAt: 'desc' },
+    take: 12,
+    include: {
+      seller: {
+        select: {
+          username: true,
+          isVerifiedSeller: true,
+        },
+      },
+      category: {
+        select: {
+          slug: true,
+          name: true,
+        },
+      },
+    },
+  })
+
+  return (
+    <section className="mt-4 mb-6">
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="font-display text-xl">LATEST LISTINGS</h2>
+        <Link href="/listings" className="text-sm">
+          View All →
+        </Link>
+      </div>
+      <ListingGrid
+        listings={listings}
+        emptyMessage="No listings yet. Be the first to sell something!"
+      />
+    </section>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <div className="container pt-4 pb-8">
+      {/* Hero Section */}
+      <section className="mb-8 py-12 border-b border-border-crypt">
+        <div className="flex flex-col items-center justify-center gap-8">
+          {/* Logo - natural sizing with max-width */}
+          <div className="flex-shrink-0 max-w-[400px]">
+            <Image
+              src="/images/logo-cropped.png"
+              alt="UndeadList"
+              width={400}
+              height={200}
+              priority
+              className="w-full h-auto"
+            />
+          </div>
+          {/* Content - centered on all screens */}
+          <div className="text-center">
+            <p className="text-text-dust text-sm jp-accent mb-2">{JP_ACCENTS.TAGLINE}</p>
+            <h1 className="font-display text-4xl lg:text-5xl mb-3 text-accent-electric">
+              UNDEAD LIST
+            </h1>
+            <p className="text-text-muted text-lg mb-6 max-w-xl">
+              {APP_TAGLINE}
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link href="/sell">
+                <Button size="lg" variant="primary">Sell Your Project</Button>
+              </Link>
+              <Link href="/listings">
+                <Button size="lg" variant="secondary">Browse Listings</Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <CategoryNav categories={categories} />
+      {/* Categories - with Suspense */}
+      <Suspense fallback={<CategorySkeleton />}>
+        <CategoriesSection />
+      </Suspense>
 
-      {/* Featured listings (if any) */}
-      {featuredListings.length > 0 && (
-        <section className="my-8">
-          <h2 className="font-display text-xl mb-4 flex items-center gap-2">
-            <span className="featured-marker">★ FEATURED</span>
-          </h2>
-          <ListingGrid listings={featuredListings} />
-        </section>
-      )}
+      {/* Featured listings - with Suspense */}
+      <Suspense fallback={<ListingGridSkeleton count={4} />}>
+        <FeaturedListingsSection />
+      </Suspense>
 
-      {/* Latest listings */}
-      <section className="my-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="font-display text-xl">LATEST LISTINGS</h2>
-          <Link href="/listings" className="text-sm">
-            View All →
-          </Link>
-        </div>
-        <ListingGrid
-          listings={listings}
-          emptyMessage="No listings yet. Be the first to sell something!"
-        />
-      </section>
+      {/* Latest listings - with Suspense */}
+      <Suspense fallback={<ListingGridSkeleton count={12} />}>
+        <LatestListingsSection />
+      </Suspense>
 
-      {/* How it works */}
-      <section className="my-12 py-8 border-t border-b border-border-crypt">
-        <h2 className="font-display text-xl text-center mb-8 text-accent-reanimate">HOW IT WORKS</h2>
-        <div className="grid md:grid-cols-2 gap-8">
+      {/* How it works - static content, no Suspense needed */}
+      <section className="my-6 py-5 border-t border-b border-border-crypt">
+        <h2 className="font-display text-xl text-center mb-4 text-accent-electric">HOW IT WORKS</h2>
+        <div className="grid md:grid-cols-2 gap-6">
           <div className="card">
             <h3 className="font-display text-lg mb-4">FOR SELLERS</h3>
             <ol className="space-y-2 list-decimal list-inside text-sm">
@@ -119,7 +184,7 @@ export default async function HomePage() {
               <li>Get paid when it sells</li>
             </ol>
             <p className="text-text-muted text-sm mt-4">
-              We take 5-10%. You keep the rest.
+              We handle payments, delivery, and support.
             </p>
           </div>
           <div className="card">
@@ -137,9 +202,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="text-center py-8">
-        <p className="text-lg mb-4 text-text-bone">Got a dead project collecting dust?</p>
+      {/* CTA - static content */}
+      <section className="text-center py-5">
+        <p className="text-lg mb-4 text-text-bone">Built. Shipped. Still waiting?</p>
         <Link href="/sell">
           <Button variant="primary" size="lg">
             Resurrect It — List for Free

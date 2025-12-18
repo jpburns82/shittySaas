@@ -34,7 +34,7 @@
   /* Links — Cyan electric */
   --link-color: #00d4ff;
   --link-visited: #00a8cc;
-  --link-hover: #39ff14;
+  --link-hover: #00d4ff;
 
   /* Accents — Neon */
   --accent-green: #39ff14;
@@ -241,18 +241,32 @@ a.no-underline:hover {
   cursor: not-allowed;
 }
 
-/* Primary button — Neon green */
+/* Primary button — Neon red/pink */
 .btn-primary {
   background: transparent;
-  color: var(--accent-green);
-  border: 2px solid var(--accent-green);
+  color: var(--accent-red);
+  border: 2px solid var(--accent-red);
   font-weight: 500;
 }
 
 .btn-primary:hover {
-  background: var(--accent-green);
+  background: var(--accent-red);
   color: var(--bg-primary);
-  box-shadow: 0 0 10px var(--accent-green), inset 0 0 5px rgba(57, 255, 20, 0.2);
+  box-shadow: 0 0 15px var(--accent-red), 0 0 30px rgba(255, 45, 106, 0.3);
+}
+
+/* Secondary button — Neon cyan */
+.btn-secondary {
+  background: transparent;
+  color: var(--accent-blue);
+  border: 2px solid var(--accent-blue);
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  background: transparent;
+  color: var(--accent-blue);
+  box-shadow: 0 0 15px var(--accent-blue), 0 0 30px rgba(0, 212, 255, 0.3);
 }
 
 /* Danger button — Neon pink */
@@ -341,14 +355,14 @@ input[type="radio"] {
 }
 
 .card:hover {
-  box-shadow: 0 0 20px rgba(57, 255, 20, 0.15), 0 0 40px rgba(57, 255, 20, 0.05);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1), 0 0 40px rgba(0, 212, 255, 0.05);
   border-color: var(--border-medium);
 }
 
 .card-highlight {
   background: var(--bg-accent);
-  border: 2px solid var(--accent-green);
-  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+  border: 2px solid var(--accent-electric);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
 }
 
 /* ----- TABLES ----- */
@@ -438,7 +452,7 @@ tr:hover {
 .price {
   font-family: var(--font-mono);
   font-weight: 600;
-  color: var(--accent-green);
+  color: var(--accent-electric);
 }
 
 .price-free {
@@ -508,8 +522,8 @@ hr.thick {
 }
 
 .logo:hover {
-  color: var(--accent-green);
-  text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+  color: var(--accent-electric);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
 }
 
 .nav {
@@ -563,8 +577,8 @@ hr.thick {
 }
 
 .listing-card:hover {
-  border-color: var(--accent-green);
-  box-shadow: 0 0 20px rgba(57, 255, 20, 0.15);
+  border-color: var(--accent-electric);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
 }
 
 .listing-card-title {
@@ -629,9 +643,9 @@ hr.thick {
 }
 
 .pagination .current {
-  background: var(--accent-green);
+  background: var(--accent-electric);
   color: var(--bg-primary);
-  border-color: var(--accent-green);
+  border-color: var(--accent-electric);
 }
 
 /* ----- TECH TAGS ----- */
@@ -673,7 +687,7 @@ hr.thick {
 }
 
 .category-nav a.active {
-  background: var(--accent-green);
+  background: var(--accent-electric);
   color: var(--bg-primary);
 }
 
@@ -726,12 +740,17 @@ hr.thick {
 .featured-marker {
   display: inline-block;
   background: transparent;
-  color: var(--accent-green);
+  color: var(--accent-electric);
   font-size: 0.6875rem;
   font-family: var(--font-mono);
   padding: 2px 6px;
-  border: 1px solid var(--accent-green);
-  animation: pulse-glow 2s ease-in-out infinite;
+  border: 1px solid var(--accent-electric);
+  animation: pulse-glow-cyan 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-cyan {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.6), 0 0 30px rgba(0, 212, 255, 0.3); }
 }
 
 /* ----- BREADCRUMBS ----- */

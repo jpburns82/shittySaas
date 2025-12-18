@@ -1,16 +1,17 @@
 // ===========================================
 // UndeadList — App Constants & Configuration
-// "Where dead code gets a second life"
+// "Built, but undiscovered."
 // ===========================================
 
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'UndeadList'
-export const APP_TAGLINE = 'Where dead code gets a second life'
+export const APP_TAGLINE = 'Built, but undiscovered. Buy and sell independent software projects that haven\'t found their audience yet — SaaS apps, scripts, boilerplates, and more.'
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 // Japanese accent text for UI decoration
 export const JP_ACCENTS = {
   RESURRECTION: '蘇生',      // Resurrection (logo accent)
   GRAVEYARD: '墓場',         // Graveyard (section headers)
+  TAGLINE: '作られた。でも、まだ見つかっていない。', // Built, but undiscovered.
   NOTHING_HERE: '何もない',  // Nothing here (empty states)
   MARKET_OF_DEAD: '死者の市場', // Market of the Dead (footer)
   REVIVAL: '復活',           // Revival (featured badge)
@@ -189,8 +190,8 @@ export const EXTERNAL_LINKS = {
 // ----- SEO -----
 
 export const SEO = {
-  DEFAULT_TITLE: 'UndeadList — Where Dead Code Gets a Second Life',
-  DEFAULT_DESCRIPTION: 'The graveyard marketplace for abandoned software. Buy and sell dead SaaS, scripts, boilerplates, and side projects. Resurrect. Reanimate. Respawn.',
+  DEFAULT_TITLE: 'UndeadList — Built, but undiscovered.',
+  DEFAULT_DESCRIPTION: 'The marketplace for abandoned software. Buy and sell undiscovered SaaS, scripts, boilerplates, and side projects.',
   OG_IMAGE: '/og-image.png',
 } as const
 

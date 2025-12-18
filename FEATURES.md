@@ -18,7 +18,8 @@
 | User blocking | ✅ Complete | Block/unblock users from messaging |
 | Admin moderation | ✅ Complete | Warn users, suspend threads, listing moderation |
 | Notification settings | ✅ Complete | Message notification preferences (instant/digest/off) |
-| Voting | ⚠️ Partial | UI exists but non-functional (no API) |
+| Account management | ✅ Complete | Password change, account deletion (soft delete) |
+| Voting | ✅ Complete | ⚡ Reanimate / ⚰️ Bury with neon glow effects |
 | Comments | ✅ Complete | Threaded (3-level), 500 char limit, 15-min edit window |
 | Admin users/reports | 📋 Planned | Pages not built |
 
@@ -179,23 +180,26 @@ Price displayed in USD. Stripe handles currency conversion for international buy
 
 ### Voting System
 
-Simple thumbs up / thumbs down on listings.
+Reanimate / Bury voting on listings with neon glow effects.
 
-**Thumbs Up (👍)**
+**⚡ Reanimate (Upvote)**
 - "This looks legit"
 - "Good value"
 - "Seller delivered"
+- Glows neon green on hover/active
 
-**Thumbs Down (👎)**
+**⚰️ Bury (Downvote)**
 - "Something's off"
 - "Overpriced"
 - "Had issues"
+- Glows neon pink on hover/active
 
 **Display:**
-- Show net score: `+12` or `-3`
-- Show ratio: `47 👍 / 5 👎`
+- Show net score with glow: `+12` or `-3`
+- Show ratio: `47 ⚡ / 5 ⚰️`
 - Users can change their vote anytime
 - One vote per user per listing
+- Cannot vote on your own listings
 
 **Who Can Vote:**
 - Any logged-in member

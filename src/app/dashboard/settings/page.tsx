@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
 export default function DashboardSettingsPage() {
   const { data: session, update } = useSession()
+  const router = useRouter()
 
   const [profile, setProfile] = useState({
     displayName: '',
@@ -24,6 +26,23 @@ export default function DashboardSettingsPage() {
   const [notificationPreference, setNotificationPreference] = useState<'instant' | 'digest' | 'off'>('instant')
   const [notificationLoading, setNotificationLoading] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
+
+  // Password change state
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+
+  // Account deletion state
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => {
     // Fetch current profile data
@@ -107,6 +126,81 @@ export default function DashboardSettingsPage() {
       setNotificationMessage('An error occurred.')
     } finally {
       setNotificationLoading(false)
+    }
+  }
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordLoading(true)
+    setPasswordMessage('')
+    setPasswordError('')
+
+    // Client-side validation
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("Passwords don't match")
+      setPasswordLoading(false)
+      return
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters')
+      setPasswordLoading(false)
+      return
+    }
+
+    try {
+      const res = await fetch('/api/user/password', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(passwordForm),
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        setPasswordMessage('Password changed successfully!')
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      } else {
+        setPasswordError(data.error || 'Failed to change password')
+      }
+    } catch {
+      setPasswordError('An error occurred')
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setDeleteLoading(true)
+    setDeleteError('')
+
+    if (deleteConfirmation !== 'DELETE') {
+      setDeleteError('Please type DELETE to confirm')
+      setDeleteLoading(false)
+      return
+    }
+
+    try {
+      const res = await fetch('/api/user/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: deletePassword, confirmation: deleteConfirmation }),
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        // Sign out and redirect to home
+        await signOut({ redirect: false })
+        router.push('/')
+      } else {
+        setDeleteError(data.error || 'Failed to delete account')
+      }
+    } catch {
+      setDeleteError('An error occurred')
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -272,26 +366,41 @@ export default function DashboardSettingsPage() {
       {/* Password section */}
       <section className="card mb-8">
         <h2 className="font-display text-lg mb-4">Change Password</h2>
-        <form className="space-y-4">
+
+        {passwordMessage && (
+          <div className="alert alert-success mb-4">{passwordMessage}</div>
+        )}
+        {passwordError && (
+          <div className="alert alert-error mb-4">{passwordError}</div>
+        )}
+
+        <form onSubmit={handlePasswordChange} className="space-y-4">
           <Input
             label="Current Password"
             name="currentPassword"
             type="password"
             autoComplete="current-password"
+            value={passwordForm.currentPassword}
+            onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
           />
           <Input
             label="New Password"
             name="newPassword"
             type="password"
             autoComplete="new-password"
+            value={passwordForm.newPassword}
+            onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+            hint="At least 8 characters"
           />
           <Input
             label="Confirm New Password"
             name="confirmPassword"
             type="password"
             autoComplete="new-password"
+            value={passwordForm.confirmPassword}
+            onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
           />
-          <Button type="submit">Update Password</Button>
+          <Button type="submit" loading={passwordLoading}>Update Password</Button>
         </form>
       </section>
 
@@ -316,11 +425,83 @@ export default function DashboardSettingsPage() {
                   Permanently delete your account and all data. This cannot be undone.
                 </p>
               </div>
-              <Button variant="danger">Delete Account</Button>
+              <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
+                Delete Account
+              </Button>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full border-accent-red">
+            <h2 className="font-display text-xl mb-4 text-accent-red">Delete Account</h2>
+
+            <div className="mb-6 p-4 bg-accent-red/10 border border-accent-red rounded">
+              <p className="text-sm font-medium text-accent-red mb-2">Warning: This action is irreversible!</p>
+              <ul className="text-sm text-text-muted space-y-1">
+                <li>- Your profile will be permanently deleted</li>
+                <li>- All your listings will be removed</li>
+                <li>- Your purchase history will be anonymized</li>
+                <li>- You will lose access to all purchased items</li>
+              </ul>
+            </div>
+
+            {deleteError && (
+              <div className="alert alert-error mb-4">{deleteError}</div>
+            )}
+
+            <form onSubmit={handleDeleteAccount} className="space-y-4">
+              <Input
+                label="Enter your password"
+                name="deletePassword"
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                autoComplete="current-password"
+              />
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Type <span className="font-mono text-accent-red">DELETE</span> to confirm
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  placeholder="DELETE"
+                  className="w-full"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteModal(false)
+                    setDeletePassword('')
+                    setDeleteConfirmation('')
+                    setDeleteError('')
+                  }}
+                  disabled={deleteLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="danger"
+                  loading={deleteLoading}
+                  disabled={deleteConfirmation !== 'DELETE'}
+                >
+                  Delete My Account
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

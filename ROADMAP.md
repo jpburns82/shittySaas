@@ -623,18 +623,24 @@ pnpm dev
 - [x] Comment item with badges (OP, Verified Purchase, Seller)
 - [x] Report comment modal
 - [x] 15-minute edit window
-- [ ] Voting API (`/api/listings/[id]/vote`)
-- [ ] Wire vote buttons to backend (UI exists, non-functional)
+- [x] Voting API (`/api/listings/[id]/vote`)
+- [x] VoteButtons component with ⚡ Reanimate / ⚰️ Bury
+- [x] useVote hook with optimistic updates
+- [x] Neon glow effects on vote buttons
 
-**Deliverable:** Threaded comments system complete, voting pending
+**Deliverable:** Threaded comments and voting system complete
 
-### Phase 6: Account & Settings 📋 PLANNED
+### Phase 6: Account & Settings ✅ COMPLETE
 
-- [ ] Password change
-- [ ] Account deletion
+- [x] Password change API (`/api/user/password`)
+- [x] Password change form with validation
+- [x] Account deletion API (`/api/user/delete`)
+- [x] Account deletion modal with confirmation
+- [x] Soft delete (anonymize data, preserve transaction history)
+- [x] Block deleted users from login
 - [ ] Listing archive functionality
 
-**Deliverable:** Full account management
+**Deliverable:** Full account management (archive pending)
 
 ### Phase 7: Admin Expansion 📋 PLANNED
 

@@ -33,6 +33,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
+        // Block deleted users from logging in
+        if (user.deletedAt) {
+          return null
+        }
+
         const isValid = await bcrypt.compare(
           credentials.password as string,
           user.passwordHash

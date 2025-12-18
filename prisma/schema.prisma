@@ -50,6 +50,9 @@ model User {
   bannedAt          DateTime?
   banReason         String?
 
+  // Soft Delete
+  deletedAt         DateTime?
+
   // Notification Preferences
   messageNotifications String @default("instant") // "instant" | "digest" | "off"
 

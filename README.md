@@ -159,7 +159,7 @@ See `prisma/schema.prisma` for the full schema.
 - Messaging inbox with conversation list
 - Message thread detail page with attachments
 - Message notification preferences (instant/digest/off)
-- Account settings
+- Account settings (password change, account deletion)
 
 **Admin**
 - Admin dashboard with platform stats
@@ -168,6 +168,7 @@ See `prisma/schema.prisma` for the full schema.
 - Thread suspension
 
 **Community**
+- Voting system (⚡ Reanimate / ⚰️ Bury) with neon glow effects
 - Threaded comments system (3-level depth)
 - Comment composer with 500 char limit
 - Edit window (15 minutes)
@@ -182,12 +183,12 @@ See `prisma/schema.prisma` for the full schema.
 ### Remaining Work
 | Phase | Feature | Status |
 |-------|---------|--------|
-| 5 | Voting API (`/api/listings/[id]/vote`) | Not started |
-| 5 | Wire vote buttons to API | UI exists, needs backend |
-| 6 | Password change | Not started |
-| 6 | Account deletion | Not started |
 | 7 | Admin users management page | Not started |
 | 7 | Admin reports page | Not started |
+| 7 | Featured listings controls | Not started |
+| 8 | SEO & meta tags | Not started |
+| 8 | Mobile responsiveness audit | Not started |
+| 8 | Production deployment | Not started |
 
 ## Design System
 

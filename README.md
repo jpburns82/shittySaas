@@ -183,15 +183,16 @@ See `prisma/schema.prisma` for the full schema.
 - Stripe CLI configured for local webhooks
 - All TypeScript errors resolved
 
-### Remaining Work
-| Phase | Feature | Status |
-|-------|---------|--------|
-| 7 | Admin users management page | ✅ Complete |
-| 7 | Admin reports page | ✅ Complete |
-| 7 | Featured listings (admin + paid promotion) | ✅ Complete |
-| 8 | SEO & meta tags | Not started |
-| 8 | Mobile responsiveness audit | Not started |
-| 8 | Production deployment | Not started |
+### Remaining Work (Phase 8: Launch Prep)
+| Task | Status |
+|------|--------|
+| Meta tags and OpenGraph images | Not started |
+| Mobile responsiveness audit and fixes | Not started |
+| Lighthouse performance audit | Not started |
+| Production environment setup | Not started |
+| Vercel deployment configuration | Not started |
+| Production Stripe keys and webhooks | Not started |
+| Initial seed data for launch | Not started |
 
 ## Design System
 

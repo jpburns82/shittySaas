@@ -200,239 +200,61 @@ undeadlist/
 
 ## Database Schema
 
+The full database schema is in `prisma/schema.prisma`. Key models:
+
+### Core Models
+
+| Model | Purpose |
+|-------|---------|
+| **User** | Accounts with Stripe Connect, profiles, admin/ban status, soft delete |
+| **Listing** | Projects for sale with pricing, tech stack, delivery methods, featured status |
+| **ListingFile** | Uploaded files for listings (R2 storage) |
+| **Category** | Listing categories |
+| **Purchase** | Transaction records with Stripe references, delivery tracking |
+
+### Community Models
+
+| Model | Purpose |
+|-------|---------|
+| **Vote** | Reanimate (+1) / Bury (-1) votes on listings |
+| **Comment** | Threaded comments (3-level depth), 15-min edit window |
+| **BlockedUser** | User blocking relationships |
+
+### Messaging Models
+
+| Model | Purpose |
+|-------|---------|
+| **MessageThread** | Conversation threads between buyer/seller |
+| **Message** | Individual messages with read status |
+| **MessageAttachment** | File attachments on messages |
+| **UserWarning** | Admin warnings issued to users |
+
+### Moderation Models
+
+| Model | Purpose |
+|-------|---------|
+| **Report** | Community reports for listings/comments/users/messages |
+| **AuditLog** | Admin action logging |
+| **FeaturedPurchase** | Paid featured listing promotions |
+| **ListingView** | Analytics for listing views |
+
+### Enums
+
 ```prisma
-// prisma/schema.prisma
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// ============ USERS ============
-
-model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  username        String    @unique
-  passwordHash    String
-  displayName     String?
-  bio             String?
-  avatarUrl       String?
-  
-  // Stripe Connect
-  stripeAccountId String?   @unique
-  stripeOnboarded Boolean   @default(false)
-  
-  // Status
-  emailVerified   DateTime?
-  isAdmin         Boolean   @default(false)
-  isBanned        Boolean   @default(false)
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  // Relations
-  listings        Listing[]
-  purchases       Purchase[]
-  sentMessages    Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
-  
-  @@index([email])
-  @@index([username])
-  @@index([stripeAccountId])
-}
-
-// ============ LISTINGS ============
-
-model Listing {
-  id              String    @id @default(cuid())
-  slug            String    @unique
-  
-  // Basic Info
-  title           String
-  description     String    @db.Text
-  shortDescription String?  @db.VarChar(280)
-  
-  // Pricing
-  priceType       PriceType @default(FIXED)
-  price           Int?      // In cents, null for free
-  minPrice        Int?      // For "pay what you want"
-  
-  // What's Included
-  whatsIncluded   String?   @db.Text
-  techStack       String[]  // Array of tech tags
-  
-  // URLs
-  liveUrl         String?
-  repoUrl         String?
-  
-  // Files (for digital delivery)
-  files           ListingFile[]
-  
-  // Media
-  screenshots     String[]  // Array of URLs
-  
-  // Categorization
-  category        Category  @relation(fields: [categoryId], references: [id])
-  categoryId      String
-  
-  // Status
-  status          ListingStatus @default(DRAFT)
-  featured        Boolean   @default(false)
-  featuredUntil   DateTime?
-  
-  // Stats
-  viewCount       Int       @default(0)
-  
-  // Ownership
-  seller          User      @relation(fields: [sellerId], references: [id])
-  sellerId        String
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  // Relations
-  purchases       Purchase[]
-  messages        Message[]
-  
-  @@index([sellerId])
-  @@index([categoryId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-model ListingFile {
-  id          String   @id @default(cuid())
-  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  listingId   String
-  
-  fileName    String
-  fileSize    Int      // In bytes
-  fileKey     String   // R2 object key
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([listingId])
-}
-
-enum PriceType {
-  FREE
-  FIXED
-  PAY_WHAT_YOU_WANT
-  CONTACT
-}
-
-enum ListingStatus {
-  DRAFT
-  PENDING_REVIEW
-  ACTIVE
-  SOLD
-  ARCHIVED
-  REJECTED
-}
-
-// ============ CATEGORIES ============
-
-model Category {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?
-  icon        String?   // Emoji or icon name
-  sortOrder   Int       @default(0)
-  
-  listings    Listing[]
-  
-  @@index([slug])
-}
-
-// ============ PURCHASES ============
-
-model Purchase {
-  id                String   @id @default(cuid())
-  
-  listing           Listing  @relation(fields: [listingId], references: [id])
-  listingId         String
-  
-  buyer             User     @relation(fields: [buyerId], references: [id])
-  buyerId           String
-  
-  // Payment
-  amountPaid        Int      // In cents
-  platformFee       Int      // Your cut, in cents
-  sellerPayout      Int      // Seller gets, in cents
-  
-  // Stripe
-  stripePaymentId   String   @unique
-  stripeTransferId  String?  // Transfer to seller
-  
-  // Status
-  status            PurchaseStatus @default(PENDING)
-  
-  // Delivery
-  deliveredAt       DateTime?
-  
-  // Guest checkout (if no account)
-  guestEmail        String?
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  @@index([listingId])
-  @@index([buyerId])
-  @@index([stripePaymentId])
-}
-
-enum PurchaseStatus {
-  PENDING
-  COMPLETED
-  REFUNDED
-  DISPUTED
-}
-
-// ============ MESSAGES ============
-
-model Message {
-  id          String   @id @default(cuid())
-  
-  listing     Listing  @relation(fields: [listingId], references: [id])
-  listingId   String
-  
-  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
-  senderId    String
-  
-  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  receiverId  String
-  
-  content     String   @db.Text
-  read        Boolean  @default(false)
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([listingId])
-  @@index([senderId])
-  @@index([receiverId])
-}
-
-// ============ ADMIN ============
-
-model AuditLog {
-  id          String   @id @default(cuid())
-  action      String
-  entityType  String
-  entityId    String
-  userId      String?
-  metadata    Json?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([entityType, entityId])
-}
+enum PriceType { FREE, FIXED, PAY_WHAT_YOU_WANT, CONTACT }
+enum ListingStatus { DRAFT, ACTIVE, SOLD, ARCHIVED, REMOVED }
+enum DeliveryMethod { INSTANT_DOWNLOAD, REPOSITORY_ACCESS, MANUAL_TRANSFER, DOMAIN_TRANSFER }
+enum PurchaseStatus { PENDING, COMPLETED, FAILED, REFUNDED, DISPUTED }
+enum DeliveryStatus { PENDING, DELIVERED, CONFIRMED, AUTO_COMPLETED }
+enum ThreadStatus { ACTIVE, SUSPENDED, ARCHIVED }
+enum ReportEntityType { LISTING, COMMENT, USER, MESSAGE }
+enum ReportReason { SPAM, STOLEN_CODE, MISLEADING, SCAM, MALWARE, HARASSMENT, ILLEGAL, COPYRIGHT, OTHER }
+enum ReportStatus { PENDING, REVIEWED, ACTION_TAKEN, DISMISSED }
+enum WarningReason { INAPPROPRIATE, HARASSMENT, SCAM, POLICY_VIOLATION, OTHER }
+enum FeaturedStatus { PENDING, ACTIVE, EXPIRED, CANCELLED, REFUNDED }
 ```
+
+See `prisma/schema.prisma` for the complete schema with all fields and relations.
 
 ---
 
@@ -658,24 +480,30 @@ pnpm dev
 
 ### Phase 8: Launch Prep 📋 PLANNED
 
-- [ ] SEO (meta tags, OG images)
-- [ ] Mobile responsive check
-- [ ] Performance audit
-- [ ] Deploy to Vercel
-- [ ] Set up production database
-- [ ] Configure production Stripe
-- [ ] Seed initial listings
+- [ ] Meta tags and OpenGraph images for all pages
+- [ ] Mobile responsiveness audit and fixes
+- [ ] Lighthouse performance audit (target 90+ scores)
+- [ ] Production environment setup (Vercel)
+- [ ] Production database (Neon) with connection pooling
+- [ ] Production Stripe keys and webhook configuration
+- [ ] Production R2 bucket and CORS settings
+- [ ] Production Resend domain verification
+- [ ] Initial seed data for launch
+- [ ] Error monitoring (Sentry)
+- [ ] User flow testing (registration → purchase → delivery)
 
 **Deliverable:** Production-ready launch
 
 ### Future (Post-Launch)
 
-- [ ] "Pay what you want" pricing
+- [x] "Pay what you want" pricing (implemented in schema)
 - [x] Featured listing purchases (completed in Phase 7)
-- [ ] Seller analytics
+- [ ] Seller analytics dashboard
 - [ ] Rating/review system
-- [ ] Improved search (Meilisearch)
+- [ ] Improved search (Meilisearch or Postgres full-text)
 - [ ] API for external integrations
+- [ ] Auction/bidding format
+- [ ] Bundle listings
 
 ---
 
@@ -776,32 +604,43 @@ Used sparingly for atmosphere (decorative, not replacing English):
 #### Buttons
 
 ```css
-/* Primary button - looks like Win95/98 */
-.btn {
-  background: var(--button-bg);
-  border: 2px solid;
-  border-color: #ffffff #808080 #808080 #ffffff; /* 3D raised effect */
-  padding: 6px 16px;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  cursor: pointer;
-}
-
-.btn:hover {
-  background: var(--button-hover);
-}
-
-.btn:active {
-  border-color: #808080 #ffffff #ffffff #808080; /* 3D pressed effect */
-}
-
-/* Link button */
-.btn-link {
-  background: none;
+/* Primary button - neon glow */
+.btn-primary {
+  background: var(--accent-reanimate);
+  color: var(--bg-crypt);
   border: none;
-  color: var(--accent-blue);
-  text-decoration: underline;
+  padding: 8px 20px;
+  font-family: var(--font-body);
+  font-weight: 600;
   cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+  box-shadow: var(--glow-green);
+}
+
+/* Ghost button */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-crypt);
+  color: var(--text-bone);
+  padding: 8px 20px;
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent-electric);
+  color: var(--accent-electric);
+}
+
+/* Danger button */
+.btn-danger {
+  background: var(--accent-bury);
+  color: white;
+}
+
+.btn-danger:hover {
+  box-shadow: var(--glow-pink);
 }
 ```
 
@@ -809,20 +648,24 @@ Used sparingly for atmosphere (decorative, not replacing English):
 
 ```css
 .card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-dark);
-  padding: 12px;
+  background: var(--bg-grave);
+  border: 1px solid var(--border-crypt);
+  padding: 16px;
+}
+
+.card:hover {
+  border-color: var(--accent-electric);
 }
 
 .card-title {
   font-size: var(--text-base);
   font-weight: 600;
-  color: var(--accent-blue);
-  text-decoration: underline;
+  color: var(--text-bone);
 }
 
-.card-title:hover {
-  color: var(--accent-blue-visited);
+.card-price {
+  color: var(--accent-reanimate);
+  font-weight: 600;
 }
 ```
 
@@ -830,21 +673,25 @@ Used sparingly for atmosphere (decorative, not replacing English):
 
 ```css
 input, textarea, select {
-  border: 2px solid;
-  border-color: #808080 #ffffff #ffffff #808080; /* Inset effect */
-  padding: 6px 8px;
+  background: var(--bg-crypt);
+  border: 1px solid var(--border-crypt);
+  color: var(--text-bone);
+  padding: 10px 12px;
   font-family: var(--font-body);
-  font-size: var(--text-sm);
-  background: #ffffff;
 }
 
 input:focus, textarea:focus, select:focus {
-  outline: 1px dotted var(--text-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--accent-electric);
+  box-shadow: var(--glow-cyan);
+}
+
+input::placeholder {
+  color: var(--text-dust);
 }
 ```
 
-#### Tables (for listings, admin)
+#### Tables (for dashboard, admin)
 
 ```css
 table {
@@ -854,20 +701,23 @@ table {
 }
 
 th {
-  background: var(--button-bg);
-  border: 1px solid var(--border-dark);
-  padding: 8px;
+  background: var(--bg-grave);
+  border: 1px solid var(--border-crypt);
+  padding: 12px;
   text-align: left;
-  font-weight: 600;
+  color: var(--text-dust);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
 }
 
 td {
-  border: 1px solid var(--border-light);
-  padding: 8px;
+  border-bottom: 1px solid var(--border-crypt);
+  padding: 12px;
+  color: var(--text-bone);
 }
 
 tr:hover {
-  background: var(--bg-accent);
+  background: var(--bg-tombstone);
 }
 ```
 
@@ -943,18 +793,18 @@ Simple, dense, functional. No hamburger menu on desktop.
 +------------------------------------------------------------------+
 ```
 
-### Retro Touches
+### Design Touches
 
-1. **Underlined links** — Always. Blue unvisited, purple visited.
-2. **ASCII/text dividers** — Use `---`, `===`, `***` in some places
-3. **Badge styling** — Simple rectangles with borders, not pills
-4. **"NEW!" markers** — Yellow background, bold text, maybe blinking (sparingly)
+1. **Neon accents** — Reanimate green (#39ff14) for positive, Bury pink (#ff2d6a) for negative
+2. **Glow effects** — Subtle glow on hover for interactive elements
+3. **Japanese accents** — Kanji characters for atmosphere (蘇生, 墓場, 復活)
+4. **Monospace details** — Code aesthetic throughout with IBM Plex Mono
 5. **Counters** — "234 views", "12 sold", visible numbers everywhere
 6. **Breadcrumbs** — Text-based: `Home > Category > Listing`
-7. **Footer links** — Craigslist-style dense footer with every link
+7. **Footer links** — Dense footer with every link
 8. **Hit counters** — Show listing view counts prominently
 9. **"Posted X days ago"** — Relative timestamps everywhere
-10. **Email aesthetic** — Some elements can look like plain-text email
+10. **Dark-first** — Black backgrounds, neon accents, visible borders
 
 ### What to Avoid
 
@@ -982,21 +832,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'bg-primary': '#f5f5f0',
-        'bg-secondary': '#ffffff',
-        'bg-accent': '#fffde7',
-        'border-light': '#d0d0c8',
-        'border-dark': '#333333',
-        'text-primary': '#1a1a1a',
-        'text-secondary': '#555555',
-        'text-muted': '#888888',
-        'link': '#0000ee',
-        'link-visited': '#551a8b',
-        'success': '#008000',
-        'error': '#cc0000',
-        'warning': '#ffcc00',
-        'btn-bg': '#e0e0e0',
-        'btn-border': '#999999',
+        // Backgrounds - The Crypt
+        'crypt': '#0d0d0d',        // Deep black
+        'grave': '#1a1a1a',        // Dark gray for cards
+        'tombstone': '#2a2a2a',    // Hover states
+
+        // Borders
+        'border-crypt': '#333333',
+
+        // Text
+        'bone': '#e8e8e8',         // Primary text
+        'dust': '#888888',         // Muted text
+
+        // Neon Accents
+        'reanimate': '#39ff14',    // Neon green - upvotes, CTAs
+        'bury': '#ff2d6a',         // Neon pink - downvotes, danger
+        'electric': '#00d4ff',     // Cyan - links, focus
       },
       fontFamily: {
         'body': ['IBM Plex Sans', 'system-ui', 'sans-serif'],
@@ -1011,8 +862,10 @@ const config: Config = {
         'xl': '1.5rem',
         '2xl': '2rem',
       },
-      borderWidth: {
-        '3': '3px',
+      boxShadow: {
+        'glow-green': '0 0 10px #39ff14, 0 0 20px #39ff1466',
+        'glow-pink': '0 0 10px #ff2d6a',
+        'glow-cyan': '0 0 8px #00d4ff',
       },
     },
   },

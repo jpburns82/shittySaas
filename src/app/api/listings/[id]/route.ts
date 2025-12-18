@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { updateListingSchema } from '@/lib/validations'
+import { deleteFile, getKeyFromUrl } from '@/lib/r2'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -78,7 +79,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     const listing = await prisma.listing.findUnique({
       where: { id },
-      select: { sellerId: true },
+      select: { sellerId: true, thumbnailUrl: true, screenshots: true },
     })
 
     if (!listing) {
@@ -105,9 +106,42 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       )
     }
 
+    // Clean up removed images from R2
+    const newData = validation.data
+
+    // Delete old thumbnail if it changed and was an R2 URL
+    if (
+      newData.thumbnailUrl !== undefined &&
+      listing.thumbnailUrl &&
+      listing.thumbnailUrl !== newData.thumbnailUrl &&
+      listing.thumbnailUrl.includes('r2.dev')
+    ) {
+      try {
+        const key = getKeyFromUrl(listing.thumbnailUrl)
+        await deleteFile(key)
+      } catch (err) {
+        console.error('Failed to delete old thumbnail:', err)
+      }
+    }
+
+    // Delete removed screenshots from R2
+    if (newData.screenshots !== undefined) {
+      const removedScreenshots = listing.screenshots.filter(
+        (url) => !newData.screenshots?.includes(url) && url.includes('r2.dev')
+      )
+      for (const url of removedScreenshots) {
+        try {
+          const key = getKeyFromUrl(url)
+          await deleteFile(key)
+        } catch (err) {
+          console.error('Failed to delete screenshot:', err)
+        }
+      }
+    }
+
     const updated = await prisma.listing.update({
       where: { id },
-      data: validation.data,
+      data: newData,
     })
 
     return NextResponse.json({
@@ -138,7 +172,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     const listing = await prisma.listing.findUnique({
       where: { id },
-      select: { sellerId: true },
+      select: { sellerId: true, thumbnailUrl: true, screenshots: true },
     })
 
     if (!listing) {
@@ -153,6 +187,26 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         { success: false, error: 'Forbidden' },
         { status: 403 }
       )
+    }
+
+    // Clean up images from R2 before deleting listing
+    const imagesToDelete: string[] = []
+    if (listing.thumbnailUrl?.includes('r2.dev')) {
+      imagesToDelete.push(listing.thumbnailUrl)
+    }
+    for (const url of listing.screenshots) {
+      if (url.includes('r2.dev')) {
+        imagesToDelete.push(url)
+      }
+    }
+
+    for (const url of imagesToDelete) {
+      try {
+        const key = getKeyFromUrl(url)
+        await deleteFile(key)
+      } catch (err) {
+        console.error('Failed to delete image:', err)
+      }
     }
 
     await prisma.listing.delete({ where: { id } })

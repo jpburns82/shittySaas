@@ -3,21 +3,10 @@ import Image from 'next/image'
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { ListingGrid } from '@/components/listings/listing-grid'
-import { CategoryNav } from '@/components/search/category-nav'
 import { Button } from '@/components/ui/button'
 import { APP_TAGLINE, JP_ACCENTS } from '@/lib/constants'
 
 // Skeleton components for loading states
-function CategorySkeleton() {
-  return (
-    <div className="flex gap-2 mb-6 overflow-x-auto py-2">
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className="h-8 w-24 bg-bg-grave rounded animate-pulse" />
-      ))}
-    </div>
-  )
-}
-
 function ListingGridSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -33,21 +22,15 @@ function ListingGridSkeleton({ count = 4 }: { count?: number }) {
 }
 
 // Async components for data fetching with Suspense
-async function CategoriesSection() {
-  const categories = await prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: 'asc' },
-  })
-
-  return <CategoryNav categories={categories} />
-}
-
 async function FeaturedListingsSection() {
   const featuredListings = await prisma.listing.findMany({
     where: {
       status: 'ACTIVE',
       featured: true,
-      featuredUntil: { gte: new Date() },
+      OR: [
+        { featuredUntil: null }, // indefinite
+        { featuredUntil: { gte: new Date() } },
+      ],
     },
     orderBy: { createdAt: 'desc' },
     take: 4,
@@ -81,42 +64,6 @@ async function FeaturedListingsSection() {
   )
 }
 
-async function LatestListingsSection() {
-  const listings = await prisma.listing.findMany({
-    where: { status: 'ACTIVE' },
-    orderBy: { createdAt: 'desc' },
-    take: 12,
-    include: {
-      seller: {
-        select: {
-          username: true,
-          isVerifiedSeller: true,
-        },
-      },
-      category: {
-        select: {
-          slug: true,
-          name: true,
-        },
-      },
-    },
-  })
-
-  return (
-    <section className="mt-4 mb-6">
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="font-display text-xl">LATEST LISTINGS</h2>
-        <Link href="/listings" className="text-sm">
-          View All →
-        </Link>
-      </div>
-      <ListingGrid
-        listings={listings}
-        emptyMessage="No listings yet. Be the first to sell something!"
-      />
-    </section>
-  )
-}
 
 export default function HomePage() {
   return (
@@ -156,19 +103,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Categories - with Suspense */}
-      <Suspense fallback={<CategorySkeleton />}>
-        <CategoriesSection />
-      </Suspense>
-
       {/* Featured listings - with Suspense */}
       <Suspense fallback={<ListingGridSkeleton count={4} />}>
         <FeaturedListingsSection />
-      </Suspense>
-
-      {/* Latest listings - with Suspense */}
-      <Suspense fallback={<ListingGridSkeleton count={12} />}>
-        <LatestListingsSection />
       </Suspense>
 
       {/* How it works - static content, no Suspense needed */}

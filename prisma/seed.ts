@@ -1,6 +1,54 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, PriceType } from '@prisma/client'
 
 const prisma = new PrismaClient()
+
+// Demo listings data
+const demoListings = [
+  {
+    slug: 'prometheus-ai',
+    title: 'Prometheus AI',
+    shortDescription: 'Offline AI chat app bundling Ollama + Dolphin Mistral in a single installer',
+    description: 'A fully offline AI chat application that bundles Ollama with the Dolphin Mistral model. Single installer for Windows, Mac, and Linux. No internet required after installation.',
+    priceType: 'FIXED' as PriceType,
+    priceInCents: 199,
+    techStack: ['Tauri', 'Rust', 'React', 'Ollama'],
+    thumbnailUrl: '/images/seed/prometheus thumbnail2.png',
+    categorySlug: 'ai',
+  },
+  {
+    slug: 'astral-saas',
+    title: 'Astral',
+    shortDescription: 'Beautiful SaaS starter kit with auth, payments, and dashboard built-in',
+    description: 'Launch your SaaS faster with Astral. Includes authentication, Stripe payments, admin dashboard, email templates, and more. Built with Next.js 14 and Tailwind CSS.',
+    priceType: 'FIXED' as PriceType,
+    priceInCents: 4999,
+    techStack: ['Next.js', 'TypeScript', 'Stripe', 'Prisma'],
+    thumbnailUrl: '/images/seed/astral logo color.png',
+    categorySlug: 'saas',
+  },
+  {
+    slug: 'breakupbot',
+    title: 'BreakupBot',
+    shortDescription: 'AI-powered relationship advice and breakup text generator',
+    description: 'Let AI handle the awkward conversations. BreakupBot generates thoughtful, empathetic breakup messages tailored to your situation. Includes API access.',
+    priceType: 'FIXED' as PriceType,
+    priceInCents: 299,
+    techStack: ['Python', 'FastAPI', 'OpenAI', 'React'],
+    thumbnailUrl: '/images/seed/breakupbotlogo.png',
+    categorySlug: 'ai',
+  },
+  {
+    slug: 'y2k-aesthetic-kit',
+    title: 'Y2K Aesthetic Kit',
+    shortDescription: 'Retro Y2K design system with components, icons, and animations',
+    description: 'Bring back the 2000s vibes with this comprehensive Y2K design kit. Includes 50+ components, 200+ icons, gradient presets, and CSS animations. Perfect for nostalgic web projects.',
+    priceType: 'FIXED' as PriceType,
+    priceInCents: 1499,
+    techStack: ['Figma', 'CSS', 'React', 'Tailwind'],
+    thumbnailUrl: '/images/seed/y2k logo.png',
+    categorySlug: 'design',
+  },
+]
 
 const categories = [
   {
@@ -91,7 +139,7 @@ const categories = [
 
 async function main() {
   console.log('🌱 Seeding categories...')
-  
+
   for (const category of categories) {
     const result = await prisma.category.upsert({
       where: { slug: category.slug },
@@ -100,8 +148,74 @@ async function main() {
     })
     console.log(`  ✓ ${result.name}`)
   }
-  
-  console.log('✅ Seeding complete!')
+
+  console.log('\n🌱 Finding seller user...')
+
+  // Find and update existing ghostdev user with avatar
+  const sellerUser = await prisma.user.upsert({
+    where: { email: 'seller@undeadlist.test' },
+    update: {
+      avatarUrl: '/images/avatars/ghostdev.png',
+    },
+    create: {
+      email: 'seller@undeadlist.test',
+      username: 'ghostdev',
+      displayName: 'Ghost Developer',
+      role: 'USER',
+      isVerifiedSeller: true,
+      avatarUrl: '/images/avatars/ghostdev.png',
+    },
+  })
+  console.log(`  ✓ Seller user: @${sellerUser.username}`)
+
+  console.log('\n🌱 Seeding demo listings...')
+
+  for (const listing of demoListings) {
+    // Get the category by slug
+    const category = await prisma.category.findUnique({
+      where: { slug: listing.categorySlug },
+    })
+
+    if (!category) {
+      console.log(`  ✗ Category not found: ${listing.categorySlug}`)
+      continue
+    }
+
+    const result = await prisma.listing.upsert({
+      where: { slug: listing.slug },
+      update: {
+        title: listing.title,
+        shortDescription: listing.shortDescription,
+        description: listing.description,
+        priceType: listing.priceType,
+        priceInCents: listing.priceInCents,
+        techStack: listing.techStack,
+        thumbnailUrl: listing.thumbnailUrl,
+        featured: true,
+        featuredUntil: null, // indefinite
+        status: 'ACTIVE',
+      },
+      create: {
+        slug: listing.slug,
+        title: listing.title,
+        shortDescription: listing.shortDescription,
+        description: listing.description,
+        priceType: listing.priceType,
+        priceInCents: listing.priceInCents,
+        techStack: listing.techStack,
+        thumbnailUrl: listing.thumbnailUrl,
+        categoryId: category.id,
+        sellerId: sellerUser.id,
+        featured: true,
+        featuredUntil: null, // indefinite
+        status: 'ACTIVE',
+        publishedAt: new Date(),
+      },
+    })
+    console.log(`  ✓ ${result.title}`)
+  }
+
+  console.log('\n✅ Seeding complete!')
 }
 
 main()

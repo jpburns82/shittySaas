@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { formatRelativeTime } from '@/lib/utils'
 import { PriceBadge } from './price-badge'
 import { TechStackTags } from './tech-stack-tags'
@@ -16,6 +17,19 @@ export function ListingCard({ listing }: ListingCardProps) {
       {listing.featured && (
         <div className="mb-2">
           <FeaturedBadge />
+        </div>
+      )}
+
+      {/* Thumbnail */}
+      {listing.thumbnailUrl && (
+        <div className="aspect-video relative mb-3 rounded overflow-hidden bg-bg-grave">
+          <Image
+            src={listing.thumbnailUrl}
+            alt={listing.title}
+            fill
+            className="object-cover"
+            unoptimized
+          />
         </div>
       )}
 

@@ -1,10 +1,12 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { formatRelativeTime, formatDate } from '@/lib/utils'
 import { PriceBadge } from './price-badge'
 import { TechStackTags } from './tech-stack-tags'
 import { VoteButtons } from './vote-buttons'
 import { VerifiedBadge, FeaturedBadge } from '../ui/badge'
 import { Button } from '../ui/button'
+import { ImageGallery } from '../ui/image-gallery'
 import type { ListingDetail as ListingDetailType } from '@/types/listing'
 
 interface ListingDetailProps {
@@ -41,32 +43,33 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
         </div>
       </header>
 
+      {/* Thumbnail */}
+      {listing.thumbnailUrl && (
+        <div className="aspect-video relative mb-6 rounded-lg overflow-hidden bg-bg-grave max-w-2xl">
+          <Image
+            src={listing.thumbnailUrl}
+            alt={listing.title}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+        </div>
+      )}
+
       <div className="grid md:grid-cols-3 gap-6">
         {/* Main content (2 cols) */}
         <div className="md:col-span-2 space-y-6">
-          {/* Screenshots */}
+          {/* Screenshots Gallery */}
           {listing.screenshots.length > 0 && (
-            <div className="space-y-2">
-              <div className="border border-border-dark bg-bg-secondary p-2">
-                <img
-                  src={listing.screenshots[0]}
-                  alt={`${listing.title} screenshot`}
-                  className="w-full h-auto"
-                />
-              </div>
-              {listing.screenshots.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto">
-                  {listing.screenshots.slice(1).map((url, i) => (
-                    <img
-                      key={i}
-                      src={url}
-                      alt={`Screenshot ${i + 2}`}
-                      className="w-24 h-16 object-cover border border-border-dark"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+            <section>
+              <h2 className="font-display text-lg border-b border-border-light pb-2 mb-4">
+                Screenshots
+              </h2>
+              <ImageGallery
+                images={listing.screenshots}
+                alt={listing.title}
+              />
+            </section>
           )}
 
           {/* Description */}
@@ -186,9 +189,21 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
           <div className="card">
             <h3 className="font-display text-base mb-3">Seller</h3>
             <div className="flex items-start gap-3">
-              <div className="w-12 h-12 bg-btn-bg border border-border-dark flex items-center justify-center font-display text-lg">
-                {listing.seller.displayName?.[0] || listing.seller.username[0].toUpperCase()}
-              </div>
+              {listing.seller.avatarUrl ? (
+                <div className="w-12 h-12 relative rounded-full overflow-hidden">
+                  <Image
+                    src={listing.seller.avatarUrl}
+                    alt={listing.seller.username}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              ) : (
+                <div className="w-12 h-12 bg-btn-bg border border-border-dark flex items-center justify-center font-display text-lg">
+                  {listing.seller.displayName?.[0] || listing.seller.username[0].toUpperCase()}
+                </div>
+              )}
               <div>
                 <Link href={`/user/${listing.seller.username}`} className="font-medium">
                   @{listing.seller.username}

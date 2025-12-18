@@ -46,7 +46,9 @@
       "Bash(xargs grep:*)",
       "Bash(pnpm lint)",
       "Bash(ps aux:*)",
-      "Bash(identify:*)"
+      "Bash(identify:*)",
+      "Bash(git clean:*)",
+      "Bash(pnpm db:seed:*)"
     ]
   }
 }

@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Select } from '../ui/select'
+import { ImageUpload } from '../ui/image-upload'
 import { TechStackTags } from './tech-stack-tags'
 import { TECH_STACK_OPTIONS, LISTING_LIMITS } from '@/lib/constants'
 import type { Category } from '@prisma/client'
@@ -26,6 +27,8 @@ export interface ListingFormData {
   priceInCents?: number
   minPriceInCents?: number
   techStack: string[]
+  thumbnailUrl?: string
+  screenshots: string[]
   liveUrl?: string
   repoUrl?: string
   videoUrl?: string
@@ -51,6 +54,8 @@ const defaultFormData: ListingFormData = {
   priceType: 'FIXED',
   priceInCents: 0,
   techStack: [],
+  thumbnailUrl: '',
+  screenshots: [],
   deliveryMethod: 'INSTANT_DOWNLOAD',
   deliveryTimeframeDays: 0,
   includesSourceCode: true,
@@ -153,6 +158,48 @@ export function ListingForm({
           error={errors.categoryId}
           required
         />
+      </fieldset>
+
+      {/* Images */}
+      <fieldset className="space-y-4">
+        <legend className="font-display text-lg border-b border-border-dark pb-2 mb-4">
+          Images
+        </legend>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            Thumbnail Image
+          </label>
+          <p className="text-xs text-text-muted mb-3">
+            Main image shown in listing cards. Recommended: 16:9 aspect ratio.
+          </p>
+          <ImageUpload
+            value={formData.thumbnailUrl}
+            onChange={(url) => handleChange('thumbnailUrl', url as string)}
+            uploadEndpoint="/api/listings/screenshots"
+            aspectRatio="16:9"
+            maxSize={5 * 1024 * 1024}
+            placeholder="Drop thumbnail here or click to upload"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            Screenshots ({formData.screenshots.length}/6)
+          </label>
+          <p className="text-xs text-text-muted mb-3">
+            Additional images showing your project. Max 6 images.
+          </p>
+          <ImageUpload
+            value={formData.screenshots}
+            onChange={(urls) => handleChange('screenshots', urls as string[])}
+            uploadEndpoint="/api/listings/screenshots"
+            multiple
+            maxFiles={6}
+            maxSize={5 * 1024 * 1024}
+            placeholder="Drop screenshots here or click to upload"
+          />
+        </div>
       </fieldset>
 
       {/* Pricing */}

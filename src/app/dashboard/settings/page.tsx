@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 export default function DashboardSettingsPage() {
   const { data: session, update } = useSession()
@@ -19,6 +20,7 @@ export default function DashboardSettingsPage() {
     twitterHandle: '',
     githubHandle: '',
   })
+  const [avatarUrl, setAvatarUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -57,6 +59,7 @@ export default function DashboardSettingsPage() {
             twitterHandle: data.data.twitterHandle || '',
             githubHandle: data.data.githubHandle || '',
           })
+          setAvatarUrl(data.data.avatarUrl || '')
         }
       })
       .catch(console.error)
@@ -217,6 +220,26 @@ export default function DashboardSettingsPage() {
             {message}
           </div>
         )}
+
+        {/* Avatar Upload */}
+        <div className="mb-6 pb-6 border-b border-border-light">
+          <label className="block text-sm font-medium mb-3">Profile Picture</label>
+          <div className="flex items-center gap-4">
+            <ImageUpload
+              value={avatarUrl}
+              onChange={(url) => setAvatarUrl(url as string)}
+              uploadEndpoint="/api/user/avatar"
+              circular
+              maxSize={2 * 1024 * 1024}
+              accept="image/png,image/jpeg,image/webp"
+              placeholder="+"
+            />
+            <div className="text-sm text-text-muted">
+              <p>Upload a profile picture</p>
+              <p>Max 2MB, PNG/JPG/WebP</p>
+            </div>
+          </div>
+        </div>
 
         <form onSubmit={handleProfileUpdate} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">

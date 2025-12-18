@@ -85,6 +85,8 @@ src/
 │   └── admin/             # Admin panel
 ├── components/
 │   ├── ui/                # Base UI components
+│   │   ├── image-upload.tsx   # Drag-drop image uploader
+│   │   └── image-gallery.tsx  # Lightbox gallery
 │   ├── layout/            # Header, footer, nav
 │   ├── listings/          # Listing components
 │   ├── search/            # Search & filter components
@@ -145,6 +147,8 @@ See `prisma/schema.prisma` for the full schema.
 - Full listing detail pages with SEO
 - Create/edit listing forms with validation
 - File upload to Cloudflare R2
+- Image upload system (thumbnails, screenshots, avatars)
+- Image gallery with lightbox viewer
 
 **Payments & Delivery**
 - Stripe Checkout integration
@@ -159,7 +163,7 @@ See `prisma/schema.prisma` for the full schema.
 - Messaging inbox with conversation list
 - Message thread detail page with attachments
 - Message notification preferences (instant/digest/off)
-- Account settings (password change, account deletion)
+- Account settings (password change, account deletion, avatar upload)
 
 **Admin**
 - Admin dashboard with platform stats
@@ -186,13 +190,14 @@ See `prisma/schema.prisma` for the full schema.
 ### Remaining Work (Phase 8: Launch Prep)
 | Task | Status |
 |------|--------|
-| Meta tags and OpenGraph images | Not started |
-| Mobile responsiveness audit and fixes | Not started |
-| Lighthouse performance audit | Not started |
-| Production environment setup | Not started |
-| Vercel deployment configuration | Not started |
-| Production Stripe keys and webhooks | Not started |
-| Initial seed data for launch | Not started |
+| Initial seed data for launch | Complete |
+| Meta tags and OpenGraph images | In progress |
+| Mobile responsiveness audit and fixes | In progress |
+| Error boundaries and error pages | In progress |
+| Production environment template | In progress |
+| Lighthouse performance audit | Planned |
+| Production environment setup (Vercel) | Planned |
+| Production Stripe keys and webhooks | Planned |
 
 ## Design System
 

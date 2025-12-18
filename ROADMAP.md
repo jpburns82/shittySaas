@@ -478,25 +478,65 @@ pnpm dev
 
 **Deliverable:** Complete admin tools and featured listings system
 
-### Phase 8: Launch Prep 📋 PLANNED
+### Phase 7.5: Image Upload System ✅ COMPLETE
 
-- [ ] Meta tags and OpenGraph images for all pages
-- [ ] Mobile responsiveness audit and fixes
-- [ ] Lighthouse performance audit (target 90+ scores)
+- [x] ImageUpload component (drag-drop, multi-file)
+- [x] ImageGallery component (lightbox, keyboard nav)
+- [x] Avatar upload API (`/api/user/avatar`)
+- [x] Screenshot upload API (`/api/listings/screenshots`)
+- [x] Avatar integration in settings page
+- [x] Listing form image upload integration
+- [x] R2 cleanup on image/listing deletion
+
+**Deliverable:** Full image upload system with gallery viewer
+
+### Phase 8: Critical Missing Features 🚧 IN PROGRESS
+
+**Authentication Gaps:**
+- [ ] Forgot password page (`/forgot-password`)
+- [ ] Reset password page (`/reset-password`)
+- [ ] Password reset API (`/api/auth/forgot`, `/api/auth/reset`)
+
+**Payment Gaps:**
+- [ ] Pay-what-you-want checkout (API rejects this price type)
+- [ ] Guest checkout UI (API supports it, no frontend)
+
+**Delivery Gaps:**
+- [ ] File upload UI for sellers (no way to attach deliverables to listings)
+- [ ] Manual delivery workflow UI
+
+**Legal Pages:**
+- [ ] Terms of Service page (`/terms`)
+- [ ] Privacy Policy page (`/privacy`)
+- [ ] FAQ/Help page (`/faq`)
+
+**Notifications:**
+- [ ] Daily digest email cron job
+- [ ] Comment notification emails
+
+**UI Polish:**
+- [ ] Archive listing button functionality (button exists, no handler)
+- [ ] OpenGraph images for social sharing
+- [ ] Mobile responsiveness audit
+
+**Deliverable:** Core marketplace fully functional
+
+### Phase 9: Production Launch 📋 PLANNED
+
 - [ ] Production environment setup (Vercel)
 - [ ] Production database (Neon) with connection pooling
 - [ ] Production Stripe keys and webhook configuration
 - [ ] Production R2 bucket and CORS settings
 - [ ] Production Resend domain verification
-- [ ] Initial seed data for launch
 - [ ] Error monitoring (Sentry)
+- [ ] Lighthouse performance audit (target 90+ scores)
 - [ ] User flow testing (registration → purchase → delivery)
 
 **Deliverable:** Production-ready launch
 
 ### Future (Post-Launch)
 
-- [x] "Pay what you want" pricing (implemented in schema)
+- [ ] "Pay what you want" pricing checkout flow
 - [x] Featured listing purchases (completed in Phase 7)
 - [ ] Seller analytics dashboard
 - [ ] Rating/review system

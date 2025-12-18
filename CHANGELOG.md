@@ -4,6 +4,25 @@ All notable changes to UndeadList are documented here.
 
 ---
 
+## Phase 7.5: Image Upload System (December 2025)
+
+### Added
+- **ImageUpload Component** - Drag-drop multi-file uploader with preview
+- **ImageGallery Component** - Lightbox with keyboard navigation
+- **Avatar Upload API** - `/api/user/avatar` with R2 storage
+- **Screenshot Upload API** - `/api/listings/screenshots` endpoint
+- **Settings Page Enhancement** - Avatar upload integrated
+- **R2 Cleanup** - Auto-delete images when listings/images removed
+
+### Changed
+- **Listing Detail** - Now uses ImageGallery for screenshots with lightbox
+- **Listing Form** - Integrated ImageUpload for thumbnails/screenshots
+- **Listing Card** - Updated with vote count display
+- **Seed Data** - Added avatar URLs and thumbnail paths
+- **Hero Section** - Redesigned with new logo layout
+
+---
+
 ## Phase 7: Admin Expansion (December 2025)
 
 ### Added

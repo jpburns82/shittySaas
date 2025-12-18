@@ -187,17 +187,36 @@ See `prisma/schema.prisma` for the full schema.
 - Stripe CLI configured for local webhooks
 - All TypeScript errors resolved
 
-### Remaining Work (Phase 8: Launch Prep)
+### Remaining Work (Phase 8: Critical Missing Features)
+
+**Must Build:**
+| Feature | Status | Priority |
+|---------|--------|----------|
+| Password reset flow (forgot/reset pages + API) | Missing | Critical |
+| Pay-what-you-want checkout | Missing | Critical |
+| Guest checkout UI | Missing | High |
+| File upload UI for sellers | Missing | High |
+| Terms of Service page | Missing | High |
+| Privacy Policy page | Missing | High |
+| FAQ/Help page | Missing | Medium |
+| Daily digest email cron | Missing | Medium |
+| Comment notification emails | Missing | Medium |
+| Archive listing button handler | Missing | Low |
+
+**Polish:**
 | Task | Status |
 |------|--------|
-| Initial seed data for launch | Complete |
-| Meta tags and OpenGraph images | In progress |
-| Mobile responsiveness audit and fixes | In progress |
-| Error boundaries and error pages | In progress |
-| Production environment template | In progress |
-| Lighthouse performance audit | Planned |
-| Production environment setup (Vercel) | Planned |
-| Production Stripe keys and webhooks | Planned |
+| OpenGraph images | Not started |
+| Mobile responsiveness audit | Not started |
+| Lighthouse performance audit | Not started |
+
+**Production (Phase 9):**
+| Task | Status |
+|------|--------|
+| Vercel deployment | Planned |
+| Production Stripe | Planned |
+| Production R2 | Planned |
+| Error monitoring (Sentry) | Planned |
 
 ## Design System
 

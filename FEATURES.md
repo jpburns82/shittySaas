@@ -9,21 +9,36 @@
 | Feature Area | Status | Notes |
 |--------------|--------|-------|
 | User accounts & auth | ✅ Complete | Register, login, email verify, profiles |
+| Password reset | ❌ Missing | No forgot/reset password pages or API |
 | Listings (create/edit/browse) | ✅ Complete | Full CRUD, search, categories |
-| Payments (Stripe) | ✅ Complete | Checkout, Connect, webhooks |
-| File delivery | ✅ Complete | R2 upload, presigned download URLs |
+| Image upload system | ✅ Complete | Avatar, thumbnails, screenshots with gallery |
+| Payments (Stripe) - Fixed price | ✅ Complete | Checkout, Connect, webhooks |
+| Payments - Pay what you want | ❌ Missing | Form UI exists, checkout API rejects it |
+| Payments - Guest checkout | ⚠️ Partial | API supports it, no frontend UI |
+| File delivery | ⚠️ Partial | Download works, but no file upload UI for sellers |
 | Seller dashboard | ✅ Complete | Stats, sales, payouts |
 | Buyer dashboard | ✅ Complete | Purchases, downloads |
-| Messaging | ✅ Complete | Inbox, thread detail, attachments, notifications |
+| Messaging | ✅ Complete | Inbox, thread detail, attachments |
+| Message notifications | ⚠️ Partial | Instant emails work, daily digest not implemented |
 | User blocking | ✅ Complete | Block/unblock users from messaging |
 | Admin moderation | ✅ Complete | Warn users, suspend threads, listing moderation |
-| Notification settings | ✅ Complete | Message notification preferences (instant/digest/off) |
 | Account management | ✅ Complete | Password change, account deletion (soft delete) |
 | Voting | ✅ Complete | ⚡ Reanimate / ⚰️ Bury with neon glow effects |
 | Comments | ✅ Complete | Threaded (3-level), 500 char limit, 15-min edit window |
+| Comment notifications | ❌ Missing | No email when someone comments on your listing |
 | Admin users management | ✅ Complete | Search, filter, warn, ban, toggle admin |
 | Admin reports page | ✅ Complete | View, review, take moderation actions |
 | Featured listings | ✅ Complete | Admin control + paid Stripe promotion |
+| Terms of Service page | ❌ Missing | Referenced in signup form, page doesn't exist |
+| Privacy Policy page | ❌ Missing | Referenced, page doesn't exist |
+| FAQ/Help page | ❌ Missing | Not built |
+| Error pages (404/500) | ✅ Complete | Custom styled pages exist |
+
+### Summary
+- **28 pages built** and functional
+- **42 API endpoints** implemented
+- **5+ critical features** still missing (password reset, PWYW checkout, guest checkout UI, legal pages)
+- **3+ features** partially implemented (file delivery, notifications)
 
 ---
 

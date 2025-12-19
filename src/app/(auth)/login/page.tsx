@@ -11,6 +11,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+  const resetSuccess = searchParams.get('reset') === 'success'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -47,6 +48,12 @@ export default function LoginPage() {
       <div className="max-w-md mx-auto">
         <div className="card">
           <h1 className="font-display text-2xl text-center mb-6">Login</h1>
+
+          {resetSuccess && (
+            <div className="alert alert-success mb-4">
+              Password reset successful. You can now log in with your new password.
+            </div>
+          )}
 
           {error && (
             <div className="alert alert-error mb-4">

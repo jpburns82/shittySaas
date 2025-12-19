@@ -38,6 +38,18 @@ export const changePasswordSchema = z.object({
   path: ['confirmPassword'],
 })
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+})
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password is too long'),
+})
+
 // ----- LISTING SCHEMAS -----
 
 export const createListingSchema = z.object({
@@ -159,6 +171,8 @@ export const searchSchema = z.object({
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
 export type CreateListingInput = z.infer<typeof createListingSchema>
 export type UpdateListingInput = z.infer<typeof updateListingSchema>
 export type CreateCommentInput = z.infer<typeof createCommentSchema>

@@ -108,7 +108,7 @@ export const TECH_STACK_OPTIONS = [
   'Docker', 'Kubernetes',
   
   // Mobile
-  'React Native', 'Expo', 'Flutter', 'Swift', 'Kotlin',
+  'React Native', 'Expo', 'Flutter', 'Swift',
   'iOS', 'Android',
   
   // AI/ML

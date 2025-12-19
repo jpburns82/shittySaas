@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Providers } from '@/components/providers'
-import { SEO, APP_NAME } from '@/lib/constants'
+import { SEO, APP_NAME, APP_URL } from '@/lib/constants'
 import './globals.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL),
   title: {
     default: SEO.DEFAULT_TITLE,
     template: `%s | ${APP_NAME}`,

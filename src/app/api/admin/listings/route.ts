@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { ListingStatus, Prisma } from '@prisma/client'
 
 // GET /api/admin/listings - Get all listings (admin)
 export async function GET(request: NextRequest) {
@@ -18,9 +19,9 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '50')
 
-    const where: Record<string, unknown> = {}
+    const where: Prisma.ListingWhereInput = {}
     if (status && status !== 'all') {
-      where.status = status
+      where.status = status as ListingStatus
     }
 
     const listings = await prisma.listing.findMany({

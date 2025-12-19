@@ -10,10 +10,16 @@ import { TechStackTags } from './tech-stack-tags'
 import { TECH_STACK_OPTIONS, LISTING_LIMITS } from '@/lib/constants'
 import type { Category } from '@prisma/client'
 
+interface FormErrorResponse {
+  success: false
+  errors: Record<string, string[]>
+  message: string
+}
+
 interface ListingFormProps {
   categories: Category[]
   initialData?: Partial<ListingFormData>
-  onSubmit: (data: ListingFormData) => Promise<void>
+  onSubmit: (data: ListingFormData) => Promise<FormErrorResponse | void>
   submitLabel?: string
   loading?: boolean
 }
@@ -80,6 +86,8 @@ export function ListingForm({
     ...initialData,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [generalError, setGeneralError] = useState<string>('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (field: keyof ListingFormData, value: unknown) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -87,11 +95,44 @@ export function ListingForm({
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }))
     }
+    // Clear general error when user makes changes
+    if (generalError) {
+      setGeneralError('')
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await onSubmit(formData)
+    setIsSubmitting(true)
+    setErrors({})
+    setGeneralError('')
+
+    try {
+      const result = await onSubmit(formData)
+
+      // Check if we got an error response
+      if (result && !result.success) {
+        // Map field errors
+        const fieldErrors: Record<string, string> = {}
+        for (const [field, messages] of Object.entries(result.errors)) {
+          if (messages?.[0]) {
+            fieldErrors[field] = messages[0]
+          }
+        }
+        setErrors(fieldErrors)
+
+        // Set general error message
+        if (result.message) {
+          setGeneralError(result.message)
+        }
+      }
+      // Success = redirect happens automatically via server action
+    } catch (err) {
+      // Handle unexpected errors
+      setGeneralError(err instanceof Error ? err.message : 'An unexpected error occurred')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const addTechTag = (tag: string) => {
@@ -106,6 +147,13 @@ export function ListingForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* General Error Banner */}
+      {generalError && (
+        <div className="p-3 bg-accent-red/10 border border-accent-red text-accent-red text-sm">
+          {generalError}
+        </div>
+      )}
+
       {/* Basic Info */}
       <fieldset className="space-y-4">
         <legend className="font-display text-lg border-b border-border-dark pb-2 mb-4">
@@ -401,10 +449,10 @@ export function ListingForm({
 
       {/* Submit */}
       <div className="flex gap-4 pt-4 border-t border-border-dark">
-        <Button type="submit" variant="primary" loading={loading}>
-          {submitLabel}
+        <Button type="submit" variant="primary" loading={loading || isSubmitting} disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : submitLabel}
         </Button>
-        <Button type="button" onClick={() => window.history.back()}>
+        <Button type="button" onClick={() => window.history.back()} disabled={isSubmitting}>
           Cancel
         </Button>
       </div>

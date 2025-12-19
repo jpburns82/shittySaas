@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { ListingForm } from '@/components/listings/listing-form'
 import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
+import { createListingSchema } from '@/lib/validations'
+import { slugify } from '@/lib/utils'
 
 export const metadata = {
   title: 'Sell Your Project',
@@ -71,21 +73,50 @@ export default async function SellPage() {
   }
 
   // Show listing form
-  async function handleSubmit(data: unknown) {
+  async function handleSubmit(data: unknown): Promise<{
+    success: false
+    errors: Record<string, string[]>
+    message: string
+  } | void> {
     'use server'
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/listings`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-
-    if (!res.ok) {
-      throw new Error('Failed to create listing')
+    const session = await auth()
+    if (!session?.user) {
+      return {
+        success: false,
+        errors: {},
+        message: 'You must be logged in to create a listing',
+      }
     }
 
-    const result = await res.json()
-    redirect(`/listing/${result.data.slug}`)
+    const validation = createListingSchema.safeParse(data)
+    if (!validation.success) {
+      return {
+        success: false,
+        errors: validation.error.flatten().fieldErrors as Record<string, string[]>,
+        message: validation.error.errors[0].message,
+      }
+    }
+
+    const validData = validation.data
+
+    // Generate unique slug
+    let slug = slugify(validData.title)
+    const existing = await prisma.listing.findUnique({ where: { slug } })
+    if (existing) {
+      slug = `${slug}-${Date.now()}`
+    }
+
+    const listing = await prisma.listing.create({
+      data: {
+        ...validData,
+        slug,
+        sellerId: session.user.id,
+        status: 'DRAFT',
+      },
+    })
+
+    redirect(`/listing/${listing.slug}`)
   }
 
   return (

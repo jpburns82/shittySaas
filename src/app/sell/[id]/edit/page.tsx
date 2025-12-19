@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { ListingForm } from '@/components/listings/listing-form'
+import { updateListingSchema } from '@/lib/validations'
+import { slugify } from '@/lib/utils'
 
 interface EditListingPageProps {
   params: Promise<{ id: string }>
@@ -46,21 +48,76 @@ export default async function EditListingPage({ params }: EditListingPageProps) 
   })
 
   // Handle update
-  async function handleSubmit(data: unknown) {
+  async function handleSubmit(data: unknown): Promise<{
+    success: false
+    errors: Record<string, string[]>
+    message: string
+  } | void> {
     'use server'
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/listings/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-
-    if (!res.ok) {
-      throw new Error('Failed to update listing')
+    const session = await auth()
+    if (!session?.user) {
+      return {
+        success: false,
+        errors: {},
+        message: 'You must be logged in to edit a listing',
+      }
     }
 
-    const result = await res.json()
-    redirect(`/listing/${result.data.slug}`)
+    // Re-fetch listing to check ownership
+    const currentListing = await prisma.listing.findUnique({
+      where: { id },
+      select: { sellerId: true, title: true, slug: true },
+    })
+
+    if (!currentListing) {
+      return {
+        success: false,
+        errors: {},
+        message: 'Listing not found',
+      }
+    }
+
+    if (currentListing.sellerId !== session.user.id && !session.user.isAdmin) {
+      return {
+        success: false,
+        errors: {},
+        message: 'You do not have permission to edit this listing',
+      }
+    }
+
+    const validation = updateListingSchema.safeParse(data)
+    if (!validation.success) {
+      return {
+        success: false,
+        errors: validation.error.flatten().fieldErrors as Record<string, string[]>,
+        message: validation.error.errors[0].message,
+      }
+    }
+
+    const validData = validation.data
+
+    // Check if title changed and regenerate slug if needed
+    let newSlug = currentListing.slug
+    if (validData.title && validData.title !== currentListing.title) {
+      newSlug = slugify(validData.title)
+      const existing = await prisma.listing.findFirst({
+        where: { slug: newSlug, id: { not: id } },
+      })
+      if (existing) {
+        newSlug = `${newSlug}-${Date.now()}`
+      }
+    }
+
+    const updatedListing = await prisma.listing.update({
+      where: { id },
+      data: {
+        ...validData,
+        slug: newSlug,
+      },
+    })
+
+    redirect(`/listing/${updatedListing.slug}`)
   }
 
   // Convert listing to form data format

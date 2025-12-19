@@ -1,9 +1,19 @@
 
 ## CRITICAL: SHELL ENVIRONMENT
-This project MUST run from WSL bash only. 
+This project MUST run from WSL bash only.
 NEVER run commands from Windows PowerShell or CMD.
 All paths must start with /mnt/c/ not C:\
 If you see "permission denied" or "tsx not found", you switched shells. STOP and alert user.
+
+## ABSOLUTE FORBIDDEN ACTIONS
+
+NEVER delete node_modules - THIS HAS CORRUPTED THE PROJECT 4+ TIMES
+NEVER run pnpm install without explicit user permission
+NEVER use Windows PowerShell or CMD
+NEVER suggest "reinstalling dependencies" as a fix
+
+If you think dependencies need reinstalling, STOP and ask the user first.
+
 # UndeadList - Claude Code Guidelines
 
 ## IDENTITY CHECK
@@ -26,9 +36,9 @@ pnpm db:studio      # Open Prisma Studio
 **RIGHT:** `pnpm install`, `pnpm db:seed`, `pnpm dev`
 
 ## ENVIRONMENT RULES
-- Run ALL commands from the same terminal (WSL or Windows, never mix)
-- If node_modules gets corrupted: `rm -rf node_modules .next && pnpm install && pnpm db:generate`
-- After wiping node_modules, ALWAYS run `pnpm db:generate` before `pnpm dev`
+- Run ALL commands from the same terminal (WSL, never Windows)
+- NEVER touch node_modules - ask user if there's any issue
+- After any db schema change, run `pnpm db:generate` before `pnpm dev`
 
 ## DO NOT
 - Install new dependencies without explicit approval

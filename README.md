@@ -75,8 +75,10 @@ pnpm stripe:listen # Forward Stripe webhooks locally
 ```
 src/
 ├── app/                    # Next.js App Router pages
-│   ├── (auth)/            # Auth pages (login, register, verify)
+│   ├── (auth)/            # Auth pages (login, register, verify, password reset)
 │   ├── (browse)/          # Browse pages (listings, category, search)
+│   ├── (legal)/           # Legal pages (terms, privacy, faq)
+│   ├── resources/         # Resources and help documentation
 │   ├── api/               # API routes
 │   ├── dashboard/         # Seller dashboard
 │   ├── listing/           # Listing detail & purchase
@@ -86,7 +88,9 @@ src/
 ├── components/
 │   ├── ui/                # Base UI components
 │   │   ├── image-upload.tsx   # Drag-drop image uploader
-│   │   └── image-gallery.tsx  # Lightbox gallery
+│   │   ├── image-gallery.tsx  # Lightbox gallery
+│   │   ├── accordion.tsx      # Collapsible sections
+│   │   └── copy-button.tsx    # One-click copy button
 │   ├── layout/            # Header, footer, nav
 │   ├── listings/          # Listing components
 │   ├── search/            # Search & filter components
@@ -97,6 +101,7 @@ src/
 │   ├── prisma.ts          # Prisma client
 │   ├── auth.ts            # Auth.js config
 │   ├── stripe.ts          # Stripe helpers
+│   ├── fees.ts            # Platform fee calculations
 │   ├── r2.ts              # Cloudflare R2 client
 │   └── email.ts           # Resend email helpers
 ├── hooks/                 # React hooks
@@ -187,20 +192,26 @@ See `prisma/schema.prisma` for the full schema.
 - Stripe CLI configured for local webhooks
 - All TypeScript errors resolved
 
-### Remaining Work (Phase 8: Critical Missing Features)
+### Remaining Work (Phase 8: Final Polish)
 
-**Must Build:**
+**Recently Completed:**
+| Feature | Status |
+|---------|--------|
+| Password reset flow (forgot/reset pages + API) | ✅ Complete |
+| Terms of Service page | ✅ Complete |
+| Privacy Policy page | ✅ Complete |
+| FAQ/Help page | ✅ Complete |
+| Resources page | ✅ Complete |
+| Platform fee refactor (5-tier structure) | ✅ Complete |
+
+**Still Needed:**
 | Feature | Status | Priority |
 |---------|--------|----------|
-| Password reset flow (forgot/reset pages + API) | Missing | Critical |
-| Pay-what-you-want checkout | Missing | Critical |
+| Pay-what-you-want checkout | Missing | High |
 | Guest checkout UI | Missing | High |
-| File upload UI for sellers | Missing | High |
-| Terms of Service page | Missing | High |
-| Privacy Policy page | Missing | High |
-| FAQ/Help page | Missing | Medium |
+| File upload UI for sellers | Missing | Medium |
 | Daily digest email cron | Missing | Medium |
-| Comment notification emails | Missing | Medium |
+| Comment notification emails | Missing | Low |
 | Archive listing button handler | Missing | Low |
 
 **Polish:**

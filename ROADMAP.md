@@ -78,8 +78,24 @@ undeadlist/
 │   │   │   │   └── page.tsx
 │   │   │   ├── register/
 │   │   │   │   └── page.tsx
-│   │   │   └── verify/
+│   │   │   ├── verify/
+│   │   │   │   └── page.tsx
+│   │   │   ├── forgot-password/
+│   │   │   │   └── page.tsx
+│   │   │   └── reset-password/
 │   │   │       └── page.tsx
+│   │   ├── (legal)/
+│   │   │   ├── layout.tsx           # Shared legal layout
+│   │   │   ├── terms/
+│   │   │   │   └── page.tsx         # Terms of Service
+│   │   │   ├── privacy/
+│   │   │   │   └── page.tsx         # Privacy Policy
+│   │   │   └── faq/
+│   │   │       ├── page.tsx
+│   │   │       └── faq-content.tsx  # FAQ accordion
+│   │   ├── resources/
+│   │   │   ├── page.tsx             # Resources page
+│   │   │   └── resources-content.tsx
 │   │   ├── (browse)/
 │   │   │   ├── listings/
 │   │   │   │   └── page.tsx      # Browse all listings
@@ -175,6 +191,7 @@ undeadlist/
 │   │   ├── prisma.ts             # Prisma client singleton
 │   │   ├── auth.ts               # Auth.js config
 │   │   ├── stripe.ts             # Stripe client + helpers
+│   │   ├── fees.ts               # Platform fee calculations (5-tier)
 │   │   ├── r2.ts                 # Cloudflare R2 client
 │   │   ├── email.ts              # Resend email helpers
 │   │   ├── utils.ts              # General utilities
@@ -490,36 +507,46 @@ pnpm dev
 
 **Deliverable:** Full image upload system with gallery viewer
 
-### Phase 8: Critical Missing Features 🚧 IN PROGRESS
+### Phase 8: Legal, Resources & Fee Refactor ✅ COMPLETE
 
-**Authentication Gaps:**
-- [ ] Forgot password page (`/forgot-password`)
-- [ ] Reset password page (`/reset-password`)
-- [ ] Password reset API (`/api/auth/forgot`, `/api/auth/reset`)
+**Authentication:**
+- [x] Forgot password page (`/forgot-password`)
+- [x] Reset password page (`/reset-password`)
+- [x] Password reset API with Resend email
 
-**Payment Gaps:**
-- [ ] Pay-what-you-want checkout (API rejects this price type)
-- [ ] Guest checkout UI (API supports it, no frontend)
+**Legal & Help Pages:**
+- [x] Terms of Service page (`/terms`)
+- [x] Privacy Policy page (`/privacy`)
+- [x] FAQ/Help page (`/faq`) with accordion component
+- [x] Resources page (`/resources`) with guides and documentation
 
-**Delivery Gaps:**
-- [ ] File upload UI for sellers (no way to attach deliverables to listings)
+**Platform Fees:**
+- [x] New 5-tier fee structure (2%/3%/4%/5%/6%)
+- [x] Fee logic moved to dedicated `fees.ts` module
+- [x] $0.50 minimum fee
+
+**UI Components:**
+- [x] Accordion component for collapsible sections
+- [x] CopyButton component with feedback
+
+**Payment Gaps (Still Needed):**
+- [ ] Pay-what-you-want checkout
+- [ ] Guest checkout UI
+
+**Delivery Gaps (Still Needed):**
+- [ ] File upload UI for sellers
 - [ ] Manual delivery workflow UI
 
-**Legal Pages:**
-- [ ] Terms of Service page (`/terms`)
-- [ ] Privacy Policy page (`/privacy`)
-- [ ] FAQ/Help page (`/faq`)
-
-**Notifications:**
+**Notifications (Still Needed):**
 - [ ] Daily digest email cron job
 - [ ] Comment notification emails
 
-**UI Polish:**
-- [ ] Archive listing button functionality (button exists, no handler)
+**UI Polish (Still Needed):**
+- [ ] Archive listing button functionality
 - [ ] OpenGraph images for social sharing
 - [ ] Mobile responsiveness audit
 
-**Deliverable:** Core marketplace fully functional
+**Deliverable:** Core marketplace functional, legal compliance complete
 
 ### Phase 9: Production Launch 📋 PLANNED
 

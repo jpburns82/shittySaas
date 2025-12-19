@@ -9,7 +9,7 @@
 | Feature Area | Status | Notes |
 |--------------|--------|-------|
 | User accounts & auth | ✅ Complete | Register, login, email verify, profiles |
-| Password reset | ❌ Missing | No forgot/reset password pages or API |
+| Password reset | ✅ Complete | Forgot password + reset with Resend email |
 | Listings (create/edit/browse) | ✅ Complete | Full CRUD, search, categories |
 | Image upload system | ✅ Complete | Avatar, thumbnails, screenshots with gallery |
 | Payments (Stripe) - Fixed price | ✅ Complete | Checkout, Connect, webhooks |
@@ -28,17 +28,19 @@
 | Comment notifications | ❌ Missing | No email when someone comments on your listing |
 | Admin users management | ✅ Complete | Search, filter, warn, ban, toggle admin |
 | Admin reports page | ✅ Complete | View, review, take moderation actions |
+| Admin audit log | ✅ Complete | Track all admin actions |
 | Featured listings | ✅ Complete | Admin control + paid Stripe promotion |
-| Terms of Service page | ❌ Missing | Referenced in signup form, page doesn't exist |
-| Privacy Policy page | ❌ Missing | Referenced, page doesn't exist |
-| FAQ/Help page | ❌ Missing | Not built |
+| Terms of Service page | ✅ Complete | Full legal terms at /terms |
+| Privacy Policy page | ✅ Complete | Data handling policies at /privacy |
+| FAQ/Help page | ✅ Complete | Accordion-style Q&A at /faq |
+| Resources page | ✅ Complete | Guides and documentation at /resources |
 | Error pages (404/500) | ✅ Complete | Custom styled pages exist |
 
 ### Summary
-- **28 pages built** and functional
-- **42 API endpoints** implemented
-- **5+ critical features** still missing (password reset, PWYW checkout, guest checkout UI, legal pages)
-- **3+ features** partially implemented (file delivery, notifications)
+- **32+ pages built** and functional
+- **47 API endpoints** implemented
+- **2 critical features** still missing (PWYW checkout, guest checkout UI)
+- **3 features** partially implemented (file delivery, message notifications, comment notifications)
 
 ---
 
@@ -317,9 +319,9 @@ Buyer pays $100
         ↓
     [Stripe]
         ↓
-Platform fee deducted ($10 at 10%)
+Platform fee deducted ($4 at 4%)
         ↓
-Seller receives $90 (minus Stripe processing ~2.9% + $0.30)
+Seller receives $96 (minus Stripe processing ~2.9% + $0.30)
         ↓
 Seller's Stripe account (instant or daily payout based on their settings)
 ```
@@ -328,16 +330,19 @@ Seller's Stripe account (instant or daily payout based on their settings)
 
 | Sale Price | Platform Fee | Seller Receives |
 |------------|--------------|-----------------|
-| $1 - $100 | 10% | 90% |
-| $101 - $1,000 | 8% | 92% |
-| $1,001+ | 5% | 95% |
+| Under $25 | 2% (min $0.50) | 98% |
+| $25 - $100 | 3% | 97% |
+| $100 - $500 | 4% | 96% |
+| $500 - $2,000 | 5% | 95% |
+| $2,000+ | 6% | 94% |
 
 *Plus standard Stripe processing fees (~2.9% + $0.30), paid by seller from their portion.*
+*Minimum platform fee: $0.50*
 
-**Why tiered?**
-- Small sales: We do the same work, fair to take more
-- Big sales: Seller did more work, we take less
-- Competitive with alternatives (Gumroad 10%, itch.io 10%, Paddle 5%+)
+**Why low fees?**
+- We're here to help devs, not take their money
+- Lower than alternatives (Gumroad 10%, itch.io 10%, Paddle 5%+)
+- Slight increase for high-value sales helps cover support overhead
 
 ### Purchase Flow (Buyer)
 

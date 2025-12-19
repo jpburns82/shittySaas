@@ -4,6 +4,32 @@ All notable changes to UndeadList are documented here.
 
 ---
 
+## Phase 8: Legal, Resources & Fee Refactor (December 2025)
+
+### Added
+- **Terms of Service** - `/terms` page with full legal text
+- **Privacy Policy** - `/privacy` page with data handling policies
+- **FAQ Page** - `/faq` with accordion-style Q&A
+- **Resources Page** - `/resources` with guides and documentation
+- **Accordion Component** - Reusable collapsible sections with animation
+- **CopyButton Component** - One-click copy with "Copied!" feedback
+- **Partner Images** - Acquire, Escrow, GitHub, Loom assets for resources page
+- **Audit Log Feature** - Admin action tracking (late Phase 7 addition)
+- **Password Reset Flow** - Forgot password + reset with Resend email
+
+### Changed
+- **Platform Fees** - New 5-tier structure with $0.50 minimum:
+  - Under $25: 2%
+  - $25-$100: 3%
+  - $100-$500: 4%
+  - $500-$2,000: 5%
+  - $2,000+: 6%
+- **Fee Module** - Moved from `constants.ts` to dedicated `fees.ts`
+- **Footer Navigation** - About link changed to Resources
+- **Legal Layout** - New shared layout with prose styling
+
+---
+
 ## Phase 7.5: Image Upload System (December 2025)
 
 ### Added

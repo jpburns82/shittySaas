@@ -863,6 +863,58 @@ hr.thick {
   border: 0;
 }
 
+/* ----- PROSE LEGAL (Terms, Privacy, FAQ pages) ----- */
+
+.prose-legal {
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.prose-legal h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.prose-legal h2 {
+  font-size: 1.35rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-crypt);
+  color: var(--text-primary);
+}
+
+.prose-legal h3 {
+  font-size: 1.1rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.prose-legal p {
+  margin-bottom: 1rem;
+}
+
+.prose-legal ul,
+.prose-legal ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.prose-legal li {
+  margin-bottom: 0.5rem;
+}
+
+.prose-legal strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.prose-legal a {
+  color: var(--link-color);
+}
+
 /* ----- RESPONSIVE ----- */
 
 @media (max-width: 768px) {

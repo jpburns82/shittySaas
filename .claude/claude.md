@@ -56,6 +56,12 @@ pnpm db:studio      # Open Prisma Studio
 
 ## PROJECT STRUCTURE
 - `/src/app` - Next.js App Router pages
+  - `(auth)/` - Login, register, verify, password reset
+  - `(browse)/` - Listings, category, search
+  - `(legal)/` - Terms, privacy, faq, about, contact
+  - `admin/` - Admin dashboard, users, listings, reports
+  - `dashboard/` - User dashboard, settings, messages
+  - `resources/` - Help and guides page
 - `/src/components` - React components
 - `/prisma` - Database schema and seed
 - `/public/images/seed` - Test listing images

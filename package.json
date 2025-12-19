@@ -1,6 +1,7 @@
 {
-  "name": "sideproject-deals",
+  "name": "undeadlist",
   "version": "0.1.0",
+  "description": "Where dead code gets a second life. A dark-themed marketplace for indie software.",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

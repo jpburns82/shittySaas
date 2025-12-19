@@ -1,10 +1,21 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { APP_NAME, APP_TAGLINE, JP_ACCENTS, EXTERNAL_LINKS } from '@/lib/constants'
 
 export function Footer() {
   return (
     <footer className="footer">
       <div className="container">
+        {/* Footer Badge Logo */}
+        <div className="flex justify-center mb-6">
+          <Image
+            src="/images/undeadlist_footer_badge_transparent.png"
+            alt="UndeadList"
+            width={128}
+            height={128}
+            className="w-32 h-32 neon-logo-subtle"
+          />
+        </div>
         {/* Links */}
         <div className="footer-links">
           <Link href="/listings">Browse</Link>

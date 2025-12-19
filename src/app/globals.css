@@ -164,8 +164,8 @@ a.no-underline:hover {
 
 /* OP (Original Poster) glow for comment authors */
 .op-glow {
-  border-color: #39ff14 !important;
-  box-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+  border-color: var(--accent-electric) !important;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
 }
 
 /* Input focus glow */
@@ -947,4 +947,36 @@ hr.thick {
     background: white;
     color: black;
   }
+}
+
+/* ----- NEON EFFECTS ----- */
+
+/* Neon glow pulse effect - pink only (for footer badge) */
+@keyframes neon-pulse-pink {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px #ff3366) drop-shadow(0 0 6px #ff336650);
+  }
+  50% {
+    filter: drop-shadow(0 0 4px #ff3366) drop-shadow(0 0 10px #ff336670);
+  }
+}
+
+/* Dual neon glow - pink AND cyan for the logo */
+@keyframes neon-pulse-dual {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px #ff3366) drop-shadow(0 0 8px #ff336650)
+            drop-shadow(0 0 3px #00ffff) drop-shadow(0 0 8px #00ffff50);
+  }
+  50% {
+    filter: drop-shadow(0 0 5px #ff3366) drop-shadow(0 0 12px #ff336670)
+            drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 12px #00ffff70);
+  }
+}
+
+.neon-logo {
+  animation: neon-pulse-pink 2s ease-in-out infinite;
+}
+
+.neon-logo-subtle {
+  animation: neon-pulse-pink 3s ease-in-out infinite;
 }

@@ -102,6 +102,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
           <button
             className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 z-10"
             onClick={() => setIsLightboxOpen(false)}
+            aria-label="Close gallery"
           >
             ×
           </button>
@@ -115,6 +116,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                   e.stopPropagation()
                   handlePrev()
                 }}
+                aria-label="Previous image"
               >
                 ‹
               </button>
@@ -124,6 +126,7 @@ export function ImageGallery({ images, alt, className }: ImageGalleryProps) {
                   e.stopPropagation()
                   handleNext()
                 }}
+                aria-label="Next image"
               >
                 ›
               </button>

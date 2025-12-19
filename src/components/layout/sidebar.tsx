@@ -3,11 +3,24 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import {
+  LayoutDashboard,
+  Package,
+  DollarSign,
+  ShoppingCart,
+  MessageSquare,
+  Banknote,
+  Settings,
+  Users,
+  Flag,
+  FileText,
+} from 'lucide-react'
+import type { ReactNode } from 'react'
 
 interface SidebarLink {
   href: string
   label: string
-  icon?: string
+  icon?: ReactNode
   badge?: string | number
 }
 
@@ -26,7 +39,7 @@ export function Sidebar({ links, title }: SidebarProps) {
           {title}
         </h2>
       )}
-      <nav className="space-y-1">
+      <nav className="space-y-1" aria-label={title ? `${title} navigation` : 'Sidebar navigation'}>
         {links.map((link) => {
           const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
 
@@ -62,26 +75,27 @@ export function Sidebar({ links, title }: SidebarProps) {
 // Dashboard sidebar preset
 export function DashboardSidebar({ unreadMessages = 0, pendingDeliveries = 0 }) {
   const links: SidebarLink[] = [
-    { href: '/dashboard', label: 'Overview', icon: '📊' },
-    { href: '/dashboard/listings', label: 'My Listings', icon: '📦' },
-    { href: '/dashboard/sales', label: 'Sales', icon: '💰', badge: pendingDeliveries || undefined },
-    { href: '/dashboard/purchases', label: 'Purchases', icon: '🛒' },
-    { href: '/dashboard/messages', label: 'Messages', icon: '💬', badge: unreadMessages || undefined },
-    { href: '/dashboard/payouts', label: 'Payouts', icon: '🏦' },
-    { href: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
+    { href: '/dashboard', label: 'Overview', icon: <LayoutDashboard size={18} /> },
+    { href: '/dashboard/listings', label: 'My Listings', icon: <Package size={18} /> },
+    { href: '/dashboard/sales', label: 'Sales', icon: <DollarSign size={18} />, badge: pendingDeliveries || undefined },
+    { href: '/dashboard/purchases', label: 'Purchases', icon: <ShoppingCart size={18} /> },
+    { href: '/dashboard/messages', label: 'Messages', icon: <MessageSquare size={18} />, badge: unreadMessages || undefined },
+    { href: '/dashboard/payouts', label: 'Payouts', icon: <Banknote size={18} /> },
+    { href: '/dashboard/settings', label: 'Settings', icon: <Settings size={18} /> },
   ]
 
   return <Sidebar links={links} title="Dashboard" />
 }
 
 // Admin sidebar preset
-export function AdminSidebar() {
+export function AdminSidebar({ unreadMessages = 0 }) {
   const links: SidebarLink[] = [
-    { href: '/admin', label: 'Overview', icon: '📊' },
-    { href: '/admin/listings', label: 'Listings', icon: '📦' },
-    { href: '/admin/users', label: 'Users', icon: '👥' },
-    { href: '/admin/reports', label: 'Reports', icon: '🚨' },
-    { href: '/admin/audit-log', label: 'Audit Log', icon: '📋' },
+    { href: '/admin', label: 'Overview', icon: <LayoutDashboard size={18} /> },
+    { href: '/admin/listings', label: 'Listings', icon: <Package size={18} /> },
+    { href: '/admin/users', label: 'Users', icon: <Users size={18} /> },
+    { href: '/admin/reports', label: 'Reports', icon: <Flag size={18} /> },
+    { href: '/admin/audit-log', label: 'Audit Log', icon: <FileText size={18} /> },
+    { href: '/dashboard/messages', label: 'Messages', icon: <MessageSquare size={18} />, badge: unreadMessages || undefined },
   ]
 
   return <Sidebar links={links} title="Admin" />

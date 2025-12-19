@@ -236,7 +236,7 @@ export default function AdminUsersPage() {
               onClick={() => updateFilter('status', status)}
               className={`px-3 py-1 text-sm border ${
                 statusFilter === status
-                  ? 'bg-text-primary text-bg-primary border-text-primary'
+                  ? 'bg-accent-electric/20 text-accent-electric border-accent-electric'
                   : 'border-border-dark hover:bg-bg-accent'
               }`}
             >
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
               onClick={() => updateFilter('role', role)}
               className={`px-3 py-1 text-sm border ${
                 roleFilter === role
-                  ? 'bg-text-primary text-bg-primary border-text-primary'
+                  ? 'bg-accent-electric/20 text-accent-electric border-accent-electric'
                   : 'border-border-dark hover:bg-bg-accent'
               }`}
             >
@@ -317,7 +317,7 @@ export default function AdminUsersPage() {
                   <td>
                     <div className="flex gap-1 flex-wrap">
                       {user.isAdmin && <Badge variant="red">Admin</Badge>}
-                      {user.stripeOnboarded && <Badge variant="green">Seller</Badge>}
+                      {user.stripeOnboarded && <Badge variant="blue">Seller</Badge>}
                       {user.isBanned && <Badge variant="red">Banned</Badge>}
                       {user.deletedAt && <Badge variant="default">Deleted</Badge>}
                     </div>

@@ -71,23 +71,26 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="mb-8 py-12 border-b border-border-crypt">
         <div className="flex flex-col items-center justify-center gap-8">
-          {/* Logo - natural sizing with max-width */}
-          <div className="flex-shrink-0 max-w-[400px]">
+          {/* Content - centered on all screens */}
+          <div className="text-center">
+            <p className="text-text-dust text-lg md:text-xl jp-accent mb-2">{JP_ACCENTS.TAGLINE}</p>
+            <h1 className="font-display text-4xl md:text-5xl mb-3 text-accent-electric">
+              UNDEAD LIST
+            </h1>
+          </div>
+          {/* Logo - 40% larger with neon effect */}
+          <div className="flex-shrink-0 max-w-[560px]">
             <Image
               src="/images/logo-cropped.png"
               alt="UndeadList"
-              width={400}
-              height={200}
+              width={560}
+              height={280}
               priority
-              className="w-full h-auto"
+              className="w-full h-auto neon-logo"
             />
           </div>
-          {/* Content - centered on all screens */}
+          {/* Body text and buttons */}
           <div className="text-center">
-            <p className="text-text-dust text-sm jp-accent mb-2">{JP_ACCENTS.TAGLINE}</p>
-            <h1 className="font-display text-4xl lg:text-5xl mb-3 text-accent-electric">
-              UNDEAD LIST
-            </h1>
             <p className="text-text-muted text-lg mb-6 max-w-xl">
               {APP_TAGLINE}
             </p>

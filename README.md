@@ -77,7 +77,7 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── (auth)/            # Auth pages (login, register, verify, password reset)
 │   ├── (browse)/          # Browse pages (listings, category, search)
-│   ├── (legal)/           # Legal pages (terms, privacy, faq)
+│   ├── (legal)/           # Legal pages (terms, privacy, faq, about, contact)
 │   ├── resources/         # Resources and help documentation
 │   ├── api/               # API routes
 │   ├── dashboard/         # Seller dashboard
@@ -202,6 +202,8 @@ See `prisma/schema.prisma` for the full schema.
 | Privacy Policy page | ✅ Complete |
 | FAQ/Help page | ✅ Complete |
 | Resources page | ✅ Complete |
+| About page | ✅ Complete |
+| Contact page | ✅ Complete |
 | Platform fee refactor (5-tier structure) | ✅ Complete |
 
 **Still Needed:**

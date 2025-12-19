@@ -10,12 +10,23 @@ All notable changes to UndeadList are documented here.
 - **Terms of Service** - `/terms` page with full legal text
 - **Privacy Policy** - `/privacy` page with data handling policies
 - **FAQ Page** - `/faq` with accordion-style Q&A
+- **About Page** - `/about` with company information and mission
+- **Contact Page** - `/contact` with contact details and information
 - **Resources Page** - `/resources` with guides and documentation
 - **Accordion Component** - Reusable collapsible sections with animation
 - **CopyButton Component** - One-click copy with "Copied!" feedback
 - **Partner Images** - Acquire, Escrow, GitHub, Loom assets for resources page
 - **Audit Log Feature** - Admin action tracking (late Phase 7 addition)
 - **Password Reset Flow** - Forgot password + reset with Resend email
+
+### UI Polish
+- **Vote Buttons** - Fixed hardcoded colors, now uses CSS variables
+- **Message Bubble** - Fixed hardcoded colors for consistent theming
+- **Image Gallery** - Fixed hardcoded colors, uses CSS variables
+- **Sidebar** - Replaced emoji icons with Lucide React icons
+- **Admin Pages** - Fixed filter button styling, green to cyan consistency
+- **Accessibility** - Added aria-labels across components
+- **Hero/Footer Logos** - Added neon glow effects
 
 ### Changed
 - **Platform Fees** - New 5-tier structure with $0.50 minimum:

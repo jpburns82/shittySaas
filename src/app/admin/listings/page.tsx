@@ -160,7 +160,7 @@ export default function AdminListingsPage() {
             }}
             className={`px-3 py-1 text-sm border ${
               statusFilter === status || (status === 'all' && !searchParams.get('status'))
-                ? 'bg-text-primary text-bg-primary border-text-primary'
+                ? 'bg-accent-electric/20 text-accent-electric border-accent-electric'
                 : 'border-border-dark hover:bg-bg-accent'
             }`}
           >
@@ -321,7 +321,7 @@ export default function AdminListingsPage() {
                     onClick={() => setFeatureDuration(opt.value)}
                     className={`px-4 py-2 border ${
                       featureDuration === opt.value
-                        ? 'bg-text-primary text-bg-primary border-text-primary'
+                        ? 'bg-accent-electric/20 text-accent-electric border-accent-electric'
                         : 'border-border-dark hover:bg-bg-accent'
                     }`}
                   >

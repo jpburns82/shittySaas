@@ -34,10 +34,12 @@
 | Privacy Policy page | ✅ Complete | Data handling policies at /privacy |
 | FAQ/Help page | ✅ Complete | Accordion-style Q&A at /faq |
 | Resources page | ✅ Complete | Guides and documentation at /resources |
+| About page | ✅ Complete | Company info and mission at /about |
+| Contact page | ✅ Complete | Contact details at /contact |
 | Error pages (404/500) | ✅ Complete | Custom styled pages exist |
 
 ### Summary
-- **32+ pages built** and functional
+- **34+ pages built** and functional
 - **47 API endpoints** implemented
 - **2 critical features** still missing (PWYW checkout, guest checkout UI)
 - **3 features** partially implemented (file delivery, message notifications, comment notifications)

@@ -90,9 +90,13 @@ undeadlist/
 │   │   │   │   └── page.tsx         # Terms of Service
 │   │   │   ├── privacy/
 │   │   │   │   └── page.tsx         # Privacy Policy
-│   │   │   └── faq/
-│   │   │       ├── page.tsx
-│   │   │       └── faq-content.tsx  # FAQ accordion
+│   │   │   ├── faq/
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── faq-content.tsx  # FAQ accordion
+│   │   │   ├── about/
+│   │   │   │   └── page.tsx         # About page
+│   │   │   └── contact/
+│   │   │       └── page.tsx         # Contact page
 │   │   ├── resources/
 │   │   │   ├── page.tsx             # Resources page
 │   │   │   └── resources-content.tsx
@@ -518,6 +522,8 @@ pnpm dev
 - [x] Terms of Service page (`/terms`)
 - [x] Privacy Policy page (`/privacy`)
 - [x] FAQ/Help page (`/faq`) with accordion component
+- [x] About page (`/about`) with company information
+- [x] Contact page (`/contact`) with contact details
 - [x] Resources page (`/resources`) with guides and documentation
 
 **Platform Fees:**

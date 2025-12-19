@@ -23,10 +23,10 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   // Style variants based on sender type
   const getBubbleStyles = () => {
     if (isMe) {
-      return 'bg-[#f0f7ff] border-l-4 border-l-accent-blue border-y border-r border-border-dark'
+      return 'bg-accent-blue/10 border-l-4 border-l-accent-blue border-y border-r border-border-dark'
     }
     if (isAdmin) {
-      return 'bg-[#fff0f0] border-l-4 border-l-accent-red border-y border-r border-border-dark'
+      return 'bg-accent-red/10 border-l-4 border-l-accent-red border-y border-r border-border-dark'
     }
     return 'bg-bg-secondary border border-border-dark'
   }

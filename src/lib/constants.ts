@@ -22,27 +22,9 @@ export const JP_ACCENTS = {
 
 // ----- PRICING -----
 
-// Platform fee percentage tiers (based on sale price)
-export const PLATFORM_FEES = {
-  TIER_1: { maxPrice: 10000, feePercent: 10 },   // $0-$100: 10%
-  TIER_2: { maxPrice: 100000, feePercent: 8 },   // $100-$1000: 8%
-  TIER_3: { maxPrice: Infinity, feePercent: 5 }, // $1000+: 5%
-} as const
-
-// Calculate platform fee for a given price (in cents)
-export function calculatePlatformFee(priceInCents: number): number {
-  let feePercent: number
-  
-  if (priceInCents <= PLATFORM_FEES.TIER_1.maxPrice) {
-    feePercent = PLATFORM_FEES.TIER_1.feePercent
-  } else if (priceInCents <= PLATFORM_FEES.TIER_2.maxPrice) {
-    feePercent = PLATFORM_FEES.TIER_2.feePercent
-  } else {
-    feePercent = PLATFORM_FEES.TIER_3.feePercent
-  }
-  
-  return Math.round(priceInCents * (feePercent / 100))
-}
+// NOTE: Platform fees have been moved to src/lib/fees.ts
+// The new fee structure is: 2% (<$25), 3% ($25-100), 4% ($100-500), 5% ($500-2000), 6% ($2000+)
+// with a $0.50 minimum fee. Import from '@/lib/fees' instead.
 
 // Featured listing price (in cents)
 export const FEATURED_LISTING_PRICE = 1999 // $19.99/week

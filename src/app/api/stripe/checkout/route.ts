@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createCheckoutSession } from '@/lib/stripe'
-import { calculatePlatformFee } from '@/lib/constants'
+import { calculatePlatformFee } from '@/lib/fees'
 
 // POST /api/stripe/checkout - Create a checkout session
 export async function POST(request: NextRequest) {

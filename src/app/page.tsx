@@ -146,11 +146,14 @@ export default function HomePage() {
       {/* CTA - static content */}
       <section className="text-center py-5">
         <p className="text-lg mb-4 text-text-bone">Built. Shipped. Still waiting?</p>
-        <Link href="/sell">
-          <Button variant="primary" size="lg">
-            Give It New Life — List for Free
-          </Button>
-        </Link>
+        <div className="flex flex-col items-center">
+          <span className="text-text-dust text-sm jp-accent mb-2">リスティング</span>
+          <Link href="/sell">
+            <Button variant="primary" size="lg">
+              List for Free
+            </Button>
+          </Link>
+        </div>
       </section>
     </div>
   )

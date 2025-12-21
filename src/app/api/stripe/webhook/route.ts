@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { constructWebhookEvent } from '@/lib/stripe'
-import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail } from '@/lib/email'
+import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail, sendFeaturedConfirmationEmail } from '@/lib/email'
 import Stripe from 'stripe'
 
 // Disable body parsing for webhooks
@@ -145,6 +145,7 @@ async function handleFeaturedPurchaseCompleted(session: Stripe.Checkout.Session)
         select: {
           id: true,
           title: true,
+          slug: true,
           sellerId: true,
         },
       },
@@ -166,12 +167,18 @@ async function handleFeaturedPurchaseCompleted(session: Stripe.Checkout.Session)
     select: { email: true },
   })
 
-  // Send confirmation email (optional - can add this to email.ts later)
+  // Send confirmation email
   if (seller?.email) {
-    console.log(
-      `Featured purchase completed for listing "${featuredPurchase.listing.title}", ` +
-        `featured until ${featuredPurchase.endDate.toISOString()}`
+    const durationDays = Math.ceil(
+      (featuredPurchase.endDate.getTime() - featuredPurchase.startDate.getTime()) / (1000 * 60 * 60 * 24)
     )
-    // TODO: Add sendFeaturedConfirmationEmail to email.ts
+    const listingUrl = `${process.env.NEXT_PUBLIC_APP_URL}/listing/${featuredPurchase.listing.slug}`
+
+    await sendFeaturedConfirmationEmail(
+      seller.email,
+      featuredPurchase.listing.title,
+      durationDays,
+      listingUrl
+    )
   }
 }

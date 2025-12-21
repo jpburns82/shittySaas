@@ -2,7 +2,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { PayoutHistory } from '@/components/payments/payout-history'
 import { StripeConnectButton, StripeConnectStatus } from '@/components/payments/stripe-connect-button'
-import { getAccountBalance, getPayouts, createDashboardLink } from '@/lib/stripe'
+import { getAccountBalance, getPayouts, createDashboardLink, getAccountStatus } from '@/lib/stripe'
 
 export const metadata = {
   title: 'Payouts',
@@ -12,14 +12,40 @@ export default async function DashboardPayoutsPage() {
   const session = await auth()
 
   // Get user's Stripe info
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { id: session!.user.id },
     select: {
+      id: true,
       stripeAccountId: true,
       stripeOnboarded: true,
       stripePayoutsEnabled: true,
     },
   })
+
+  // Auto-sync Stripe status if account exists but not marked as onboarded
+  if (user?.stripeAccountId && !user.stripeOnboarded) {
+    try {
+      const status = await getAccountStatus(user.stripeAccountId)
+      if (status.isOnboarded) {
+        // Update database with current Stripe status
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            stripeOnboarded: status.isOnboarded,
+            stripePayoutsEnabled: status.payoutsEnabled,
+          },
+          select: {
+            id: true,
+            stripeAccountId: true,
+            stripeOnboarded: true,
+            stripePayoutsEnabled: true,
+          },
+        })
+      }
+    } catch (error) {
+      console.error('Failed to sync Stripe status:', error)
+    }
+  }
 
   // If not connected, show connect prompt
   if (!user?.stripeAccountId) {

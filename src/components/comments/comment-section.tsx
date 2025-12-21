@@ -125,13 +125,13 @@ export function CommentSection({
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <span className="text-text-dust text-sm jp-accent">{JP_ACCENTS.GRAVEYARD}</span>
+          <span className="text-text-dust text-sm jp-accent">{JP_ACCENTS.FORUM}</span>
           <h2 className="font-display text-xl text-accent-reanimate">
-            WHISPERS FROM THE CRYPT
+            FORUM
           </h2>
         </div>
         <span className="text-text-muted font-mono text-sm">
-          {totalCount} {totalCount === 1 ? 'whisper' : 'whispers'}
+          {totalCount} {totalCount === 1 ? 'comment' : 'comments'}
         </span>
       </div>
 
@@ -194,7 +194,7 @@ export function CommentSection({
           </pre>
           <p className="text-text-dust jp-accent mb-2">{JP_ACCENTS.NOTHING_HERE}</p>
           <p className="text-text-muted">
-            The crypt is silent. Be the first to speak.
+            No comments yet. Start the conversation.
           </p>
         </div>
       ) : (

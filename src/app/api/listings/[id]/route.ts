@@ -208,54 +208,87 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     const { id } = await context.params
 
-    // Fetch listing with files and purchases for business logic
-    const listing = await prisma.listing.findUnique({
+    // Fetch listing for initial checks (ownership verification)
+    const initialListing = await prisma.listing.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        sellerId: true,
+        thumbnailUrl: true,
+        screenshots: true,
         files: { select: { fileKey: true } },
-        purchases: {
-          where: { status: { in: ['PENDING', 'COMPLETED'] } },
-          select: { status: true }
-        }
       }
     })
 
-    if (!listing) {
+    if (!initialListing) {
       return NextResponse.json(
         { success: false, error: 'Listing not found' },
         { status: 404 }
       )
     }
 
-    if (listing.sellerId !== session.user.id && !session.user.isAdmin) {
+    if (initialListing.sellerId !== session.user.id && !session.user.isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }
       )
     }
 
-    // Business logic: check for pending and completed purchases
-    const hasPendingPurchases = listing.purchases.some(p => p.status === 'PENDING')
-    const hasCompletedPurchases = listing.purchases.some(p => p.status === 'COMPLETED')
-
-    // Block deletion if there are pending purchases
-    if (hasPendingPurchases) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Cannot delete listing with pending purchases. Complete or cancel the sale first.'
-        },
-        { status: 400 }
-      )
-    }
-
-    // Soft delete if there are completed purchases (buyers keep access)
-    if (hasCompletedPurchases) {
-      await prisma.listing.update({
+    // Use transaction to atomically check purchases and delete
+    // This prevents race condition where purchase is created between check and delete
+    const result = await prisma.$transaction(async (tx) => {
+      // Re-fetch purchases inside transaction for atomic check
+      const listing = await tx.listing.findUnique({
         where: { id },
-        data: { deletedAt: new Date() }
+        include: {
+          purchases: {
+            where: { status: { in: ['PENDING', 'COMPLETED'] } },
+            select: { status: true }
+          }
+        }
       })
 
+      if (!listing) {
+        throw new Error('NOT_FOUND')
+      }
+
+      // Business logic: check for pending and completed purchases
+      const hasPendingPurchases = listing.purchases.some(p => p.status === 'PENDING')
+      const hasCompletedPurchases = listing.purchases.some(p => p.status === 'COMPLETED')
+
+      // Block deletion if there are pending purchases
+      if (hasPendingPurchases) {
+        throw new Error('PENDING_PURCHASES')
+      }
+
+      // Soft delete if there are completed purchases (buyers keep access)
+      if (hasCompletedPurchases) {
+        await tx.listing.update({
+          where: { id },
+          data: { deletedAt: new Date() }
+        })
+        return { softDeleted: true }
+      }
+
+      // Hard delete: no purchases
+      await tx.listing.delete({ where: { id } })
+      return { deleted: true }
+    })
+
+    // If hard deleted, clean up files outside transaction (idempotent operation)
+    if (result.deleted) {
+      await cleanupListingFiles(initialListing)
+      return NextResponse.json({
+        success: true,
+        data: {
+          deleted: true,
+          message: 'Listing permanently deleted.'
+        },
+      })
+    }
+
+    // Soft deleted
+    if (result.softDeleted) {
       return NextResponse.json({
         success: true,
         data: {
@@ -265,10 +298,6 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       })
     }
 
-    // Hard delete: no purchases, clean up everything
-    await cleanupListingFiles(listing)
-    await prisma.listing.delete({ where: { id } })
-
     return NextResponse.json({
       success: true,
       data: {
@@ -277,6 +306,22 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       },
     })
   } catch (error) {
+    // Handle specific transaction errors
+    if (error instanceof Error) {
+      if (error.message === 'PENDING_PURCHASES') {
+        return NextResponse.json(
+          { success: false, error: 'Cannot delete listing with pending purchases. Wait for them to complete or expire.' },
+          { status: 400 }
+        )
+      }
+      if (error.message === 'NOT_FOUND') {
+        return NextResponse.json(
+          { success: false, error: 'Listing not found' },
+          { status: 404 }
+        )
+      }
+    }
+
     console.error('DELETE /api/listings/[id] error:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to delete listing' },

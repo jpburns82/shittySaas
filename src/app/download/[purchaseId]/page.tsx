@@ -34,7 +34,13 @@ export default async function DownloadPage({ params }: Props) {
   // Get purchase with listing files
   const purchase = await prisma.purchase.findUnique({
     where: { id: purchaseId },
-    include: {
+    select: {
+      id: true,
+      buyerId: true,
+      guestEmail: true,
+      status: true,
+      deliveryStatus: true,
+      createdAt: true,
       listing: {
         select: {
           id: true,
@@ -61,8 +67,12 @@ export default async function DownloadPage({ params }: Props) {
     notFound()
   }
 
-  // Check if user owns this purchase
-  if (purchase.buyerId !== session.user.id) {
+  // Check if user owns this purchase (by buyer ID or guest email)
+  const isOwner =
+    purchase.buyerId === session.user.id ||
+    (purchase.guestEmail && purchase.guestEmail === session.user.email)
+
+  if (!isOwner) {
     return (
       <div className="container py-8">
         <div className="card text-center py-12">

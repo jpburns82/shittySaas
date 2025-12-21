@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 
 interface VoteCounts {
   score: number
@@ -32,16 +32,22 @@ export function useVote({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Use refs to avoid stale closure issues in the vote callback
+  const countsRef = useRef(counts)
+  const userVoteRef = useRef(userVote)
+  countsRef.current = counts
+  userVoteRef.current = userVote
+
   const vote = useCallback(async (value: 1 | -1) => {
     setIsLoading(true)
     setError(null)
 
-    // Store previous state for rollback
-    const previousCounts = counts
-    const previousUserVote = userVote
+    // Store previous state for rollback using refs (always current)
+    const previousCounts = countsRef.current
+    const previousUserVote = userVoteRef.current
 
-    // Optimistic update
-    if (userVote === value) {
+    // Optimistic update using current ref values
+    if (userVoteRef.current === value) {
       // Removing vote (toggle off)
       setUserVote(null)
       setCounts(prev => ({
@@ -49,7 +55,7 @@ export function useVote({
         upvotes: value === 1 ? prev.upvotes - 1 : prev.upvotes,
         downvotes: value === -1 ? prev.downvotes - 1 : prev.downvotes,
       }))
-    } else if (userVote !== null) {
+    } else if (userVoteRef.current !== null) {
       // Changing vote (swap)
       setUserVote(value)
       setCounts(prev => ({
@@ -91,7 +97,7 @@ export function useVote({
     } finally {
       setIsLoading(false)
     }
-  }, [listingId, counts, userVote])
+  }, [listingId])  // Only listingId in deps - refs handle the stale closure issue
 
   return {
     counts,

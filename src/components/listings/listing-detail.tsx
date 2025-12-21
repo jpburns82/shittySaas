@@ -59,19 +59,6 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
       <div className="grid md:grid-cols-3 gap-6">
         {/* Main content (2 cols) */}
         <div className="md:col-span-2 space-y-6">
-          {/* Screenshots Gallery */}
-          {listing.screenshots.length > 0 && (
-            <section>
-              <h2 className="font-display text-lg border-b border-border-light pb-2 mb-4">
-                Screenshots
-              </h2>
-              <ImageGallery
-                images={listing.screenshots}
-                alt={listing.title}
-              />
-            </section>
-          )}
-
           {/* Description */}
           <section>
             <h2 className="font-display text-lg border-b border-border-light pb-2 mb-4">
@@ -124,6 +111,19 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
               <TechStackTags tags={listing.techStack} />
             </section>
           )}
+
+          {/* Screenshots Gallery */}
+          {listing.screenshots.length > 0 && (
+            <section>
+              <h2 className="font-display text-lg border-b border-border-light pb-2 mb-4">
+                Screenshots
+              </h2>
+              <ImageGallery
+                images={listing.screenshots}
+                alt={listing.title}
+              />
+            </section>
+          )}
         </div>
 
         {/* Sidebar (1 col) */}
@@ -136,7 +136,7 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
 
             {isOwner ? (
               <Link href={`/sell/${listing.id}/edit`}>
-                <Button className="w-full">Edit Listing</Button>
+                <Button variant="secondary" className="w-full">Edit Listing</Button>
               </Link>
             ) : listing.priceType === 'CONTACT' ? (
               <Link href={`/dashboard/messages?to=${listing.seller.username}&listing=${listing.id}`}>

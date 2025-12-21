@@ -153,19 +153,20 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       )
     }
 
-    // Soft delete the comment
-    await prisma.comment.update({
-      where: { id: commentId },
-      data: {
-        isRemoved: true,
-        removedReason: session.user.isAdmin ? 'Removed by admin' : 'Deleted by author',
-      },
-    })
+    // Soft delete the comment and decrement count atomically
+    await prisma.$transaction(async (tx) => {
+      await tx.comment.update({
+        where: { id: commentId },
+        data: {
+          isRemoved: true,
+          removedReason: session.user.isAdmin ? 'Removed by admin' : 'Deleted by author',
+        },
+      })
 
-    // Decrement listing comment count
-    await prisma.listing.update({
-      where: { id: comment.listingId },
-      data: { commentCount: { decrement: 1 } },
+      await tx.listing.update({
+        where: { id: comment.listingId },
+        data: { commentCount: { decrement: 1 } },
+      })
     })
 
     return NextResponse.json({

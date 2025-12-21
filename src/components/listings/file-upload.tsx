@@ -119,14 +119,15 @@ export function FileUpload({ listingId, files, onFilesChange }: FileUploadProps)
                   <p className="text-xs text-text-muted">{formatFileSize(file.fileSize)}</p>
                 </div>
               </div>
-              <button
+              <Button
                 type="button"
+                variant="danger"
+                size="sm"
                 onClick={() => handleDelete(file.id)}
                 disabled={deletingId === file.id}
-                className="text-xs text-accent-red hover:underline disabled:opacity-50"
               >
                 {deletingId === file.id ? '...' : 'Remove'}
-              </button>
+              </Button>
             </div>
           ))}
         </div>
@@ -144,7 +145,7 @@ export function FileUpload({ listingId, files, onFilesChange }: FileUploadProps)
         />
         <Button
           type="button"
-          variant="default"
+          variant="secondary"
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
         >

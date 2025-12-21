@@ -67,10 +67,13 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     const { searchParams } = new URL(request.url)
     const forceDelete = searchParams.get('force') === 'true'
 
-    // Fetch listing with files and purchase count
+    // Fetch listing with files, purchase count, and image URLs for cleanup
     const listing = await prisma.listing.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        thumbnailUrl: true,
+        screenshots: true,
         files: { select: { fileKey: true } },
         _count: { select: { purchases: { where: { status: 'COMPLETED' } } } }
       }

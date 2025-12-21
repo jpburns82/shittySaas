@@ -190,6 +190,55 @@ export async function sendSaleNotificationEmail(
   }
 }
 
+// Featured listing confirmation
+export async function sendFeaturedConfirmationEmail(
+  email: string,
+  listingTitle: string,
+  durationDays: number,
+  listingUrl: string
+): Promise<EmailResult> {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `Your listing is now featured: ${listingTitle}`,
+      html: `
+        <div style="font-family: 'Courier New', monospace; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f0;">
+          <h1 style="font-size: 24px; border-bottom: 2px solid #333; padding-bottom: 10px;">
+            Your Listing is Featured!
+          </h1>
+          <p style="font-size: 16px; color: #008000; font-weight: bold;">
+            Your listing will be highlighted for ${durationDays} days
+          </p>
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr>
+              <td style="border: 1px solid #333; padding: 8px; background: #e0e0e0;">Listing</td>
+              <td style="border: 1px solid #333; padding: 8px;">${listingTitle}</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #333; padding: 8px; background: #e0e0e0;">Duration</td>
+              <td style="border: 1px solid #333; padding: 8px;">${durationDays} days</td>
+            </tr>
+          </table>
+          <p>Your listing will appear at the top of search results and category pages with a featured badge.</p>
+          <p style="margin: 20px 0;">
+            <a href="${listingUrl}" style="background: #008000; color: white; border: 2px outset #0a0; padding: 8px 16px; text-decoration: none;">
+              View Your Listing
+            </a>
+          </p>
+          <p style="font-size: 12px; color: #666; margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px;">
+            Thank you for featuring your listing on ${APP_NAME}!
+          </p>
+        </div>
+      `,
+    })
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to send featured confirmation:', error)
+    return { success: false, error: 'Failed to send email' }
+  }
+}
+
 // New message notification
 export async function sendMessageNotificationEmail(
   email: string,

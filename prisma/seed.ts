@@ -150,6 +150,27 @@ const categories = [
     sortOrder: 14,
   },
   {
+    name: 'Crypto & Web3',
+    slug: 'crypto',
+    description: 'Cryptocurrency projects, wallets, trading bots, pump.fun projects',
+    icon: '₿',
+    sortOrder: 15,
+  },
+  {
+    name: 'NFT Projects',
+    slug: 'nft',
+    description: 'NFT collections, minting sites, marketplaces, token projects',
+    icon: '💎',
+    sortOrder: 16,
+  },
+  {
+    name: 'DeFi & Trading',
+    slug: 'defi',
+    description: 'DeFi protocols, trading algorithms, yield farming tools',
+    icon: '📈',
+    sortOrder: 17,
+  },
+  {
     name: 'Other',
     slug: 'other',
     description: 'Everything else that doesn\'t fit above',

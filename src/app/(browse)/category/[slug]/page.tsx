@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { PaginatedListingGrid } from '@/components/listings/listing-grid'
-import { CategoryNav } from '@/components/search/category-nav'
+import { CategoryNav, getCategoryIcon } from '@/components/search/category-nav'
 import { PAGINATION } from '@/lib/constants'
 
 interface CategoryPageProps {
@@ -95,7 +95,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       </nav>
 
       <div className="flex items-center gap-3 mb-6">
-        <span className="text-3xl">{category.icon}</span>
+        <span className="text-accent-cyan">
+          {getCategoryIcon(category.slug, 32)}
+        </span>
         <div>
           <h1 className="font-display text-2xl">{category.name}</h1>
           {category.description && (

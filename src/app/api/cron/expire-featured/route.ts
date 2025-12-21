@@ -5,12 +5,12 @@ import { prisma } from '@/lib/prisma'
 // This endpoint should be called by a cron job (e.g., Vercel Cron)
 export async function GET(request: NextRequest) {
   try {
-    // Verify cron secret for security (optional but recommended)
+    // Verify cron secret for security (required)
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
 
-    // If CRON_SECRET is set, require authorization
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // Require valid authorization - if CRON_SECRET is not set, endpoint is blocked
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

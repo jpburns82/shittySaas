@@ -6,6 +6,7 @@ import { Comment } from './comment-section'
 import { CommentComposer } from './comment-composer'
 import { ReportCommentModal } from './report-comment-modal'
 import { ConfirmModal } from '@/components/ui/modal'
+import { Button } from '@/components/ui/button'
 import { COMMENT_LIMITS } from '@/lib/constants'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -168,23 +169,25 @@ export function CommentItem({
                   {COMMENT_LIMITS.MAX_CONTENT_LENGTH - editContent.length}
                 </span>
                 <div className="flex gap-2">
-                  <button
+                  <Button
+                    variant="default"
+                    size="sm"
                     onClick={() => {
                       setIsEditing(false)
                       setEditContent(comment.content)
                       setEditError(null)
                     }}
-                    className="btn text-xs px-2 py-1"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
                     onClick={handleEdit}
                     disabled={!editContent.trim()}
-                    className="btn btn-primary text-xs px-2 py-1"
                   >
                     Save
-                  </button>
+                  </Button>
                 </div>
               </div>
               {editError && (

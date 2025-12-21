@@ -33,8 +33,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        // Block deleted users from logging in
-        if (user.deletedAt) {
+        // Block deleted or banned users from logging in
+        if (user.deletedAt || user.isBanned) {
           return null
         }
 

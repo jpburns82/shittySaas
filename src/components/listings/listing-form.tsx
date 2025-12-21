@@ -10,6 +10,99 @@ import { TechStackTags } from './tech-stack-tags'
 import { FileUpload } from './file-upload'
 import { TECH_STACK_OPTIONS, LISTING_LIMITS } from '@/lib/constants'
 import type { Category, ListingFile } from '@prisma/client'
+import {
+  Cloud, Smartphone, Puzzle, Zap, Package,
+  Bot, Brain, FileText, Globe, Palette, Gamepad2,
+  Users, Mail, MessageCircle, Folder, Monitor,
+  Server, Terminal, Bitcoin, Gem, TrendingUp, FolderCode
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+
+// Map category slugs to Lucide icons
+const categoryIconMap: Record<string, LucideIcon> = {
+  'saas': Cloud,
+  'desktop': Monitor,
+  'mobile': Smartphone,
+  'extensions': Puzzle,
+  'apis': Server,
+  'boilerplates': FolderCode,
+  'scripts': Terminal,
+  'ai': Brain,
+  'cms': FileText,
+  'domains': Globe,
+  'design': Palette,
+  'games': Gamepad2,
+  'social-media': Users,
+  'newsletters': Mail,
+  'communities': MessageCircle,
+  'crypto': Bitcoin,
+  'nft': Gem,
+  'defi': TrendingUp,
+  'other': Folder,
+}
+
+// Helper to get icon component for a category
+function getCategoryIcon(slug: string, size: number = 16) {
+  const IconComponent = categoryIconMap[slug] || Folder
+  return <IconComponent size={size} className="text-text-muted" />
+}
+
+// Custom CategorySelect with Lucide icons
+interface CategorySelectProps {
+  categories: Category[]
+  value: string
+  onChange: (value: string) => void
+  error?: string
+}
+
+function CategorySelect({ categories, value, onChange, error }: CategorySelectProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const selectedCategory = categories.find(c => c.id === value)
+
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium mb-1.5">
+        Category <span className="text-accent-pink">*</span>
+      </label>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full px-3 py-2 bg-bg-grave border ${error ? 'border-accent-pink' : 'border-border-dark'} rounded text-left flex items-center gap-2 hover:border-border-light transition-colors`}
+      >
+        {selectedCategory ? (
+          <>
+            {getCategoryIcon(selectedCategory.slug)}
+            <span>{selectedCategory.name}</span>
+          </>
+        ) : (
+          <span className="text-text-muted">Select a category</span>
+        )}
+        <span className="ml-auto text-text-muted">▼</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-bg-grave border border-border-dark rounded shadow-lg max-h-60 overflow-auto">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              type="button"
+              onClick={() => {
+                onChange(category.id)
+                setIsOpen(false)
+              }}
+              className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-bg-tombstone transition-colors ${value === category.id ? 'bg-bg-tombstone' : ''}`}
+            >
+              {getCategoryIcon(category.slug)}
+              <span>{category.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {error && <p className="text-xs text-accent-pink mt-1">{error}</p>}
+    </div>
+  )
+}
 
 interface FormErrorResponse {
   success: false
@@ -202,15 +295,11 @@ export function ListingForm({
           required
         />
 
-        <Select
-          label="Category"
-          name="categoryId"
+        <CategorySelect
+          categories={categories}
           value={formData.categoryId}
-          onChange={(e) => handleChange('categoryId', e.target.value)}
-          options={categories.map((c) => ({ value: c.id, label: `${c.icon} ${c.name}` }))}
-          placeholder="Select a category"
+          onChange={(value) => handleChange('categoryId', value)}
           error={errors.categoryId}
-          required
         />
       </fieldset>
 

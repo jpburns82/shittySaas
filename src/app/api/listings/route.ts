@@ -108,6 +108,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if user is banned
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { isBanned: true, deletedAt: true },
+    })
+
+    if (user?.isBanned || user?.deletedAt) {
+      return NextResponse.json(
+        { success: false, error: 'Your account is not active' },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
     const validation = createListingSchema.safeParse(body)
 

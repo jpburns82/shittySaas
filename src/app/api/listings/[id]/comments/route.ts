@@ -122,6 +122,19 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
 
+    // Check if user is banned
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { isBanned: true, deletedAt: true },
+    })
+
+    if (user?.isBanned || user?.deletedAt) {
+      return NextResponse.json(
+        { success: false, error: 'Your account is not active' },
+        { status: 403 }
+      )
+    }
+
     const { id: listingId } = await context.params
 
     // Verify listing exists and get seller info
@@ -201,34 +214,37 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const editWindowEnd = new Date()
     editWindowEnd.setMinutes(editWindowEnd.getMinutes() + COMMENT_LIMITS.EDIT_WINDOW_MINUTES)
 
-    // Create the comment
-    const comment = await prisma.comment.create({
-      data: {
-        content,
-        listingId,
-        authorId: session.user.id,
-        parentId: parentId || null,
-        isVerifiedPurchase: !!hasPurchased,
-        isSeller,
-        canEditUntil: editWindowEnd,
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatarUrl: true,
-            isVerifiedSeller: true,
+    // Create the comment and increment count atomically
+    const comment = await prisma.$transaction(async (tx) => {
+      const newComment = await tx.comment.create({
+        data: {
+          content,
+          listingId,
+          authorId: session.user.id,
+          parentId: parentId || null,
+          isVerifiedPurchase: !!hasPurchased,
+          isSeller,
+          canEditUntil: editWindowEnd,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+              isVerifiedSeller: true,
+            },
           },
         },
-      },
-    })
+      })
 
-    // Increment listing comment count
-    await prisma.listing.update({
-      where: { id: listingId },
-      data: { commentCount: { increment: 1 } },
+      await tx.listing.update({
+        where: { id: listingId },
+        data: { commentCount: { increment: 1 } },
+      })
+
+      return newComment
     })
 
     return NextResponse.json({

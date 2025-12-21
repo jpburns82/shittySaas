@@ -92,6 +92,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if sender is banned
+    const sender = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { isBanned: true, deletedAt: true },
+    })
+
+    if (sender?.isBanned || sender?.deletedAt) {
+      return NextResponse.json(
+        { success: false, error: 'Your account is not active' },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
     const validation = sendMessageSchema.safeParse(body)
 
@@ -129,13 +142,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify receiver exists
+    // Verify receiver exists and is not banned/deleted
     const receiver = await prisma.user.findUnique({
       where: { id: receiverId },
-      select: { id: true, email: true, username: true, messageNotifications: true },
+      select: { id: true, email: true, username: true, messageNotifications: true, isBanned: true, deletedAt: true },
     })
 
-    if (!receiver) {
+    if (!receiver || receiver.isBanned || receiver.deletedAt) {
       return NextResponse.json(
         { success: false, error: 'Recipient not found' },
         { status: 404 }
@@ -160,13 +173,32 @@ export async function POST(request: NextRequest) {
     })
 
     if (!thread) {
-      thread = await prisma.messageThread.create({
-        data: {
-          buyerId: isSenderBuyer ? session.user.id : receiverId,
-          sellerId: isSenderBuyer ? receiverId : session.user.id,
-          listingId: listingId || null,
-        },
-      })
+      // Use try/catch to handle race condition where two requests
+      // might try to create the same thread simultaneously
+      try {
+        thread = await prisma.messageThread.create({
+          data: {
+            buyerId: isSenderBuyer ? session.user.id : receiverId,
+            sellerId: isSenderBuyer ? receiverId : session.user.id,
+            listingId: listingId || null,
+          },
+        })
+      } catch (err) {
+        // If unique constraint violation, thread was created by another request
+        if ((err as { code?: string }).code === 'P2002') {
+          thread = await prisma.messageThread.findFirst({
+            where: {
+              OR: [
+                { buyerId: session.user.id, sellerId: receiverId, listingId: listingId || null },
+                { buyerId: receiverId, sellerId: session.user.id, listingId: listingId || null },
+              ],
+            },
+          })
+          if (!thread) throw err // Should never happen, but re-throw if so
+        } else {
+          throw err
+        }
+      }
     }
 
     // Check if thread is suspended

@@ -48,6 +48,19 @@ export async function PATCH(
       )
     }
 
+    // Prevent removing the last admin
+    if (user.isAdmin && !isAdmin) {
+      const adminCount = await prisma.user.count({
+        where: { isAdmin: true },
+      })
+      if (adminCount <= 1) {
+        return NextResponse.json(
+          { success: false, error: 'Cannot remove the only admin' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Update admin status
     const updatedUser = await prisma.user.update({
       where: { id: userId },

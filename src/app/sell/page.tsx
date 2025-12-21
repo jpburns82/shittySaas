@@ -6,6 +6,7 @@ import { ListingForm } from '@/components/listings/listing-form'
 import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
 import { createListingSchema } from '@/lib/validations'
 import { slugify } from '@/lib/utils'
+import { getAccountStatus } from '@/lib/stripe'
 
 export const metadata = {
   title: 'Sell Your Project',
@@ -21,13 +22,38 @@ export default async function SellPage() {
   }
 
   // Check if user has Stripe connected
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: {
+      id: true,
       stripeAccountId: true,
       stripeOnboarded: true,
     },
   })
+
+  // Auto-sync Stripe status if account exists but not marked as onboarded
+  if (user?.stripeAccountId && !user.stripeOnboarded) {
+    try {
+      const status = await getAccountStatus(user.stripeAccountId)
+      if (status.isOnboarded) {
+        // Update database with current Stripe status
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            stripeOnboarded: status.isOnboarded,
+            stripePayoutsEnabled: status.payoutsEnabled,
+          },
+          select: {
+            id: true,
+            stripeAccountId: true,
+            stripeOnboarded: true,
+          },
+        })
+      }
+    } catch (error) {
+      console.error('Failed to sync Stripe status:', error)
+    }
+  }
 
   // Fetch categories
   const categories = await prisma.category.findMany({

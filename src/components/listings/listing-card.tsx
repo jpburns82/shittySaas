@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatRelativeTime } from '@/lib/utils'
@@ -12,69 +14,76 @@ interface ListingCardProps {
 
 export function ListingCard({ listing }: ListingCardProps) {
   return (
-    <article className="listing-card">
-      {/* Featured marker */}
-      {listing.featured && (
-        <div className="mb-2">
-          <FeaturedBadge />
-        </div>
-      )}
-
-      {/* Thumbnail */}
-      {listing.thumbnailUrl && (
-        <div className="aspect-video relative mb-3 rounded overflow-hidden bg-bg-grave">
-          <Image
-            src={listing.thumbnailUrl}
-            alt={listing.title}
-            fill
-            className="object-cover"
-            unoptimized
-          />
-        </div>
-      )}
-
-      {/* Title */}
-      <Link href={`/listing/${listing.slug}`}>
-        <h3 className="listing-card-title">{listing.title}</h3>
-      </Link>
-
-      {/* Description */}
-      <p className="listing-card-desc">{listing.shortDescription}</p>
-
-      {/* Tech stack */}
-      {listing.techStack.length > 0 && (
-        <TechStackTags tags={listing.techStack.slice(0, 4)} />
-      )}
-
-      {/* Meta line */}
-      <div className="listing-card-meta flex items-center gap-2 flex-wrap">
-        <PriceBadge priceType={listing.priceType} priceInCents={listing.priceInCents} />
-        <span>·</span>
-        <span>{listing.category.name}</span>
-        <span>·</span>
-        <span className="flex items-center gap-1">
-          <span>⚡</span>
-          <span className="font-mono">{listing.upvoteCount ?? 0}</span>
-        </span>
-        <span>·</span>
-        <span className="flex items-center gap-1">
-          <span>⚰️</span>
-          <span className="font-mono">{listing.downvoteCount ?? 0}</span>
-        </span>
-        <span>·</span>
-        <span>{formatRelativeTime(listing.createdAt)}</span>
-      </div>
-
-      {/* Seller */}
-      <div className="text-xs text-text-muted mt-2">
-        by{' '}
-        <Link href={`/user/${listing.seller.username}`} className="hover:underline">
-          @{listing.seller.username}
-        </Link>
-        {listing.seller.isVerifiedSeller && (
-          <span className="ml-1 text-accent-green">✓</span>
+    <Link href={`/listing/${listing.slug}`} className="block group">
+      <article className="listing-card hover:border-accent-cyan transition-colors cursor-pointer">
+        {/* Featured marker */}
+        {listing.featured && (
+          <div className="mb-2">
+            <FeaturedBadge />
+          </div>
         )}
-      </div>
-    </article>
+
+        {/* Thumbnail */}
+        {listing.thumbnailUrl && (
+          <div className="aspect-video relative mb-3 rounded overflow-hidden bg-bg-grave">
+            <Image
+              src={listing.thumbnailUrl}
+              alt={listing.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              unoptimized
+            />
+          </div>
+        )}
+
+        {/* Title */}
+        <h3 className="listing-card-title group-hover:text-accent-cyan transition-colors">{listing.title}</h3>
+
+        {/* Description */}
+        <p className="listing-card-desc">{listing.shortDescription}</p>
+
+        {/* Tech stack */}
+        {listing.techStack.length > 0 && (
+          <TechStackTags tags={listing.techStack.slice(0, 4)} />
+        )}
+
+        {/* Meta line */}
+        <div className="listing-card-meta flex items-center gap-2 flex-wrap">
+          <PriceBadge priceType={listing.priceType} priceInCents={listing.priceInCents} />
+          <span>·</span>
+          <span>{listing.category.name}</span>
+          <span>·</span>
+          <span className="flex items-center gap-1">
+            <span>⚡</span>
+            <span className="font-mono">{listing.upvoteCount ?? 0}</span>
+          </span>
+          <span>·</span>
+          <span className="flex items-center gap-1">
+            <span>⚰️</span>
+            <span className="font-mono">{listing.downvoteCount ?? 0}</span>
+          </span>
+          <span>·</span>
+          <span>{formatRelativeTime(listing.createdAt)}</span>
+        </div>
+
+        {/* Seller */}
+        <div className="text-xs text-text-muted mt-2">
+          by{' '}
+          <span
+            className="hover:underline"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              window.location.href = `/user/${listing.seller.username}`
+            }}
+          >
+            @{listing.seller.username}
+          </span>
+          {listing.seller.isVerifiedSeller && (
+            <span className="ml-1 text-accent-green">✓</span>
+          )}
+        </div>
+      </article>
+    </Link>
   )
 }

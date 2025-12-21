@@ -17,10 +17,10 @@ export function StripeConnectButton({ isConnected, dashboardUrl }: StripeConnect
       const res = await fetch('/api/stripe/connect', { method: 'POST' })
       const data = await res.json()
 
-      if (data.onboardingUrl) {
-        window.location.href = data.onboardingUrl
+      if (data.success && data.data?.url) {
+        window.location.href = data.data.url
       } else {
-        console.error('Failed to get onboarding URL')
+        console.error('Failed to get onboarding URL:', data.error)
       }
     } catch (error) {
       console.error('Failed to connect Stripe:', error)

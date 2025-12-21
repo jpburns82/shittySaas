@@ -18,6 +18,7 @@ export const JP_ACCENTS = {
   LOADING: '読込中...',      // Loading...
   LOST: '迷子',              // Lost (404 page)
   COMPLETE: '完了',          // Complete (success toast)
+  FORUM: 'アンデッドリストフォーラム', // UndeadList Forum
 } as const
 
 // ----- PRICING -----

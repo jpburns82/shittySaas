@@ -7,26 +7,43 @@ import type { Category } from '@prisma/client'
 import {
   LayoutGrid, Cloud, Smartphone, Puzzle, Zap, Package,
   Bot, Brain, FileText, Globe, Palette, Gamepad2,
-  Users, Mail, MessageCircle, Folder
+  Users, Mail, MessageCircle, Folder, Bitcoin, Gem, TrendingUp,
+  Monitor, Server, Terminal, FolderCode
 } from 'lucide-react'
 
-const categoryIcons: Record<string, React.ReactNode> = {
-  'all': <LayoutGrid size={16} />,
-  'saas': <Cloud size={16} />,
-  'mobile': <Smartphone size={16} />,
-  'extensions': <Puzzle size={16} />,
-  'apis': <Zap size={16} />,
-  'boilerplates': <Package size={16} />,
-  'scripts': <Bot size={16} />,
-  'ai': <Brain size={16} />,
-  'cms': <FileText size={16} />,
-  'domains': <Globe size={16} />,
-  'design': <Palette size={16} />,
-  'games': <Gamepad2 size={16} />,
-  'social-media': <Users size={16} />,
-  'newsletters': <Mail size={16} />,
-  'communities': <MessageCircle size={16} />,
-  'other': <Folder size={16} />,
+// Icon components by category slug (for use with getCategoryIcon helper)
+const categoryIconComponents: Record<string, typeof Folder> = {
+  'all': LayoutGrid,
+  'saas': Cloud,
+  'desktop': Monitor,
+  'mobile': Smartphone,
+  'extensions': Puzzle,
+  'apis': Server,
+  'boilerplates': FolderCode,
+  'scripts': Terminal,
+  'ai': Brain,
+  'cms': FileText,
+  'domains': Globe,
+  'design': Palette,
+  'games': Gamepad2,
+  'social-media': Users,
+  'newsletters': Mail,
+  'communities': MessageCircle,
+  'crypto': Bitcoin,
+  'nft': Gem,
+  'defi': TrendingUp,
+  'other': Folder,
+}
+
+// Pre-rendered icons at size 16 for navigation
+export const categoryIcons: Record<string, React.ReactNode> = Object.fromEntries(
+  Object.entries(categoryIconComponents).map(([slug, Icon]) => [slug, <Icon key={slug} size={16} />])
+)
+
+// Helper to get category icon at any size
+export function getCategoryIcon(slug: string, size: number = 16): React.ReactNode {
+  const Icon = categoryIconComponents[slug] || Folder
+  return <Icon size={size} />
 }
 
 interface CategoryNavProps {
@@ -88,7 +105,7 @@ export function CategorySelect({ categories }: CategoryNavProps) {
       <option value="">All Categories</option>
       {categories.map((category) => (
         <option key={category.id} value={category.slug}>
-          {category.icon} {category.name}
+          {category.name}
         </option>
       ))}
     </select>

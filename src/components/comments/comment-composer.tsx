@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { COMMENT_LIMITS } from '@/lib/constants'
+import { Button } from '@/components/ui/button'
 import type { Comment } from './comment-section'
 
 interface CommentComposerProps {
@@ -18,7 +19,7 @@ export function CommentComposer({
   parentId,
   onCommentAdded,
   onCancel,
-  placeholder = 'Add your whisper to the crypt...',
+  placeholder = 'Share your thoughts...',
   autoFocus = false,
 }: CommentComposerProps) {
   const [content, setContent] = useState('')
@@ -117,22 +118,22 @@ export function CommentComposer({
 
         <div className="flex gap-2">
           {onCancel && (
-            <button
+            <Button
               type="button"
+              variant="default"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="btn text-sm px-4 py-2"
             >
               Cancel
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={!content.trim() || isAtLimit || isSubmitting}
-            className="btn btn-primary text-sm px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Posting...' : parentId ? 'Reply' : 'Post Whisper'}
-          </button>
+            {isSubmitting ? 'Posting...' : parentId ? 'Reply' : 'Post'}
+          </Button>
         </div>
       </div>
     </form>

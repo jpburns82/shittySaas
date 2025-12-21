@@ -48,7 +48,7 @@ export function Filters({ categories }: FiltersProps) {
         onChange={(e) => updateFilter('category', e.target.value)}
         options={[
           { value: 'all', label: 'All Categories' },
-          ...categories.map((c) => ({ value: c.slug, label: `${c.icon} ${c.name}` })),
+          ...categories.map((c) => ({ value: c.slug, label: c.name })),
         ]}
       />
 

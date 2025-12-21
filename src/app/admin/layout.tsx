@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 import { AdminSidebar } from '@/components/layout/sidebar'
 
 export const metadata = {
@@ -22,6 +23,16 @@ export default async function AdminLayout({
 
   if (!session.user.isAdmin) {
     redirect('/dashboard')
+  }
+
+  // Check if admin is banned or deleted (catches mid-session bans)
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { isBanned: true, deletedAt: true },
+  })
+
+  if (user?.isBanned || user?.deletedAt) {
+    redirect('/login')
   }
 
   return (

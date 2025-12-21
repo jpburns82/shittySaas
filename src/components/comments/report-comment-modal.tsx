@@ -106,7 +106,7 @@ export function ReportCommentModal({
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full bg-bg-grave border border-border-crypt p-2 text-text-bone text-sm focus:outline-none focus:border-accent-electric"
+              className="w-full bg-zinc-900 border border-border-crypt p-2 text-text-bone text-sm focus:outline-none focus:border-accent-electric"
             >
               <option value="">Select a reason...</option>
               {REPORT_REASONS.map((r) => (
@@ -130,7 +130,7 @@ export function ReportCommentModal({
                 }
                 rows={3}
                 placeholder="Provide any additional context..."
-                className="w-full bg-bg-grave border border-border-crypt p-2 text-text-bone text-sm resize-none focus:outline-none focus:border-accent-electric placeholder-text-dust"
+                className="w-full bg-zinc-900 border border-border-crypt p-2 text-text-bone text-sm resize-none focus:outline-none focus:border-accent-electric placeholder-text-dust"
               />
               <span className="absolute bottom-2 right-2 text-text-dust text-xs">
                 {maxDetailsLength - details.length}

@@ -266,7 +266,7 @@ export function CustomizeTemplateModal({
                   message.role === 'user'
                     ? 'bg-accent-electric/20 text-text-primary'
                     : message.isTemplate
-                    ? 'bg-bg-crypt border border-border-crypt'
+                    ? 'bg-zinc-900 border border-border-crypt'
                     : 'bg-bg-accent text-text-primary'
                 }`}
               >
@@ -311,7 +311,7 @@ export function CustomizeTemplateModal({
                       key={listing.id}
                       onClick={() => handleSelectListing(listing)}
                       disabled={isLoading}
-                      className="w-full text-left p-3 bg-bg-crypt border border-border-crypt rounded-lg hover:border-accent-electric transition-colors disabled:opacity-50"
+                      className="w-full text-left p-3 bg-zinc-900 border border-border-crypt rounded-lg hover:border-accent-electric transition-colors disabled:opacity-50"
                     >
                       <div className="font-medium text-sm">{listing.title}</div>
                       <div className="text-xs text-text-muted">

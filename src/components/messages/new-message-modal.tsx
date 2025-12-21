@@ -170,7 +170,7 @@ export function NewMessageModal({ isOpen, onClose }: NewMessageModalProps) {
           ) : (
             // Step 2: Compose message
             <div>
-              <div className="flex items-center gap-3 mb-4 p-2 bg-bg-secondary border border-border-dark">
+              <div className="flex items-center gap-3 mb-4 p-2 bg-zinc-900 border border-border-dark">
                 <div className="w-8 h-8 bg-btn-bg border border-border-dark flex items-center justify-center font-display text-sm">
                   {selectedUser.displayName?.[0] || selectedUser.username[0].toUpperCase()}
                 </div>

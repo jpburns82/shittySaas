@@ -990,3 +990,17 @@ hr.thick {
 .neon-logo-subtle {
   animation: neon-pulse-subtle 3s ease-in-out infinite;
 }
+
+/* Cyan neon glow for blue logo */
+@keyframes neon-pulse-cyan {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px #22d3ee) drop-shadow(0 0 6px #22d3ee50);
+  }
+  50% {
+    filter: drop-shadow(0 0 4px #22d3ee) drop-shadow(0 0 10px #22d3ee70);
+  }
+}
+
+.neon-logo-cyan {
+  animation: neon-pulse-cyan 3s ease-in-out infinite;
+}

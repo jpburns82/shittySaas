@@ -137,7 +137,7 @@ export default function HomePage() {
               <li>Download instantly or get access</li>
             </ol>
             <p className="text-text-muted text-sm mt-4">
-              No subscriptions. Pay once, own forever.
+              No subscriptions. No auctions. Pay once, own forever.
             </p>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function HomePage() {
         <p className="text-lg mb-4 text-text-bone">Built. Shipped. Still waiting?</p>
         <Link href="/sell">
           <Button variant="primary" size="lg">
-            Resurrect It — List for Free
+            Give It New Life — List for Free
           </Button>
         </Link>
       </section>

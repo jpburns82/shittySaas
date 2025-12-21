@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { templateType, listingId, messages, isFollowUp } = await req.json()
+    const { templateType, listingId, messages, isFollowUp, userMessage } = await req.json()
 
     // Fetch listing data if provided
     let listingData = null
@@ -55,8 +55,8 @@ export async function POST(req: Request) {
         ...(isTemplate ? { customizedTemplate: text } : { response: text })
       })
     } else {
-      // Initial template generation
-      const prompt = buildPrompt(templateType, listingData, session.user)
+      // Initial template generation or single-turn request
+      const prompt = buildPrompt(templateType, listingData, session.user, userMessage)
       const result = await model.generateContent(prompt)
       const text = result.response.text()
 
@@ -87,43 +87,51 @@ interface SessionUser {
   name?: string | null
 }
 
-function buildPrompt(templateType: string, listingData: ListingData | null, user: SessionUser) {
-  const projectDetails = listingData ? `
-Project Details:
+function buildPrompt(templateType: string, listingData: ListingData | null, user: SessionUser, userMessage?: string) {
+  const projectInfo = listingData ? `
+PROJECT DATA:
 - Title: ${listingData.title}
-- Description: ${listingData.description?.slice(0, 500) || 'Not provided'}
-- Price: ${listingData.priceInCents ? `$${(listingData.priceInCents / 100).toFixed(2)}` : 'Free'}
-- Category: ${listingData.category?.name}
+- Seller: @${listingData.seller?.username}
+- Price: ${listingData.priceInCents ? '$' + (listingData.priceInCents / 100).toFixed(2) : 'Free'}
+- Category: ${typeof listingData.category === 'object' ? listingData.category.name : listingData.category}
 - Tech Stack: ${listingData.techStack?.join(', ') || 'Not specified'}
-- Delivery: ${listingData.deliveryMethod}
+- Delivery: ${listingData.deliveryMethod || 'Not specified'}
+- Seller's Description: "${listingData.description || 'None provided'}"
 - Includes: ${[
     listingData.includesSourceCode && 'Source Code',
     listingData.includesDatabase && 'Database',
     listingData.includesDocs && 'Documentation'
   ].filter(Boolean).join(', ') || 'Not specified'}
-- Seller: @${listingData.seller.username}
-` : 'No specific project selected.'
+` : 'No project selected yet.'
 
-  return `You are helping fill out a template for a software marketplace transaction.
+  return `You are a helpful assistant on UndeadList, a marketplace for indie software projects and abandoned SaaS.
 
-Template Type: ${templateType}
-Seller: @${user.username || user.name || 'User'}
+Your job is to help sellers create compelling listings and documentation. You're friendly, knowledgeable about software sales, and understand the indie dev community.
 
-${projectDetails}
+${projectInfo}
 
-IMPORTANT RULES:
-1. Use the ACTUAL project data provided - do NOT use [placeholders] for information I gave you
-2. Only use [BRACKETS] for information that genuinely wasn't provided
-3. The seller username is @${listingData?.seller?.username || user.username || 'User'} - use it directly
-4. The price is ${listingData?.priceInCents ? `$${(listingData.priceInCents / 100).toFixed(2)}` : 'not set'} - use it directly
-5. The tech stack is ${listingData?.techStack?.join(', ') || 'not specified'} - use it directly
-6. Fill in as much as possible from the provided data
-7. Be concise - this is a marketplace listing, not an essay
+TEMPLATE BEING WORKED ON: ${templateType}
 
-Fill out the ${templateType} template with realistic, helpful content based on the project details above.
-Use [BRACKETS] ONLY for information that still needs user input (like dates, signatures, specific terms that weren't provided).
-Keep formatting clean - use plain text, not markdown.
-Output ONLY the filled template, no explanations or preamble.`
+YOUR CAPABILITIES:
+- Generate templates using the project data
+- Enhance/improve existing descriptions (make them more compelling)
+- Suggest better pricing strategies
+- Help write technical documentation
+- Offer marketing tips for the listing
+- Answer questions about best practices for selling software
+- Rewrite content in different tones (professional, casual, technical)
+
+GUIDELINES:
+- If the seller has a description, offer to enhance it rather than replacing it
+- Ask clarifying questions if you need more info to help better
+- Be concise but helpful
+- Keep the indie/startup vibe - not corporate speak
+- Today's date is ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+- Use actual data when available, [BRACKETS] only for genuinely missing info
+
+${userMessage ? `USER'S REQUEST: ${userMessage}` : `Generate the ${templateType} template for this project.`}
+
+Respond helpfully:`
 }
 
 function buildConversationPrompt(
@@ -132,37 +140,53 @@ function buildConversationPrompt(
   user: SessionUser,
   messages: ConversationMessage[]
 ) {
-  const projectDetails = listingData ? `
-Project Details:
+  const projectInfo = listingData ? `
+PROJECT DATA:
 - Title: ${listingData.title}
-- Description: ${listingData.description?.slice(0, 500) || 'Not provided'}
-- Price: ${listingData.priceInCents ? `$${(listingData.priceInCents / 100).toFixed(2)}` : 'Free'}
-- Category: ${listingData.category?.name}
+- Seller: @${listingData.seller?.username}
+- Price: ${listingData.priceInCents ? '$' + (listingData.priceInCents / 100).toFixed(2) : 'Free'}
+- Category: ${typeof listingData.category === 'object' ? listingData.category.name : listingData.category}
 - Tech Stack: ${listingData.techStack?.join(', ') || 'Not specified'}
-- Delivery: ${listingData.deliveryMethod}
+- Delivery: ${listingData.deliveryMethod || 'Not specified'}
+- Seller's Description: "${listingData.description || 'None provided'}"
 - Includes: ${[
     listingData.includesSourceCode && 'Source Code',
     listingData.includesDatabase && 'Database',
     listingData.includesDocs && 'Documentation'
   ].filter(Boolean).join(', ') || 'Not specified'}
-- Seller: @${listingData.seller.username}
-` : 'No specific project selected.'
+` : 'No project selected yet.'
 
   const conversationHistory = messages
     .map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
     .join('\n\n')
 
-  return `You are a helpful assistant for a software marketplace. You're helping customize a ${templateType} template.
+  return `You are a helpful assistant on UndeadList, a marketplace for indie software projects and abandoned SaaS.
 
-Seller: @${user.username || user.name || 'User'}
-${projectDetails}
+Your job is to help sellers create compelling listings and documentation. You're friendly, knowledgeable about software sales, and understand the indie dev community.
 
-Previous conversation:
+${projectInfo}
+
+TEMPLATE BEING WORKED ON: ${templateType}
+
+YOUR CAPABILITIES:
+- Generate templates using the project data
+- Enhance/improve existing descriptions (make them more compelling)
+- Suggest better pricing strategies
+- Help write technical documentation
+- Offer marketing tips for the listing
+- Answer questions about best practices for selling software
+- Rewrite content in different tones (professional, casual, technical)
+
+CONVERSATION SO FAR:
 ${conversationHistory}
 
-Respond to the user's latest message. If they're asking you to modify the template, output the complete updated template.
-If they're asking a question or for clarification, provide a helpful response.
-Keep responses concise and helpful.
-Use [BRACKETS] for any information that still needs user input.
-Use plain text formatting, not markdown.`
+GUIDELINES:
+- If modifying a template, output the complete updated version
+- Be concise but helpful
+- Keep the indie/startup vibe - not corporate speak
+- Today's date is ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+- Use actual data when available, [BRACKETS] only for genuinely missing info
+- Use plain text formatting, not markdown
+
+Respond to the user's latest message:`
 }

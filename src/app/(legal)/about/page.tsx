@@ -14,16 +14,16 @@ export default function AboutPage() {
       <p className="text-text-muted mb-8">Built, but undiscovered.</p>
 
       <p>
-        UndeadList is a marketplace for abandoned, shelved, and undiscovered software projects.
-        We&apos;re built for the stuff other platforms won&apos;t touch — no MRR requirements,
-        no subscriber minimums, no $25k revenue gates.
+        UndeadList is a flea market for indie software — side projects, MVPs, and hidden gems
+        that haven&apos;t found their audience yet. We&apos;re built for the stuff other platforms
+        won&apos;t touch — no MRR requirements, no subscriber minimums, no $25k revenue gates.
       </p>
 
       <p>
-        We believe every project deserves a second chance. That script you wrote last year?
-        Someone needs it. That SaaS you shelved because life got busy? It could be someone
-        else&apos;s solution. That game you built learning to code? A buyer is looking for
-        exactly that.
+        Every project deserves to find its people. That script you wrote last year?
+        Someone&apos;s searching for it. That SaaS you put on hold? It could be exactly what
+        another dev needs. That game you built learning to code? A buyer is looking for it
+        right now.
       </p>
 
       <p>

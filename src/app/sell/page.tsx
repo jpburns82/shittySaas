@@ -9,7 +9,7 @@ import { slugify } from '@/lib/utils'
 
 export const metadata = {
   title: 'Sell Your Project',
-  description: 'List your abandoned project, SaaS app, or software for sale on UndeadList. Where dead code gets a second life.',
+  description: 'List your side project, SaaS app, or software for sale on UndeadList. Give your code a second life.',
 }
 
 export default async function SellPage() {

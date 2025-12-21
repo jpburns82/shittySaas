@@ -15,6 +15,7 @@ export async function GET() {
       title: true,
       category: true,
       status: true,
+      priceInCents: true,
     },
     orderBy: { createdAt: 'desc' }
   })

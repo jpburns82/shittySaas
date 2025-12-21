@@ -9,9 +9,9 @@ const generalFAQ = [
     question: 'What is UndeadList?',
     answer: (
       <p>
-        A marketplace for abandoned, shelved, and undiscovered software projects.
-        We&apos;re built for the stuff other platforms won&apos;t touch — no MRR requirements,
-        no subscriber minimums. You built it? Sell it.
+        A flea market for indie software — side projects, dusty repos, and hidden gems
+        that deserve a second life. No MRR requirements, no subscriber minimums.
+        You built it? Sell it.
       </p>
     ),
   },

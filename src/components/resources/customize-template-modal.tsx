@@ -40,6 +40,7 @@ export function CustomizeTemplateModal({
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null)
   const [generatedTemplate, setGeneratedTemplate] = useState<string>('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const hasFetched = useRef(false)
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -48,48 +49,51 @@ export function CustomizeTemplateModal({
 
   // Fetch user's listings and show greeting when modal opens
   useEffect(() => {
-    if (isOpen) {
-      setFetchingListings(true)
-      setMessages([{
-        role: 'assistant',
-        content: `I'll help you customize the "${templateName}" template. Which of your projects would you like to use this for?`
-      }])
-      setSelectedListingId(null)
-      setGeneratedTemplate('')
-      setInput('')
+    if (!isOpen || hasFetched.current) return
+    hasFetched.current = true
 
-      fetch('/api/listings/my')
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            setListings(data.data)
-            if (data.data.length === 0) {
-              setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: "You don't have any listings yet. I can still help you create a generic template, or you can create a listing first and come back!"
-              }])
-            }
+    setFetchingListings(true)
+    setMessages([{
+      role: 'assistant',
+      content: `I'll help you customize the "${templateName}" template. Which of your projects would you like to use this for?`
+    }])
+    setSelectedListingId(null)
+    setGeneratedTemplate('')
+    setInput('')
+
+    fetch('/api/listings/my')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setListings(data.data)
+          if (data.data.length === 0) {
+            setMessages(prev => [...prev, {
+              role: 'assistant',
+              content: "You don't have any listings yet. No problem! I can help you:\n\n• Create a generic template to use when you list your project\n• Answer questions about selling on UndeadList\n• Help you plan your listing\n\nClick 'Create generic template' below, or type a question!"
+            }])
           }
-        })
-        .catch(() => {
-          setMessages(prev => [...prev, {
-            role: 'assistant',
-            content: "I couldn't load your listings, but I can still help you create a generic template."
-          }])
-        })
-        .finally(() => {
-          setFetchingListings(false)
-        })
-    }
+        }
+      })
+      .catch(() => {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: "I couldn't load your listings, but I can still help you create a generic template."
+        }])
+      })
+      .finally(() => {
+        setFetchingListings(false)
+      })
   }, [isOpen, templateName])
 
   // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
+      hasFetched.current = false
       setMessages([])
       setSelectedListingId(null)
       setGeneratedTemplate('')
       setInput('')
+      setListings([])
     }
   }, [isOpen])
 
@@ -297,27 +301,33 @@ export function CustomizeTemplateModal({
           )}
 
           {/* Listing selection buttons - show after initial greeting */}
-          {!fetchingListings && !selectedListingId && !generatedTemplate && messages.length === 1 && (
-            <div className="space-y-2">
-              {listings.map((listing) => (
-                <button
-                  key={listing.id}
-                  onClick={() => handleSelectListing(listing)}
-                  disabled={isLoading}
-                  className="w-full text-left p-3 bg-bg-crypt border border-border-crypt rounded-lg hover:border-accent-electric transition-colors disabled:opacity-50"
-                >
-                  <div className="font-medium text-sm">{listing.title}</div>
-                  <div className="text-xs text-text-muted">
-                    {getCategoryName(listing.category)} • ${(listing.priceInCents / 100).toFixed(2)}
-                  </div>
-                </button>
-              ))}
+          {!fetchingListings && !selectedListingId && !generatedTemplate && (
+            <div className="space-y-2 mt-4">
+              {listings.length > 0 && (
+                <>
+                  <p className="text-sm text-text-muted mb-2">Select a project:</p>
+                  {listings.map((listing) => (
+                    <button
+                      key={listing.id}
+                      onClick={() => handleSelectListing(listing)}
+                      disabled={isLoading}
+                      className="w-full text-left p-3 bg-bg-crypt border border-border-crypt rounded-lg hover:border-accent-electric transition-colors disabled:opacity-50"
+                    >
+                      <div className="font-medium text-sm">{listing.title}</div>
+                      <div className="text-xs text-text-muted">
+                        {getCategoryName(listing.category)} • ${(listing.priceInCents / 100).toFixed(2)}
+                      </div>
+                    </button>
+                  ))}
+                  <div className="text-center text-text-muted text-xs my-2">or</div>
+                </>
+              )}
               <button
                 onClick={handleNoListing}
                 disabled={isLoading}
-                className="w-full text-left p-3 border border-dashed border-border-crypt rounded-lg hover:border-accent-electric transition-colors text-text-muted text-sm disabled:opacity-50"
+                className="w-full p-3 border border-accent-electric text-accent-electric rounded-lg hover:bg-accent-electric/10 transition-colors disabled:opacity-50"
               >
-                Create generic template (no specific listing)
+                {listings.length > 0 ? 'Create generic template (no specific listing)' : 'Create generic template'}
               </button>
             </div>
           )}
@@ -325,8 +335,8 @@ export function CustomizeTemplateModal({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area - show after template is generated */}
-        {generatedTemplate && (
+        {/* Input Area - show after messages load */}
+        {messages.length > 0 && !fetchingListings && (
           <div className="border-t border-border-light pt-4">
             <div className="flex gap-2">
               <input
@@ -334,7 +344,7 @@ export function CustomizeTemplateModal({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask me to adjust the template..."
+                placeholder={generatedTemplate ? "Ask me to adjust the template..." : "Type a question or click a button above..."}
                 className="input flex-1"
                 disabled={isLoading}
               />

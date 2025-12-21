@@ -9,11 +9,11 @@ export function Footer() {
         {/* Footer Badge Logo */}
         <div className="flex justify-center mb-6">
           <Image
-            src="/images/undeadlist_footer_badge_transparent.png"
+            src="/images/undeadlist_footer_badge_blue.png"
             alt="UndeadList"
-            width={128}
-            height={128}
-            className="w-32 h-32"
+            width={166}
+            height={166}
+            className="w-[166px] h-[166px] opacity-40 brightness-110 hue-rotate-[10deg] saturate-150"
           />
         </div>
         {/* Links */}
@@ -39,7 +39,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="footer-copy">
-          <p className="jp-accent text-text-dust text-sm mb-1">{JP_ACCENTS.MARKET_OF_DEAD}</p>
+          <p className="jp-accent text-text-dust text-sm mb-1">{JP_ACCENTS.MARKET_TAGLINE}</p>
           <p>&copy; {new Date().getFullYear()} {APP_NAME}</p>
           <p className="text-xs mt-1">
             {APP_TAGLINE}. All sales final.

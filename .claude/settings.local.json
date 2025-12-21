@@ -48,7 +48,9 @@
       "Bash(ps aux:*)",
       "Bash(identify:*)",
       "Bash(git clean:*)",
-      "Bash(pnpm db:seed:*)"
+      "Bash(pnpm db:seed:*)",
+      "Bash(git -C \"c:/Users/jesse/Desktop/app projects/sellshittysaas\" log --oneline -5)",
+      "Bash(git -C \"c:/Users/jesse/Desktop/app projects/sellshittysaas\" diff --stat)"
     ]
   }
 }

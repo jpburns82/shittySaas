@@ -13,7 +13,7 @@ export const JP_ACCENTS = {
   GRAVEYARD: '墓場',         // Graveyard (section headers)
   TAGLINE: '作られた。でも、まだ見つかっていない。', // Built, but undiscovered.
   NOTHING_HERE: '何もない',  // Nothing here (empty states)
-  MARKET_OF_DEAD: '死者の市場', // Market of the Dead (footer)
+  MARKET_TAGLINE: 'コードのためのフリーマーケット', // Flea market for code (footer)
   REVIVAL: '復活',           // Revival (featured badge)
   LOADING: '読込中...',      // Loading...
   LOST: '迷子',              // Lost (404 page)
@@ -163,7 +163,7 @@ export const SLUG_REGEX = /^[a-z0-9-]+$/
 // ----- EXTERNAL LINKS -----
 
 export const EXTERNAL_LINKS = {
-  TWITTER: 'https://twitter.com/undeadlist',
+  TWITTER: 'https://x.com/undeadlistshop',
   GITHUB: 'https://github.com/undeadlist',
   DISCORD: 'https://discord.gg/undeadlist',
   ESCROW_SERVICE: 'https://escrow.com', // For high-value transfers
@@ -173,7 +173,7 @@ export const EXTERNAL_LINKS = {
 
 export const SEO = {
   DEFAULT_TITLE: 'UndeadList — Built, but undiscovered.',
-  DEFAULT_DESCRIPTION: 'The marketplace for abandoned software. Buy and sell undiscovered SaaS, scripts, boilerplates, and side projects.',
+  DEFAULT_DESCRIPTION: 'The indie software flea market. Buy and sell undiscovered SaaS, scripts, boilerplates, and side projects. No gatekeeping, no minimums.',
   OG_IMAGE: '/og-image.png',
 } as const
 

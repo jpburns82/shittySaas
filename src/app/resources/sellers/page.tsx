@@ -6,7 +6,7 @@ import { CopyButton } from '@/components/ui/copy-button'
 import { AccordionItem } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { CustomizeTemplateModal } from '@/components/resources/customize-template-modal'
-import { APP_NAME } from '@/lib/constants'
+import { RecommendedServices } from '@/components/resources/recommended-services'
 
 const assetTransferTemplate = `ASSET TRANSFER AGREEMENT
 
@@ -167,51 +167,12 @@ BONUS (MAKES YOU LOOK GOOD)
 [ ] Common issues and solutions
 [ ] Ideas for future features`
 
-const dueDiligenceChecklist = `BUYER DUE DILIGENCE CHECKLIST
-
-Before purchasing, verify:
-
-BASICS
-[ ] Did you message the seller with questions?
-[ ] Is the price reasonable for what you're getting?
-[ ] Do you understand what's included vs. not included?
-[ ] Is the seller responsive and professional?
-
-TECHNICAL
-[ ] Can you actually run this tech stack?
-[ ] Do you know the languages/frameworks used?
-[ ] Are dependencies reasonably up to date?
-[ ] Check for obvious security red flags
-[ ] Is there a live demo you can test?
-
-LEGAL
-[ ] Does the seller own this code?
-[ ] Are there any third-party licenses to consider?
-[ ] Are you buying full rights or just a license?
-[ ] For $500+ purchases: Consider escrow service
-
-PRACTICAL
-[ ] Do you have a plan for this project?
-[ ] Can you maintain it yourself (or afford to hire)?
-[ ] Is this a "bright shiny object" or genuine need?
-[ ] What's your timeline to launch/use it?
-
-RED FLAGS
-[ ] Seller won't answer questions
-[ ] No screenshots or demo
-[ ] Price seems too good to be true
-[ ] Vague about what's included
-[ ] Listing copied from another site
-[ ] Multiple "URGENT" or pressure tactics
-
-REMEMBER: All sales are final. Do your homework.`
-
 interface ModalState {
   templateType: string
   templateName: string
 }
 
-export function ResourcesContent() {
+export default function SellersResourcesPage() {
   const [modalOpen, setModalOpen] = useState<ModalState | null>(null)
 
   const openModal = (templateType: string, templateName: string) => {
@@ -221,9 +182,14 @@ export function ResourcesContent() {
   return (
     <div className="container py-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="font-display text-2xl mb-2">Seller Resources & Templates</h1>
+        {/* Back link */}
+        <Link href="/resources" className="text-text-muted hover:text-text-primary text-sm mb-4 inline-block">
+          &larr; Back to Resources
+        </Link>
+
+        <h1 className="font-display text-2xl mb-2 text-accent-pink">For Sellers</h1>
         <p className="text-text-muted mb-8">
-          Everything you need to sell your project successfully. Click to expand each section.
+          Templates and guides to help you list and sell your projects successfully.
         </p>
 
         {/* Asset Transfer Agreement */}
@@ -331,32 +297,6 @@ export function ResourcesContent() {
           }
         />
 
-        {/* Buyer Due Diligence */}
-        <AccordionItem
-          question="Buyer Due Diligence Checklist"
-          defaultOpen={false}
-          answer={
-            <div className="space-y-4">
-              <p className="text-sm text-text-muted">
-                For buyers: What to verify before purchasing.
-              </p>
-              <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
-                {dueDiligenceChecklist}
-              </pre>
-              <div className="flex gap-2">
-                <CopyButton text={dueDiligenceChecklist} label="Copy Template" />
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => openModal('Buyer Due Diligence', 'Buyer Due Diligence Checklist')}
-                >
-                  Customize with AI
-                </Button>
-              </div>
-            </div>
-          }
-        />
-
         {/* AI Feature Note */}
         <div className="card bg-bg-crypt border-accent-electric mt-6">
           <p className="text-sm text-text-muted mb-0">
@@ -365,107 +305,12 @@ export function ResourcesContent() {
           </p>
         </div>
 
-        {/* Recommended Services */}
-        <section className="card mt-6 mb-6">
-          <h2 className="font-display text-lg mb-1">Recommended Services</h2>
-          <p className="text-sm text-text-muted mb-6">
-            For larger transactions, we recommend using trusted third-party services.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <a
-              href="https://www.escrow.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-4 bg-bg-crypt border border-border-crypt rounded hover:border-accent-electric transition-colors group"
-            >
-              <img
-                src="/images/partners/escrow.svg"
-                alt="Escrow.com"
-                className="h-10 mb-3"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-              <h3 className="font-display text-sm mb-1">Escrow.com</h3>
-              <p className="text-xs text-text-muted mb-2">
-                Licensed escrow service for sales $500+. Protects both buyer and seller.
-              </p>
-              <span className="text-xs text-accent-electric group-hover:underline">
-                Visit &rarr;
-              </span>
-            </a>
-
-            <a
-              href="https://acquire.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-4 bg-bg-crypt border border-border-crypt rounded hover:border-accent-electric transition-colors group"
-            >
-              <img
-                src="/images/partners/acquire.svg"
-                alt="Acquire.com"
-                className="h-10 mb-3"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-              <h3 className="font-display text-sm mb-1">Acquire.com</h3>
-              <p className="text-xs text-text-muted mb-2">
-                For startups with $25k+ revenue. When you outgrow {APP_NAME}.
-              </p>
-              <span className="text-xs text-accent-electric group-hover:underline">
-                Visit &rarr;
-              </span>
-            </a>
-
-            <a
-              href="https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-4 bg-bg-crypt border border-border-crypt rounded hover:border-accent-electric transition-colors group"
-            >
-              <img
-                src="/images/partners/github.svg"
-                alt="GitHub"
-                className="h-10 mb-3"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-              <h3 className="font-display text-sm mb-1">GitHub</h3>
-              <p className="text-xs text-text-muted mb-2">
-                Transfer repository ownership directly. Preserves stars and history.
-              </p>
-              <span className="text-xs text-accent-electric group-hover:underline">
-                Visit &rarr;
-              </span>
-            </a>
-
-            <a
-              href="https://www.loom.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-4 bg-bg-crypt border border-border-crypt rounded hover:border-accent-electric transition-colors group"
-            >
-              <img
-                src="/images/partners/loom.png"
-                alt="Loom"
-                className="h-10 mb-3"
-              />
-              <h3 className="font-display text-sm mb-1">Loom</h3>
-              <p className="text-xs text-text-muted mb-2">
-                Record video walkthroughs of your codebase for buyer handoff.
-              </p>
-              <span className="text-xs text-accent-electric group-hover:underline">
-                Visit &rarr;
-              </span>
-            </a>
-          </div>
-
-          <p className="text-xs text-text-muted mt-4 text-center">
-            {APP_NAME} is not affiliated with these services. Use at your own discretion.
-          </p>
-        </section>
+        <RecommendedServices />
 
         {/* Back Link */}
         <div className="mt-8">
-          <Link href="/dashboard" className="text-text-muted hover:text-text-primary">
-            &larr; Back to Dashboard
+          <Link href="/resources" className="text-text-muted hover:text-text-primary">
+            &larr; Back to Resources
           </Link>
         </div>
       </div>

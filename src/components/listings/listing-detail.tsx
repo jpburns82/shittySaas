@@ -200,7 +200,7 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
                   />
                 </div>
               ) : (
-                <div className="w-12 h-12 bg-btn-bg border border-border-dark flex items-center justify-center font-display text-lg">
+                <div className="w-12 h-12 bg-zinc-800 border border-border-dark flex items-center justify-center font-display text-lg">
                   {listing.seller.displayName?.[0] || listing.seller.username[0].toUpperCase()}
                 </div>
               )}

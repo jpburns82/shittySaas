@@ -108,7 +108,7 @@ export function NewMessageModal({ isOpen, onClose }: NewMessageModalProps) {
       />
 
       {/* Modal */}
-      <div className="relative bg-bg-secondary border border-border-light rounded-lg w-full max-w-md mx-4 max-h-[80vh] flex flex-col">
+      <div className="relative bg-zinc-900 border border-border-light rounded-lg w-full max-w-md mx-4 max-h-[80vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border-light">
           <h2 className="font-display text-lg">New Message</h2>

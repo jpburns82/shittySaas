@@ -43,10 +43,10 @@ export function LoadingPage() {
 export function ListingCardSkeleton() {
   return (
     <div className="listing-card animate-pulse">
-      <div className="h-4 bg-btn-bg w-3/4 mb-2" />
-      <div className="h-3 bg-btn-bg w-full mb-1" />
-      <div className="h-3 bg-btn-bg w-2/3 mb-3" />
-      <div className="h-3 bg-btn-bg w-1/4" />
+      <div className="h-4 bg-zinc-800 w-3/4 mb-2" />
+      <div className="h-3 bg-zinc-800 w-full mb-1" />
+      <div className="h-3 bg-zinc-800 w-2/3 mb-3" />
+      <div className="h-3 bg-zinc-800 w-1/4" />
     </div>
   )
 }

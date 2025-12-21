@@ -1,8 +1,123 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Select } from '../ui/select'
 import type { Category } from '@prisma/client'
+import {
+  Cloud, Smartphone, Puzzle, Zap, Package,
+  Bot, Brain, FileText, Globe, Palette, Gamepad2,
+  Users, Mail, MessageCircle, Folder, Monitor,
+  Server, Terminal, Bitcoin, Gem, TrendingUp, FolderCode, LayoutGrid
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+
+// Map category slugs to Lucide icons
+const categoryIconMap: Record<string, LucideIcon> = {
+  'saas': Cloud,
+  'desktop': Monitor,
+  'mobile': Smartphone,
+  'extensions': Puzzle,
+  'apis': Server,
+  'boilerplates': FolderCode,
+  'scripts': Terminal,
+  'ai': Brain,
+  'cms': FileText,
+  'domains': Globe,
+  'design': Palette,
+  'games': Gamepad2,
+  'social-media': Users,
+  'newsletters': Mail,
+  'communities': MessageCircle,
+  'crypto': Bitcoin,
+  'nft': Gem,
+  'defi': TrendingUp,
+  'other': Folder,
+}
+
+// Helper to get icon component for a category
+function getCategoryIcon(slug: string, size: number = 16) {
+  const IconComponent = categoryIconMap[slug] || Folder
+  return <IconComponent size={size} className="text-text-muted" />
+}
+
+// Custom CategoryFilterDropdown with Lucide icons
+interface CategoryFilterDropdownProps {
+  categories: Category[]
+  value: string
+  onChange: (value: string) => void
+}
+
+function CategoryFilterDropdown({ categories, value, onChange }: CategoryFilterDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const selectedCategory = value === 'all' ? null : categories.find(c => c.slug === value)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <label className="block text-sm font-medium mb-1.5">Category</label>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full min-w-[160px] px-3 py-2 bg-bg-grave border border-border-dark rounded text-left flex items-center gap-2 hover:border-border-light transition-colors text-sm"
+      >
+        {selectedCategory ? (
+          <>
+            {getCategoryIcon(selectedCategory.slug)}
+            <span>{selectedCategory.name}</span>
+          </>
+        ) : (
+          <>
+            <LayoutGrid size={16} className="text-text-muted" />
+            <span>All Categories</span>
+          </>
+        )}
+        <span className="ml-auto text-text-muted">▼</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-zinc-900 border border-border-dark rounded shadow-lg max-h-60 overflow-auto">
+          <button
+            type="button"
+            onClick={() => {
+              onChange('all')
+              setIsOpen(false)
+            }}
+            className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-bg-tombstone transition-colors text-sm ${value === 'all' ? 'bg-bg-tombstone' : ''}`}
+          >
+            <LayoutGrid size={16} className="text-text-muted" />
+            <span>All Categories</span>
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              type="button"
+              onClick={() => {
+                onChange(category.slug)
+                setIsOpen(false)
+              }}
+              className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-bg-tombstone transition-colors text-sm ${value === category.slug ? 'bg-bg-tombstone' : ''}`}
+            >
+              {getCategoryIcon(category.slug)}
+              <span>{category.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface FiltersProps {
   categories: Category[]
@@ -41,15 +156,10 @@ export function Filters({ categories }: FiltersProps) {
       />
 
       {/* Category */}
-      <Select
-        label="Category"
-        name="category"
+      <CategoryFilterDropdown
+        categories={categories}
         value={searchParams.get('category') || 'all'}
-        onChange={(e) => updateFilter('category', e.target.value)}
-        options={[
-          { value: 'all', label: 'All Categories' },
-          ...categories.map((c) => ({ value: c.slug, label: c.name })),
-        ]}
+        onChange={(value) => updateFilter('category', value)}
       />
 
       {/* Price Type */}

@@ -54,14 +54,14 @@ export function SuspendThreadModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/80"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative bg-bg-primary border border-border-dark w-full max-w-md mx-4">
+      <div className="relative bg-bg-secondary border border-border-light rounded-lg w-full max-w-md mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border-dark">
+        <div className="flex items-center justify-between p-6 border-b border-border-light">
           <h2 className="font-display text-lg text-accent-red">Suspend Conversation</h2>
           <button
             onClick={onClose}
@@ -72,8 +72,8 @@ export function SuspendThreadModal({
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4">
-          <div className="bg-red-50 border border-accent-red p-3 text-sm">
+        <div className="p-6 space-y-4">
+          <div className="bg-accent-red/10 border border-accent-red rounded p-3 text-sm">
             <p className="font-medium text-accent-red mb-2">Warning</p>
             <p className="text-text-secondary">
               Suspending this conversation will prevent both parties from sending new messages.
@@ -101,7 +101,7 @@ export function SuspendThreadModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 p-4 border-t border-border-dark">
+        <div className="flex justify-end gap-2 p-6 border-t border-border-light">
           <button
             onClick={onClose}
             className="btn-secondary px-4 py-2"

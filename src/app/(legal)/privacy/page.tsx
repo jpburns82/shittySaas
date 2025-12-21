@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <>
       <h1 className="font-display">Privacy Policy</h1>
-      <p className="text-text-muted mb-8">Last updated: December 2024</p>
+      <p className="text-text-muted mb-8">Last updated: December 2025</p>
 
       <p>
         We&apos;re devs too. We hate invasive data practices as much as you do. Here&apos;s

@@ -157,7 +157,45 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   }
 }
 
-// DELETE /api/listings/[id] - Delete a listing
+// Helper function to cleanup all R2 files for a listing
+async function cleanupListingFiles(listing: {
+  thumbnailUrl: string | null
+  screenshots: string[]
+  files: { fileKey: string }[]
+}) {
+  // Clean up thumbnail
+  if (listing.thumbnailUrl?.includes('r2.dev')) {
+    try {
+      const key = getKeyFromUrl(listing.thumbnailUrl)
+      await deleteFile(key)
+    } catch (err) {
+      console.error('Failed to delete thumbnail:', err)
+    }
+  }
+
+  // Clean up screenshots
+  for (const url of listing.screenshots) {
+    if (url.includes('r2.dev')) {
+      try {
+        const key = getKeyFromUrl(url)
+        await deleteFile(key)
+      } catch (err) {
+        console.error('Failed to delete screenshot:', err)
+      }
+    }
+  }
+
+  // Clean up listing files (downloads)
+  for (const file of listing.files) {
+    try {
+      await deleteFile(file.fileKey)
+    } catch (err) {
+      console.error('Failed to delete file:', file.fileKey, err)
+    }
+  }
+}
+
+// DELETE /api/listings/[id] - Delete or soft-delete a listing
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     const session = await auth()
@@ -170,9 +208,16 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     const { id } = await context.params
 
+    // Fetch listing with files and purchases for business logic
     const listing = await prisma.listing.findUnique({
       where: { id },
-      select: { sellerId: true, thumbnailUrl: true, screenshots: true },
+      include: {
+        files: { select: { fileKey: true } },
+        purchases: {
+          where: { status: { in: ['PENDING', 'COMPLETED'] } },
+          select: { status: true }
+        }
+      }
     })
 
     if (!listing) {
@@ -189,31 +234,47 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       )
     }
 
-    // Clean up images from R2 before deleting listing
-    const imagesToDelete: string[] = []
-    if (listing.thumbnailUrl?.includes('r2.dev')) {
-      imagesToDelete.push(listing.thumbnailUrl)
-    }
-    for (const url of listing.screenshots) {
-      if (url.includes('r2.dev')) {
-        imagesToDelete.push(url)
-      }
+    // Business logic: check for pending and completed purchases
+    const hasPendingPurchases = listing.purchases.some(p => p.status === 'PENDING')
+    const hasCompletedPurchases = listing.purchases.some(p => p.status === 'COMPLETED')
+
+    // Block deletion if there are pending purchases
+    if (hasPendingPurchases) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Cannot delete listing with pending purchases. Complete or cancel the sale first.'
+        },
+        { status: 400 }
+      )
     }
 
-    for (const url of imagesToDelete) {
-      try {
-        const key = getKeyFromUrl(url)
-        await deleteFile(key)
-      } catch (err) {
-        console.error('Failed to delete image:', err)
-      }
+    // Soft delete if there are completed purchases (buyers keep access)
+    if (hasCompletedPurchases) {
+      await prisma.listing.update({
+        where: { id },
+        data: { deletedAt: new Date() }
+      })
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          softDeleted: true,
+          message: 'Listing delisted. Existing buyers can still access their purchases.'
+        },
+      })
     }
 
+    // Hard delete: no purchases, clean up everything
+    await cleanupListingFiles(listing)
     await prisma.listing.delete({ where: { id } })
 
     return NextResponse.json({
       success: true,
-      data: { deleted: true },
+      data: {
+        deleted: true,
+        message: 'Listing permanently deleted.'
+      },
     })
   } catch (error) {
     console.error('DELETE /api/listings/[id] error:', error)

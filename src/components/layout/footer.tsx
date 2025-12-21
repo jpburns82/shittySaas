@@ -13,7 +13,7 @@ export function Footer() {
             alt="UndeadList"
             width={128}
             height={128}
-            className="w-32 h-32 neon-logo-subtle"
+            className="w-32 h-32"
           />
         </div>
         {/* Links */}

@@ -30,6 +30,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   // Build where clause
   const where: Prisma.ListingWhereInput = {
     status: 'ACTIVE',
+    deletedAt: null,
   }
 
   if (params.category) {

@@ -32,7 +32,7 @@ export default async function DashboardLayout({
   ])
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 min-h-[calc(100vh-200px)]">
       <div className="flex flex-col md:flex-row gap-8">
         <DashboardSidebar
           unreadMessages={unreadMessages}

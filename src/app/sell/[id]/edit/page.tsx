@@ -130,6 +130,8 @@ export default async function EditListingPage({ params }: EditListingPageProps) 
     priceInCents: listing.priceInCents || undefined,
     minPriceInCents: listing.minPriceInCents || undefined,
     techStack: listing.techStack,
+    thumbnailUrl: listing.thumbnailUrl || undefined,
+    screenshots: listing.screenshots || [],
     liveUrl: listing.liveUrl || undefined,
     repoUrl: listing.repoUrl || undefined,
     videoUrl: listing.videoUrl || undefined,
@@ -192,6 +194,8 @@ export default async function EditListingPage({ params }: EditListingPageProps) 
           <ListingForm
             categories={categories}
             initialData={initialData}
+            existingFiles={listing.files}
+            listingId={listing.id}
             onSubmit={handleSubmit}
             submitLabel="Save Changes"
           />

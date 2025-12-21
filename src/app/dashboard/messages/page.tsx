@@ -89,8 +89,8 @@ export default async function DashboardMessagesPage() {
               >
                 <div
                   className={`card flex items-start gap-4 hover:bg-bg-accent relative ${
-                    conv.unreadCount > 0 ? 'bg-[#fffde7]' : ''
-                  } ${isSystem ? 'bg-[#e8e8e8]' : ''}`}
+                    conv.unreadCount > 0 ? 'bg-accent-blue/10' : ''
+                  } ${isSystem ? 'bg-secondary' : ''}`}
                 >
                   {/* Blue dot indicator for unread */}
                   {conv.unreadCount > 0 && (
@@ -99,7 +99,7 @@ export default async function DashboardMessagesPage() {
 
                   {/* Avatar - gear icon for system messages */}
                   {isSystem ? (
-                    <div className="w-12 h-12 bg-[#d0d0d0] border border-border-dark flex items-center justify-center text-lg ml-2">
+                    <div className="w-12 h-12 bg-btn-bg border border-border-dark flex items-center justify-center text-lg ml-2">
                       <span>&#9881;</span>
                     </div>
                   ) : (

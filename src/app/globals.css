@@ -977,6 +977,16 @@ hr.thick {
   animation: neon-pulse-pink 2s ease-in-out infinite;
 }
 
+/* Subtle neon glow for smaller logos (footer) */
+@keyframes neon-pulse-subtle {
+  0%, 100% {
+    filter: drop-shadow(0 0 1px #ff336640) drop-shadow(0 0 3px #ff336630);
+  }
+  50% {
+    filter: drop-shadow(0 0 2px #ff336650) drop-shadow(0 0 5px #ff336640);
+  }
+}
+
 .neon-logo-subtle {
-  animation: neon-pulse-pink 3s ease-in-out infinite;
+  animation: neon-pulse-subtle 3s ease-in-out infinite;
 }

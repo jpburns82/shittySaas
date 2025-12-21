@@ -46,33 +46,35 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const session = await auth()
 
   // Build visibility query
-  // - ACTIVE listings visible to everyone
-  // - DRAFT/ARCHIVED listings visible only to owner or admin
+  // - ACTIVE, non-deleted listings visible to everyone
+  // - DRAFT/ARCHIVED/soft-deleted listings visible only to owner or admin
   let whereClause: Prisma.ListingWhereInput
 
   if (session?.user?.isAdmin) {
-    // Admins can see all statuses
+    // Admins can see all statuses including soft-deleted
     whereClause = {
       OR: [{ id }, { slug: id }],
     }
   } else if (session?.user?.id) {
-    // Logged-in users can see ACTIVE listings OR their own drafts
+    // Logged-in users can see ACTIVE non-deleted listings OR their own drafts/deleted
     whereClause = {
       AND: [
         { OR: [{ id }, { slug: id }] },
         {
           OR: [
-            { status: 'ACTIVE' },
+            { status: 'ACTIVE', deletedAt: null },
             { sellerId: session.user.id, status: { in: ['DRAFT', 'ARCHIVED'] } },
+            { sellerId: session.user.id, deletedAt: { not: null } }, // owner can see their soft-deleted
           ],
         },
       ],
     }
   } else {
-    // Anonymous users only see ACTIVE listings
+    // Anonymous users only see ACTIVE non-deleted listings
     whereClause = {
       OR: [{ id }, { slug: id }],
       status: 'ACTIVE',
+      deletedAt: null,
     }
   }
 

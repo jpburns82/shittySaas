@@ -24,6 +24,8 @@ export default async function DashboardPurchasesPage() {
           slug: true,
           deliveryMethod: true,
           thumbnailUrl: true,
+          deletedAt: true,
+          status: true,
         },
       },
       seller: { select: { username: true } },
@@ -78,9 +80,14 @@ export default async function DashboardPurchasesPage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
-                    <Link href={`/listing/${purchase.listing.slug}`} className="font-medium">
-                      {purchase.listing.title}
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/listing/${purchase.listing.slug}`} className="font-medium">
+                        {purchase.listing.title}
+                      </Link>
+                      {(purchase.listing.deletedAt || purchase.listing.status === 'REMOVED') && (
+                        <Badge variant="default">No longer available</Badge>
+                      )}
+                    </div>
                     <div className="text-sm text-text-muted">
                       by @{purchase.seller.username} · {formatDate(purchase.createdAt)}
                     </div>
@@ -94,15 +101,18 @@ export default async function DashboardPurchasesPage() {
                 {/* Delivery status */}
                 {purchase.status === 'COMPLETED' && (
                   <div className="mt-3 pt-3 border-t border-border-light">
-                    {purchase.deliveryStatus === 'CONFIRMED' ||
-                    purchase.deliveryStatus === 'AUTO_COMPLETED' ? (
+                    {/* Instant downloads are always available after purchase */}
+                    {purchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD' ? (
+                      <div className="text-accent-green text-sm flex items-center gap-2">
+                        <span>✓ Ready for download</span>
+                        <Link href={`/download/${purchase.id}`} className="btn btn-primary text-xs py-1 px-2">
+                          Download Files
+                        </Link>
+                      </div>
+                    ) : purchase.deliveryStatus === 'CONFIRMED' ||
+                      purchase.deliveryStatus === 'AUTO_COMPLETED' ? (
                       <div className="text-accent-green text-sm">
                         ✓ Delivered
-                        {purchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD' && (
-                          <Link href={`/download/${purchase.id}`} className="ml-4 text-link">
-                            Download Files
-                          </Link>
-                        )}
                       </div>
                     ) : purchase.deliveryStatus === 'DELIVERED' ? (
                       <div className="text-sm">

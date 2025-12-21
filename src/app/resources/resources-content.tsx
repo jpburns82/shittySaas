@@ -1,7 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { CopyButton } from '@/components/ui/copy-button'
+import { AccordionItem } from '@/components/ui/accordion'
+import { Button } from '@/components/ui/button'
+import { CustomizeTemplateModal } from '@/components/resources/customize-template-modal'
 import { APP_NAME } from '@/lib/constants'
 
 const assetTransferTemplate = `ASSET TRANSFER AGREEMENT
@@ -202,102 +206,162 @@ RED FLAGS
 
 REMEMBER: All sales are final. Do your homework.`
 
+interface ModalState {
+  templateType: string
+  templateName: string
+}
+
 export function ResourcesContent() {
+  const [modalOpen, setModalOpen] = useState<ModalState | null>(null)
+
+  const openModal = (templateType: string, templateName: string) => {
+    setModalOpen({ templateType, templateName })
+  }
+
   return (
     <div className="container py-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="font-display text-2xl mb-2">Seller Resources & Templates</h1>
         <p className="text-text-muted mb-8">
-          Everything you need to sell your project successfully.
+          Everything you need to sell your project successfully. Click to expand each section.
         </p>
 
         {/* Asset Transfer Agreement */}
-        <section className="card mb-6">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <h2 className="font-display text-lg mb-1">Asset Transfer Agreement</h2>
+        <AccordionItem
+          question="Asset Transfer Agreement"
+          defaultOpen={false}
+          answer={
+            <div className="space-y-4">
               <p className="text-sm text-text-muted">
                 A simple template for documenting project transfers. For $500+ sales,
                 consider a formal escrow service.
               </p>
+              <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
+                {assetTransferTemplate}
+              </pre>
+              <div className="flex gap-2">
+                <CopyButton text={assetTransferTemplate} label="Copy Template" />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => openModal('Asset Transfer Agreement', 'Asset Transfer Agreement')}
+                >
+                  Customize with AI
+                </Button>
+              </div>
             </div>
-            <CopyButton text={assetTransferTemplate} className="flex-shrink-0" />
-          </div>
-          <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
-            {assetTransferTemplate}
-          </pre>
-        </section>
+          }
+        />
 
-        {/* Listing Description Guide */}
-        <section className="card mb-6">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <h2 className="font-display text-lg mb-1">Listing Description Template</h2>
+        {/* Listing Description Template */}
+        <AccordionItem
+          question="Listing Description Template"
+          defaultOpen={false}
+          answer={
+            <div className="space-y-4">
               <p className="text-sm text-text-muted">
                 Structure your listing for maximum clarity. Lead with what it does, not how it&apos;s built.
               </p>
+              <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
+                {listingDescriptionTemplate}
+              </pre>
+              <div className="flex gap-2">
+                <CopyButton text={listingDescriptionTemplate} label="Copy Template" />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => openModal('Listing Description', 'Listing Description Template')}
+                >
+                  Customize with AI
+                </Button>
+              </div>
             </div>
-            <CopyButton text={listingDescriptionTemplate} className="flex-shrink-0" />
-          </div>
-          <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
-            {listingDescriptionTemplate}
-          </pre>
-        </section>
+          }
+        />
 
         {/* Pricing Guide */}
-        <section className="card mb-6">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <h2 className="font-display text-lg mb-1">Pricing Your Project</h2>
+        <AccordionItem
+          question="Pricing Your Project"
+          defaultOpen={false}
+          answer={
+            <div className="space-y-4">
               <p className="text-sm text-text-muted">
                 A rough guide to pricing different types of projects.
               </p>
+              <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
+                {pricingGuide}
+              </pre>
+              <div className="flex gap-2">
+                <CopyButton text={pricingGuide} label="Copy Template" />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => openModal('Pricing Guide', 'Pricing Your Project')}
+                >
+                  Customize with AI
+                </Button>
+              </div>
             </div>
-            <CopyButton text={pricingGuide} className="flex-shrink-0" />
-          </div>
-          <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
-            {pricingGuide}
-          </pre>
-        </section>
+          }
+        />
 
         {/* Handoff Checklist */}
-        <section className="card mb-6">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <h2 className="font-display text-lg mb-1">Handoff Checklist</h2>
+        <AccordionItem
+          question="Handoff Checklist"
+          defaultOpen={false}
+          answer={
+            <div className="space-y-4">
               <p className="text-sm text-text-muted">
                 What to include when transferring your project to a buyer.
               </p>
+              <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
+                {handoffChecklist}
+              </pre>
+              <div className="flex gap-2">
+                <CopyButton text={handoffChecklist} label="Copy Template" />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => openModal('Handoff Checklist', 'Handoff Checklist')}
+                >
+                  Customize with AI
+                </Button>
+              </div>
             </div>
-            <CopyButton text={handoffChecklist} className="flex-shrink-0" />
-          </div>
-          <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
-            {handoffChecklist}
-          </pre>
-        </section>
+          }
+        />
 
         {/* Buyer Due Diligence */}
-        <section className="card mb-6">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <h2 className="font-display text-lg mb-1">Buyer Due Diligence Checklist</h2>
+        <AccordionItem
+          question="Buyer Due Diligence Checklist"
+          defaultOpen={false}
+          answer={
+            <div className="space-y-4">
               <p className="text-sm text-text-muted">
                 For buyers: What to verify before purchasing.
               </p>
+              <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
+                {dueDiligenceChecklist}
+              </pre>
+              <div className="flex gap-2">
+                <CopyButton text={dueDiligenceChecklist} label="Copy Template" />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => openModal('Buyer Due Diligence', 'Buyer Due Diligence Checklist')}
+                >
+                  Customize with AI
+                </Button>
+              </div>
             </div>
-            <CopyButton text={dueDiligenceChecklist} className="flex-shrink-0" />
-          </div>
-          <pre className="bg-bg-crypt p-4 text-xs overflow-x-auto border border-border-crypt whitespace-pre-wrap font-mono">
-            {dueDiligenceChecklist}
-          </pre>
-        </section>
+          }
+        />
 
-        {/* Coming Soon Note */}
-        <div className="card bg-bg-crypt border-accent-electric">
+        {/* AI Feature Note */}
+        <div className="card bg-bg-crypt border-accent-electric mt-6">
           <p className="text-sm text-text-muted mb-0">
-            <span className="text-accent-electric font-mono">COMING SOON:</span>{' '}
-            AI-powered template customization — fill in your project details and get
-            personalized listing copy.
+            <span className="text-accent-electric font-mono">NEW:</span>{' '}
+            Click &quot;Customize with AI&quot; on any template to auto-fill it based on your listing details.
           </p>
         </div>
 
@@ -405,6 +469,16 @@ export function ResourcesContent() {
           </Link>
         </div>
       </div>
+
+      {/* Customize Template Modal */}
+      {modalOpen && (
+        <CustomizeTemplateModal
+          isOpen={true}
+          onClose={() => setModalOpen(null)}
+          templateType={modalOpen.templateType}
+          templateName={modalOpen.templateName}
+        />
+      )}
     </div>
   )
 }

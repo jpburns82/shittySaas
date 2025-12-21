@@ -26,6 +26,7 @@ async function FeaturedListingsSection() {
   const featuredListings = await prisma.listing.findMany({
     where: {
       status: 'ACTIVE',
+      deletedAt: null,
       featured: true,
       OR: [
         { featuredUntil: null }, // indefinite
@@ -73,8 +74,8 @@ export default function HomePage() {
         <div className="flex flex-col items-center justify-center gap-8">
           {/* Content - centered on all screens */}
           <div className="text-center">
-            <p className="text-text-dust text-lg md:text-xl jp-accent mb-2">{JP_ACCENTS.TAGLINE}</p>
-            <h1 className="font-display text-4xl md:text-5xl mb-3 text-accent-electric">
+            <p className="text-text-dust text-xl md:text-2xl jp-accent mb-2">{JP_ACCENTS.TAGLINE}</p>
+            <h1 className="font-display text-5xl md:text-6xl font-bold mb-3 text-accent-electric">
               UNDEAD LIST
             </h1>
           </div>
@@ -86,7 +87,7 @@ export default function HomePage() {
               width={560}
               height={280}
               priority
-              className="w-full h-auto neon-logo"
+              className="w-full h-auto"
             />
           </div>
           {/* Body text and buttons */}
@@ -115,7 +116,7 @@ export default function HomePage() {
       <section className="my-6 py-5 border-t border-b border-border-crypt">
         <h2 className="font-display text-xl text-center mb-4 text-accent-electric">HOW IT WORKS</h2>
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="card">
+          <div className="card rounded-xl border border-border-light">
             <h3 className="font-display text-lg mb-4">FOR SELLERS</h3>
             <ol className="space-y-2 list-decimal list-inside text-sm">
               <li>Create an account & connect Stripe</li>
@@ -127,7 +128,7 @@ export default function HomePage() {
               We handle payments, delivery, and support.
             </p>
           </div>
-          <div className="card">
+          <div className="card rounded-xl border border-border-light">
             <h3 className="font-display text-lg mb-4">FOR BUYERS</h3>
             <ol className="space-y-2 list-decimal list-inside text-sm">
               <li>Browse projects by category or search</li>

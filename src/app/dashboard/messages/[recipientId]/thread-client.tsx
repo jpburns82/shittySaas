@@ -202,7 +202,7 @@ export function ThreadClient({
     <>
       {/* Suspended Thread Banner */}
       {isSuspended && (
-        <div className="p-4 bg-red-100 border border-accent-red text-accent-red text-sm">
+        <div className="p-4 bg-accent-red/10 border border-accent-red text-accent-red text-sm">
           <div className="flex items-start gap-2">
             <span className="text-lg">&#128274;</span>
             <div>
@@ -282,8 +282,8 @@ export function ThreadClient({
 
       {/* Admin Tools Panel */}
       {isAdmin && (
-        <div className="border border-accent-red bg-red-50 p-3 mt-2">
-          <h3 className="font-display text-sm mb-2 text-accent-red">ADMIN TOOLS</h3>
+        <div className="border border-border-light bg-secondary p-3 mt-2">
+          <h3 className="font-display text-sm mb-2 text-accent-pink">ADMIN TOOLS</h3>
           <div className="flex flex-wrap gap-2 text-xs mb-2">
             <a href={`/user/${recipient.username}`} className="btn-secondary px-2 py-1">
               View Profile
@@ -300,11 +300,11 @@ export function ThreadClient({
 
           {/* Warn/Suspend buttons */}
           {threadId && (
-            <div className="flex flex-wrap gap-2 text-xs mt-2 pt-2 border-t border-red-200">
+            <div className="flex flex-wrap gap-2 text-xs mt-2 pt-2 border-t border-border-dark">
               {buyer && (
                 <button
                   onClick={() => setShowWarnBuyerModal(true)}
-                  className="btn-secondary px-2 py-1 text-amber-700 border-amber-400 hover:bg-amber-50"
+                  className="btn-secondary px-2 py-1 text-accent-yellow border-accent-yellow/50 hover:bg-accent-yellow/10"
                 >
                   ⚠ Warn Buyer
                 </button>
@@ -312,7 +312,7 @@ export function ThreadClient({
               {seller && (
                 <button
                   onClick={() => setShowWarnSellerModal(true)}
-                  className="btn-secondary px-2 py-1 text-amber-700 border-amber-400 hover:bg-amber-50"
+                  className="btn-secondary px-2 py-1 text-accent-yellow border-accent-yellow/50 hover:bg-accent-yellow/10"
                 >
                   ⚠ Warn Seller
                 </button>
@@ -320,7 +320,7 @@ export function ThreadClient({
               {!isSuspended ? (
                 <button
                   onClick={() => setShowSuspendModal(true)}
-                  className="btn-secondary px-2 py-1 text-accent-red border-accent-red hover:bg-red-100"
+                  className="btn-secondary px-2 py-1 text-accent-red border-accent-red hover:bg-accent-red/10"
                 >
                   &#128274; Suspend Thread
                 </button>
@@ -328,7 +328,7 @@ export function ThreadClient({
                 <button
                   onClick={handleUnsuspend}
                   disabled={actionLoading}
-                  className="btn-secondary px-2 py-1 text-green-700 border-green-500 hover:bg-green-50"
+                  className="btn-secondary px-2 py-1 text-accent-green border-accent-green/50 hover:bg-accent-green/10"
                 >
                   {actionLoading ? 'Working...' : '&#128275; Unsuspend Thread'}
                 </button>
@@ -337,7 +337,7 @@ export function ThreadClient({
           )}
 
           {reportCount > 0 && (
-            <div className="text-xs text-text-muted mt-2 pt-2 border-t border-red-200">
+            <div className="text-xs text-text-muted mt-2 pt-2 border-t border-border-dark">
               Reports: {reportCount}
               {lastReport && (
                 <>

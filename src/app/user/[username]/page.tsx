@@ -57,6 +57,7 @@ export default async function UserProfilePage({ params }: Props) {
     where: {
       sellerId: user.id,
       status: 'ACTIVE',
+      deletedAt: null,
     },
     orderBy: { createdAt: 'desc' },
     include: {

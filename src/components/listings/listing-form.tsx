@@ -1,14 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Select } from '../ui/select'
 import { ImageUpload } from '../ui/image-upload'
 import { TechStackTags } from './tech-stack-tags'
+import { FileUpload } from './file-upload'
 import { TECH_STACK_OPTIONS, LISTING_LIMITS } from '@/lib/constants'
-import type { Category } from '@prisma/client'
+import type { Category, ListingFile } from '@prisma/client'
 
 interface FormErrorResponse {
   success: false
@@ -19,6 +20,8 @@ interface FormErrorResponse {
 interface ListingFormProps {
   categories: Category[]
   initialData?: Partial<ListingFormData>
+  existingFiles?: ListingFile[]
+  listingId?: string
   onSubmit: (data: ListingFormData) => Promise<FormErrorResponse | void>
   submitLabel?: string
   loading?: boolean
@@ -77,6 +80,8 @@ const defaultFormData: ListingFormData = {
 export function ListingForm({
   categories,
   initialData,
+  existingFiles = [],
+  listingId,
   onSubmit,
   submitLabel = 'Create Listing',
   loading,
@@ -88,6 +93,7 @@ export function ListingForm({
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [generalError, setGeneralError] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [files, setFiles] = useState<ListingFile[]>(existingFiles)
 
   const handleChange = (field: keyof ListingFormData, value: unknown) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -214,39 +220,41 @@ export function ListingForm({
           Images
         </legend>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Thumbnail Image
-          </label>
-          <p className="text-xs text-text-muted mb-3">
-            Main image shown in listing cards. Recommended: 16:9 aspect ratio.
-          </p>
-          <ImageUpload
-            value={formData.thumbnailUrl}
-            onChange={(url) => handleChange('thumbnailUrl', url as string)}
-            uploadEndpoint="/api/listings/screenshots"
-            aspectRatio="16:9"
-            maxSize={5 * 1024 * 1024}
-            placeholder="Drop thumbnail here or click to upload"
-          />
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Thumbnail Image
+            </label>
+            <p className="text-xs text-text-muted mb-3">
+              Main image for listing cards. 16:9 ratio.
+            </p>
+            <ImageUpload
+              value={formData.thumbnailUrl}
+              onChange={(url) => handleChange('thumbnailUrl', url as string)}
+              uploadEndpoint="/api/listings/screenshots"
+              aspectRatio="16:9"
+              maxSize={5 * 1024 * 1024}
+              placeholder="Drop thumbnail or click"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Screenshots ({formData.screenshots.length}/6)
-          </label>
-          <p className="text-xs text-text-muted mb-3">
-            Additional images showing your project. Max 6 images.
-          </p>
-          <ImageUpload
-            value={formData.screenshots}
-            onChange={(urls) => handleChange('screenshots', urls as string[])}
-            uploadEndpoint="/api/listings/screenshots"
-            multiple
-            maxFiles={6}
-            maxSize={5 * 1024 * 1024}
-            placeholder="Drop screenshots here or click to upload"
-          />
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Screenshots ({formData.screenshots.length}/6)
+            </label>
+            <p className="text-xs text-text-muted mb-3">
+              Additional images. Max 6.
+            </p>
+            <ImageUpload
+              value={formData.screenshots}
+              onChange={(urls) => handleChange('screenshots', urls as string[])}
+              uploadEndpoint="/api/listings/screenshots"
+              multiple
+              maxFiles={6}
+              maxSize={5 * 1024 * 1024}
+              placeholder="Drop screenshots or click"
+            />
+          </div>
         </div>
       </fieldset>
 
@@ -444,6 +452,29 @@ export function ListingForm({
               { value: '7', label: 'Within 7 days' },
             ]}
           />
+        )}
+
+        {/* Project Files - only for instant download and when editing */}
+        {formData.deliveryMethod === 'INSTANT_DOWNLOAD' && listingId && (
+          <div className="mt-4 pt-4 border-t border-border-dark">
+            <label className="block text-sm font-medium mb-2">
+              Project Files
+            </label>
+            <p className="text-xs text-text-muted mb-3">
+              Upload files buyers will receive. Max 50MB per file. ZIP, RAR, PDF, TXT, MD supported.
+            </p>
+            <FileUpload
+              listingId={listingId}
+              files={files}
+              onFilesChange={setFiles}
+            />
+          </div>
+        )}
+
+        {formData.deliveryMethod === 'INSTANT_DOWNLOAD' && !listingId && (
+          <p className="text-xs text-text-muted mt-2 p-2 bg-bg-accent border border-border-light">
+            Save the listing first, then edit to upload project files.
+          </p>
         )}
       </fieldset>
 

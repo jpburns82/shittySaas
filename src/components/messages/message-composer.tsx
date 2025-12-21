@@ -229,7 +229,7 @@ export function MessageComposer({
       <div className="p-4">
         {/* Error Display */}
         {error && (
-          <div className="mb-3 p-2 bg-red-50 border border-accent-red text-accent-red text-sm">
+          <div className="mb-3 p-2 bg-accent-red/10 border border-accent-red text-accent-red text-sm">
             {error}
           </div>
         )}

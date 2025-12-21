@@ -57,6 +57,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     prisma.listing.findMany({
       where: {
         status: 'ACTIVE',
+        deletedAt: null,
         categoryId: category.id,
       },
       orderBy,
@@ -74,6 +75,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     prisma.listing.count({
       where: {
         status: 'ACTIVE',
+        deletedAt: null,
         categoryId: category.id,
       },
     }),

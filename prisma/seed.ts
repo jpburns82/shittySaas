@@ -12,7 +12,7 @@ const demoListings = [
     priceType: 'FIXED' as PriceType,
     priceInCents: 199,
     techStack: ['Tauri', 'Rust', 'React', 'Ollama'],
-    thumbnailUrl: '/images/seed/prometheus thumbnail2.png',
+    thumbnailUrl: '/images/seed/prometheus_thumbnail2.png',
     categorySlug: 'ai',
   },
   {
@@ -23,7 +23,7 @@ const demoListings = [
     priceType: 'FIXED' as PriceType,
     priceInCents: 4999,
     techStack: ['Next.js', 'TypeScript', 'Stripe', 'Prisma'],
-    thumbnailUrl: '/images/seed/astral logo color.png',
+    thumbnailUrl: '/images/seed/astral_logo_color.png',
     categorySlug: 'saas',
   },
   {
@@ -45,7 +45,7 @@ const demoListings = [
     priceType: 'FIXED' as PriceType,
     priceInCents: 1499,
     techStack: ['Figma', 'CSS', 'React', 'Tailwind'],
-    thumbnailUrl: '/images/seed/y2k logo.png',
+    thumbnailUrl: '/images/seed/y2k_logo.png',
     categorySlug: 'design',
   },
 ]
@@ -129,6 +129,27 @@ const categories = [
     sortOrder: 11,
   },
   {
+    name: 'Social Media Accounts',
+    slug: 'social-media',
+    description: 'TikTok, YouTube, Instagram, Twitter accounts',
+    icon: '👥',
+    sortOrder: 12,
+  },
+  {
+    name: 'Newsletters',
+    slug: 'newsletters',
+    description: 'Email lists, Substacks, audience',
+    icon: '📧',
+    sortOrder: 13,
+  },
+  {
+    name: 'Online Communities',
+    slug: 'communities',
+    description: 'Discord servers, forums, groups',
+    icon: '💬',
+    sortOrder: 14,
+  },
+  {
     name: 'Other',
     slug: 'other',
     description: 'Everything else that doesn\'t fit above',
@@ -152,6 +173,8 @@ async function main() {
   console.log('\n🌱 Finding seller user...')
 
   // Find and update existing ghostdev user with avatar
+  // Password: Seller123! (bcrypt hash)
+  const sellerPasswordHash = '$2a$10$K5EHqFxlhpnKwYxwvZqQYu.9JK0bL7qXzF.r8Xz0J3QxZ5LdYF5Xe'
   const sellerUser = await prisma.user.upsert({
     where: { email: 'seller@undeadlist.test' },
     update: {
@@ -161,9 +184,9 @@ async function main() {
       email: 'seller@undeadlist.test',
       username: 'ghostdev',
       displayName: 'Ghost Developer',
-      role: 'USER',
       isVerifiedSeller: true,
       avatarUrl: '/images/avatars/ghostdev.png',
+      passwordHash: sellerPasswordHash,
     },
   })
   console.log(`  ✓ Seller user: @${sellerUser.username}`)

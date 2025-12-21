@@ -21,6 +21,8 @@ export default async function DashboardListingsPage() {
       priceType: true,
       priceInCents: true,
       status: true,
+      deletedAt: true,
+      deliveryMethod: true,
       featured: true,
       featuredUntil: true,
       createdAt: true,

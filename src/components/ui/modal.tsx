@@ -43,14 +43,14 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
     >
       <div
         className={cn(
-          'bg-bg-secondary border-2 border-border-dark shadow-lg max-h-[90vh] overflow-auto',
+          'bg-[#1a1a1a] border border-border-light rounded-lg shadow-lg max-h-[90vh] overflow-auto',
           {
             'w-full max-w-sm': size === 'sm',
             'w-full max-w-lg': size === 'md',
@@ -75,7 +75,7 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
         )}
 
         {/* Content */}
-        <div className="p-4">{children}</div>
+        <div className="p-6">{children}</div>
 
         {/* Footer */}
         {footer && (

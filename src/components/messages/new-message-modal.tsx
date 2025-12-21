@@ -103,14 +103,14 @@ export function NewMessageModal({ isOpen, onClose }: NewMessageModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/80"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative bg-bg-primary border border-border-dark w-full max-w-md mx-4 max-h-[80vh] flex flex-col">
+      <div className="relative bg-bg-secondary border border-border-light rounded-lg w-full max-w-md mx-4 max-h-[80vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border-dark">
+        <div className="flex items-center justify-between p-6 border-b border-border-light">
           <h2 className="font-display text-lg">New Message</h2>
           <button
             onClick={onClose}
@@ -121,7 +121,7 @@ export function NewMessageModal({ isOpen, onClose }: NewMessageModalProps) {
         </div>
 
         {/* Content */}
-        <div className="p-4 flex-1 overflow-y-auto">
+        <div className="p-6 flex-1 overflow-y-auto">
           {!selectedUser ? (
             // Step 1: Select recipient
             <div>
@@ -207,7 +207,7 @@ export function NewMessageModal({ isOpen, onClose }: NewMessageModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 p-4 border-t border-border-dark">
+        <div className="flex justify-end gap-2 p-6 border-t border-border-light">
           <button
             onClick={onClose}
             className="btn-secondary px-4 py-2"

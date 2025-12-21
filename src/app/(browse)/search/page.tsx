@@ -60,6 +60,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   // Build where clause
   const where: Prisma.ListingWhereInput = {
     status: 'ACTIVE',
+    deletedAt: null,
     OR: [
       { title: { contains: query, mode: 'insensitive' } },
       { shortDescription: { contains: query, mode: 'insensitive' } },

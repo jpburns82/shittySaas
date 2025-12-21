@@ -11,7 +11,7 @@ export default function TermsPage() {
   return (
     <>
       <h1 className="font-display">Terms of Service</h1>
-      <p className="text-text-muted mb-8">Last updated: December 2024</p>
+      <p className="text-text-muted mb-8">Last updated: December 2025</p>
 
       <h2>What We Are</h2>
       <p>

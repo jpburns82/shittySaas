@@ -170,7 +170,10 @@ model Listing {
   // Timestamps
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  
+
+  // Soft Delete (seller-initiated)
+  deletedAt             DateTime?
+
   // Relations
   files                 ListingFile[]
   purchases             Purchase[]
@@ -188,6 +191,7 @@ model Listing {
   @@index([createdAt])
   @@index([voteScore])
   @@index([publishedAt])
+  @@index([deletedAt])
 }
 
 model ListingFile {

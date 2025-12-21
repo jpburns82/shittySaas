@@ -86,31 +86,40 @@ src/
 
 ## Environment Variables
 
+See `.env.example` for full documentation. Key variables:
+
 ```env
 # Database
-DATABASE_URL=
+DATABASE_URL=postgresql://...
 
 # Auth
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=
+NEXTAUTH_SECRET=          # openssl rand -base64 32
+NEXTAUTH_URL=http://localhost:3000
 
 # Stripe
-STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
-STRIPE_WEBHOOK_SECRET=
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Cloudflare R2
+R2_ACCOUNT_ID=
 R2_ACCESS_KEY_ID=
 R2_SECRET_ACCESS_KEY=
 R2_BUCKET_NAME=
-R2_ACCOUNT_ID=
 R2_PUBLIC_URL=
+NEXT_PUBLIC_R2_PUBLIC_URL=
 
 # Email
-RESEND_API_KEY=
+RESEND_API_KEY=re_...
 
 # AI
-GEMINI_API_KEY=
+GOOGLE_GEMINI_API_KEY=    # For template customization
+
+# Cron Jobs
+CRON_SECRET=              # For featured listing expiration
+
+# App Config
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_NAME=UndeadList
 ```
 
 ## Fee Structure

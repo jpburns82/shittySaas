@@ -124,6 +124,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const isOwner = session?.user?.id === listing.sellerId
   const isAdmin = session?.user?.isAdmin
 
+  // Capture values for server action closure (TypeScript can't narrow across async boundaries)
+  const listingId = listing.id
+  const listingSlug = listing.slug
+
   // Server action to publish the listing
   async function publishListing() {
     'use server'
@@ -132,16 +136,16 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
     // Verify ownership
     const current = await prisma.listing.findUnique({
-      where: { id: listing.id },
+      where: { id: listingId },
       select: { sellerId: true },
     })
     if (current?.sellerId !== session.user.id && !session.user.isAdmin) return
 
     await prisma.listing.update({
-      where: { id: listing.id },
+      where: { id: listingId },
       data: { status: 'ACTIVE', publishedAt: new Date() },
     })
-    revalidatePath(`/listing/${listing.slug}`)
+    revalidatePath(`/listing/${listingSlug}`)
   }
 
   // Get user's vote if logged in
@@ -150,7 +154,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
     const vote = await prisma.vote.findUnique({
       where: {
         listingId_userId: {
-          listingId: listing.id,
+          listingId: listingId,
           userId: session.user.id,
         },
       },

@@ -5,8 +5,8 @@ import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { Category } from '@prisma/client'
 import {
-  LayoutGrid, Cloud, Smartphone, Puzzle, Zap, Package,
-  Bot, Brain, FileText, Globe, Palette, Gamepad2,
+  LayoutGrid, Cloud, Smartphone, Puzzle,
+  Brain, FileText, Globe, Palette, Gamepad2,
   Users, Mail, MessageCircle, Folder, Bitcoin, Gem, TrendingUp,
   Monitor, Server, Terminal, FolderCode
 } from 'lucide-react'

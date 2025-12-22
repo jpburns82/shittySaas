@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { Button } from './button'
+// Button import removed - not used
 
 interface ImageUploadProps {
   value?: string | string[]

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { uploadFile, deleteFile, getPresignedDownloadUrl } from '@/lib/r2'
+import { uploadFile, deleteFile } from '@/lib/r2'
 import { nanoid } from 'nanoid'
 
 // Allowed file types for instant download
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/listings/[id]/files - Delete a file
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id: listingId } = await params
+    const { id: _listingId } = await params // Ownership verified via file.listing
     const session = await auth()
 
     if (!session) {

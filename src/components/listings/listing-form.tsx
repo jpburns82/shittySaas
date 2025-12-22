@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
@@ -11,8 +11,8 @@ import { FileUpload } from './file-upload'
 import { TECH_STACK_OPTIONS, LISTING_LIMITS } from '@/lib/constants'
 import type { Category, ListingFile } from '@prisma/client'
 import {
-  Cloud, Smartphone, Puzzle, Zap, Package,
-  Bot, Brain, FileText, Globe, Palette, Gamepad2,
+  Cloud, Smartphone, Puzzle,
+  Brain, FileText, Globe, Palette, Gamepad2,
   Users, Mail, MessageCircle, Folder, Monitor,
   Server, Terminal, Bitcoin, Gem, TrendingUp, FolderCode
 } from 'lucide-react'

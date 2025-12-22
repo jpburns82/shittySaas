@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { ListingGrid } from '@/components/listings/listing-grid'
 import { Button } from '@/components/ui/button'
-import { APP_TAGLINE, JP_ACCENTS } from '@/lib/constants'
+import { APP_TAGLINE } from '@/lib/constants'
 
 // Skeleton components for loading states
 function ListingGridSkeleton({ count = 4 }: { count?: number }) {

@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Select } from '../ui/select'
 import type { Category } from '@prisma/client'
 import {
-  Cloud, Smartphone, Puzzle, Zap, Package,
-  Bot, Brain, FileText, Globe, Palette, Gamepad2,
+  Cloud, Smartphone, Puzzle,
+  Brain, FileText, Globe, Palette, Gamepad2,
   Users, Mail, MessageCircle, Folder, Monitor,
   Server, Terminal, Bitcoin, Gem, TrendingUp, FolderCode, LayoutGrid
 } from 'lucide-react'

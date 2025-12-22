@@ -44,10 +44,6 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    console.log(
-      `Cron: Expired ${expiredListings.count} listings and ${expiredPurchases.count} featured purchases`
-    )
-
     return NextResponse.json({
       success: true,
       expiredListings: expiredListings.count,

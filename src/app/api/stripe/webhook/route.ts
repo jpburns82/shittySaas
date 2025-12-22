@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        // Unhandled event types are ignored
+        break
     }
 
     return NextResponse.json({ received: true })
@@ -70,7 +71,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     where: { id: purchaseId },
     data: {
       status: 'COMPLETED',
-      stripePaymentIntentId: session.payment_intent as string,
+      stripePaymentIntentId: (session.payment_intent as string) || null,
       deliveryStatus: 'PENDING',
     },
     include: {
@@ -137,7 +138,7 @@ async function handleFeaturedPurchaseCompleted(session: Stripe.Checkout.Session)
   const featuredPurchase = await prisma.featuredPurchase.update({
     where: { id: featuredPurchaseId },
     data: {
-      stripePaymentIntentId: session.payment_intent as string,
+      stripePaymentIntentId: (session.payment_intent as string) || null,
       status: 'ACTIVE',
     },
     include: {

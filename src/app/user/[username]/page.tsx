@@ -11,7 +11,7 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { username } = await params
   const user = await prisma.user.findUnique({
-    where: { username },
+    where: { username, deletedAt: null },
     select: { username: true, displayName: true },
   })
 
@@ -27,7 +27,7 @@ export default async function UserProfilePage({ params }: Props) {
   const { username } = await params
 
   const user = await prisma.user.findUnique({
-    where: { username },
+    where: { username, deletedAt: null },
     select: {
       id: true,
       username: true,

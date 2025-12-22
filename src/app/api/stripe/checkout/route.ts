@@ -92,11 +92,7 @@ export async function POST(request: NextRequest) {
       cancelUrl: `${origin}/listing/${listing.slug}`,
     })
 
-    // Update purchase with Stripe session ID
-    await prisma.purchase.update({
-      where: { id: purchase.id },
-      data: { stripePaymentIntentId: checkoutSession.id },
-    })
+    // Note: stripePaymentIntentId is set by the webhook when payment completes
 
     return NextResponse.json({
       success: true,

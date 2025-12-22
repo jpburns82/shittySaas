@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -44,11 +44,15 @@ export default function AdminListingsPage() {
   const [featureDuration, setFeatureDuration] = useState('7')
   const [featureLoading, setFeatureLoading] = useState(false)
 
-  useEffect(() => {
-    fetchListings()
-  }, [statusFilter])
+  // Delete modal state
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; listing: Listing | null }>({
+    open: false,
+    listing: null,
+  })
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [forceDelete, setForceDelete] = useState(false)
 
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -64,7 +68,11 @@ export default function AdminListingsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [statusFilter])
+
+  useEffect(() => {
+    fetchListings()
+  }, [fetchListings])
 
   const updateStatus = async (listingId: string, status: string) => {
     try {
@@ -115,6 +123,29 @@ export default function AdminListingsPage() {
       }
     } catch (error) {
       console.error('Failed to unfeature listing:', error)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deleteModal.listing) return
+    setDeleteLoading(true)
+    try {
+      const url = forceDelete
+        ? `/api/admin/listings/${deleteModal.listing.id}?force=true`
+        : `/api/admin/listings/${deleteModal.listing.id}`
+      const res = await fetch(url, { method: 'DELETE' })
+      if (res.ok) {
+        setDeleteModal({ open: false, listing: null })
+        setForceDelete(false)
+        fetchListings()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Failed to delete listing')
+      }
+    } catch (error) {
+      console.error('Failed to delete listing:', error)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -288,6 +319,13 @@ export default function AdminListingsPage() {
                           Restore
                         </Button>
                       )}
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => setDeleteModal({ open: true, listing })}
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -345,6 +383,58 @@ export default function AdminListingsPage() {
               </Button>
               <Button variant="primary" onClick={handleFeature} disabled={featureLoading}>
                 {featureLoading ? 'Featuring...' : 'Feature Listing'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        isOpen={deleteModal.open}
+        onClose={() => {
+          setDeleteModal({ open: false, listing: null })
+          setForceDelete(false)
+        }}
+        title="Delete Listing"
+      >
+        {deleteModal.listing && (
+          <div className="space-y-4">
+            <p className="text-text-muted">
+              Are you sure you want to <strong className="text-red-500">permanently delete</strong>{' '}
+              <strong>&ldquo;{deleteModal.listing.title}&rdquo;</strong>?
+            </p>
+            <div className="bg-red-500/10 border border-red-500/20 p-3 text-sm">
+              <p className="text-red-400 font-medium mb-1">Warning: This action cannot be undone!</p>
+              <ul className="text-text-muted list-disc list-inside space-y-1">
+                <li>The listing will be permanently removed from the database</li>
+                <li>All associated files will be deleted from storage</li>
+                <li>Buyers who purchased this listing may lose access</li>
+              </ul>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={forceDelete}
+                onChange={(e) => setForceDelete(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-text-muted">
+                Force delete (even if listing has purchases)
+              </span>
+            </label>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="default"
+                onClick={() => {
+                  setDeleteModal({ open: false, listing: null })
+                  setForceDelete(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={handleDelete} disabled={deleteLoading}>
+                {deleteLoading ? 'Deleting...' : 'Delete Forever'}
               </Button>
             </div>
           </div>

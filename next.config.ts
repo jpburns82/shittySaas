@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Prevent ws package from being bundled (causes production errors)
+  serverExternalPackages: ['ws'],
+
   // Enable experimental features for App Router
   experimental: {
     // typedRoutes: true,

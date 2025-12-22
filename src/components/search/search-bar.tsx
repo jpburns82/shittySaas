@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { debounce } from '@/lib/utils'
 
@@ -14,18 +14,28 @@ export function SearchBar({ placeholder = 'Search projects...', className }: Sea
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') || '')
 
-  const handleSearch = useCallback(
-    debounce((value: string) => {
-      const params = new URLSearchParams(searchParams.toString())
-      if (value) {
-        params.set('q', value)
-      } else {
-        params.delete('q')
-      }
-      params.delete('page') // Reset to first page on new search
-      router.push(`/search?${params.toString()}`)
-    }, 300),
-    [searchParams, router]
+  // Use refs to avoid recreating debounced function
+  const routerRef = useRef(router)
+  const searchParamsRef = useRef(searchParams)
+
+  useEffect(() => {
+    routerRef.current = router
+    searchParamsRef.current = searchParams
+  }, [router, searchParams])
+
+  const handleSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        const params = new URLSearchParams(searchParamsRef.current.toString())
+        if (value) {
+          params.set('q', value)
+        } else {
+          params.delete('q')
+        }
+        params.delete('page') // Reset to first page on new search
+        routerRef.current.push(`/search?${params.toString()}`)
+      }, 300),
+    []
   )
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

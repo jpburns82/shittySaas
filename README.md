@@ -136,21 +136,62 @@ Minimum fee: $0.50 per transaction
 
 ## Development
 
+### Requirements
+
+- Node.js 20+
+- pnpm (not npm/yarn)
+- PostgreSQL database
+- **WSL (Windows users)**: All commands must run in WSL bash, not PowerShell/CMD
+
+### Setup
+
 ```bash
 # Install dependencies
 pnpm install
 
+# Copy environment file and fill in values
+cp .env.example .env.local
+
+# Generate Prisma client
+pnpm db:generate
+
+# Push schema to database
+pnpm db:push
+
+# Seed with sample data (optional)
+pnpm db:seed
+
 # Run dev server
 pnpm dev
+```
 
-# Database
+### Commands
+
+```bash
+pnpm dev          # Start dev server (localhost:3000)
+pnpm build        # Build for production
 pnpm db:generate  # Generate Prisma client
 pnpm db:push      # Push schema to database
-pnpm db:seed      # Seed with sample data
-
-# Build
-pnpm build
+pnpm db:seed      # Seed sample listings
+pnpm db:studio    # Open Prisma Studio
 ```
+
+### Test Accounts (after seeding)
+
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | (your account) | - |
+| Seller | ghostdev | Seller123! |
+| Buyer | zombiebuyer | Buyer123! |
+
+### Seed Data
+
+The seed script creates:
+- 4 sample listings (AstraAI, BreakUpBot, Prometheus AI, Y2K Messenger)
+- Test images in `/public/images/seed/`
+- Test accounts (ghostdev, zombiebuyer)
+
+To clean test data: `pnpm tsx scripts/clean-test-data.ts`
 
 ## License
 

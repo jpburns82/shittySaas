@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 // Button import removed - not used
@@ -40,7 +40,10 @@ export function ImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Normalize value to array for consistent handling
-  const images = Array.isArray(value) ? value : value ? [value] : []
+  const images = useMemo(
+    () => (Array.isArray(value) ? value : value ? [value] : []),
+    [value]
+  )
   const canAddMore = multiple ? images.length < maxFiles : images.length === 0
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -53,7 +56,7 @@ export function ImageUpload({
     setIsDragging(false)
   }, [])
 
-  const uploadFile = async (file: File): Promise<string | null> => {
+  const uploadFile = useCallback(async (file: File): Promise<string | null> => {
     // Validate file size
     if (file.size > maxSize) {
       setError(`File too large. Max size: ${Math.round(maxSize / 1024 / 1024)}MB`)
@@ -87,9 +90,9 @@ export function ImageUpload({
       setError(err instanceof Error ? err.message : 'Upload failed')
       return null
     }
-  }
+  }, [maxSize, accept, uploadEndpoint])
 
-  const handleFiles = async (files: FileList | File[]) => {
+  const handleFiles = useCallback(async (files: FileList | File[]) => {
     if (disabled || !canAddMore) return
 
     setError(null)
@@ -116,7 +119,7 @@ export function ImageUpload({
         onChange(uploadedUrls[0])
       }
     }
-  }
+  }, [disabled, canAddMore, multiple, maxFiles, images, onChange, uploadFile])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()

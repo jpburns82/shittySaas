@@ -1,9 +1,24 @@
 import type { Metadata } from 'next'
+import { Bungee_Shade, Dela_Gothic_One } from 'next/font/google'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Providers } from '@/components/providers'
 import { SEO, APP_NAME, APP_URL } from '@/lib/constants'
 import './globals.css'
+
+const bungeeShade = Bungee_Shade({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-bungee-shade',
+  display: 'swap',
+})
+
+const delaGothic = Dela_Gothic_One({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-dela-gothic',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -37,7 +52,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="min-h-screen flex flex-col bg-bg-crypt text-text-bone">
+      <body className={`${bungeeShade.variable} ${delaGothic.variable} min-h-screen flex flex-col bg-bg-crypt text-text-bone`}>
         <Providers>
           <Header />
           <main className="flex-1">

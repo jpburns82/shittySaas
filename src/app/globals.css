@@ -869,6 +869,23 @@ hr.thick {
   border: 0;
 }
 
+/* ----- HERO FONTS ----- */
+
+.font-bungee-shade {
+  font-family: var(--font-bungee-shade), cursive;
+}
+
+.font-dela-gothic {
+  font-family: var(--font-dela-gothic), sans-serif;
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* ----- PROSE LEGAL (Terms, Privacy, FAQ pages) ----- */
 
 .prose-legal {

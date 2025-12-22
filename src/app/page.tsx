@@ -74,8 +74,10 @@ export default function HomePage() {
         <div className="flex flex-col items-center justify-center gap-8">
           {/* Content - centered on all screens */}
           <div className="text-center">
-            <p className="text-text-dust text-xl md:text-2xl jp-accent mb-2">{JP_ACCENTS.TAGLINE}</p>
-            <h1 className="font-display text-5xl md:text-6xl font-bold mb-3 text-accent-electric">
+            <p className="font-dela-gothic text-xl md:text-2xl text-text-dust mb-4 tracking-wider">
+              作られた。でも、まだ見つかっていない。
+            </p>
+            <h1 className="font-bungee-shade text-4xl md:text-5xl lg:text-6xl tracking-wider mb-8 text-gradient-cyan">
               UNDEAD LIST
             </h1>
           </div>

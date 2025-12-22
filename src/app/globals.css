@@ -871,8 +871,8 @@ hr.thick {
 
 /* ----- HERO FONTS ----- */
 
-.font-bungee-shade {
-  font-family: var(--font-bungee-shade), cursive;
+.font-bungee {
+  font-family: var(--font-bungee), cursive;
 }
 
 .font-dela-gothic {

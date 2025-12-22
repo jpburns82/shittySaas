@@ -77,7 +77,7 @@ export default function HomePage() {
             <p className="font-dela-gothic text-xl md:text-2xl text-text-dust mb-4 tracking-wider">
               作られた。でも、まだ見つかっていない。
             </p>
-            <h1 className="font-bungee-shade text-4xl md:text-5xl lg:text-6xl tracking-wider mb-8 text-gradient-cyan">
+            <h1 className="font-bungee text-5xl md:text-6xl lg:text-7xl tracking-wider mb-8 text-gradient-cyan">
               UNDEAD LIST
             </h1>
           </div>

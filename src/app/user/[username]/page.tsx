@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { ListingGrid } from '@/components/listings/listing-grid'
 import { VerifiedBadge } from '@/components/ui/badge'
@@ -79,10 +80,13 @@ export default async function UserProfilePage({ params }: Props) {
           {/* Avatar */}
           <div className="w-24 h-24 bg-btn-bg border-2 border-border-dark flex items-center justify-center font-display text-3xl">
             {user.avatarUrl ? (
-              <img
+              <Image
                 src={user.avatarUrl}
                 alt={user.displayName || user.username}
+                width={96}
+                height={96}
                 className="w-full h-full object-cover"
+                unoptimized
               />
             ) : (
               user.displayName?.[0] || user.username[0].toUpperCase()

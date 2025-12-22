@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Comment } from './comment-section'
 import { CommentComposer } from './comment-composer'
 import { ReportCommentModal } from './report-comment-modal'
@@ -103,10 +104,13 @@ export function CommentItem({
         {/* Avatar */}
         <Link href={`/user/${comment.author.username}`} className="shrink-0">
           {comment.author.avatarUrl ? (
-            <img
+            <Image
               src={comment.author.avatarUrl}
               alt={comment.author.username}
+              width={32}
+              height={32}
               className="w-8 h-8 rounded-full object-cover border border-border-crypt"
+              unoptimized
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-bg-tombstone border border-border-crypt flex items-center justify-center text-text-dust text-sm font-mono">

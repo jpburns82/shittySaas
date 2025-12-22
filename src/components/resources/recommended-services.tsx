@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { APP_NAME } from '@/lib/constants'
 
 export function RecommendedServices() {
@@ -15,9 +16,11 @@ export function RecommendedServices() {
           rel="noopener noreferrer"
           className="p-4 bg-bg-crypt border border-border-crypt rounded hover:border-accent-electric transition-colors group"
         >
-          <img
+          <Image
             src="/images/partners/escrow.svg"
             alt="Escrow.com"
+            width={120}
+            height={40}
             className="h-10 mb-3"
             style={{ filter: 'brightness(0) invert(1)' }}
           />
@@ -36,9 +39,11 @@ export function RecommendedServices() {
           rel="noopener noreferrer"
           className="p-4 bg-bg-crypt border border-border-crypt rounded hover:border-accent-electric transition-colors group"
         >
-          <img
+          <Image
             src="/images/partners/acquire.svg"
             alt="Acquire.com"
+            width={120}
+            height={40}
             className="h-10 mb-3"
             style={{ filter: 'brightness(0) invert(1)' }}
           />
@@ -57,9 +62,11 @@ export function RecommendedServices() {
           rel="noopener noreferrer"
           className="p-4 bg-bg-crypt border border-border-crypt rounded hover:border-accent-electric transition-colors group"
         >
-          <img
+          <Image
             src="/images/partners/github.svg"
             alt="GitHub"
+            width={120}
+            height={40}
             className="h-10 mb-3"
             style={{ filter: 'brightness(0) invert(1)' }}
           />
@@ -78,9 +85,11 @@ export function RecommendedServices() {
           rel="noopener noreferrer"
           className="p-4 bg-bg-crypt border border-border-crypt rounded hover:border-accent-electric transition-colors group"
         >
-          <img
+          <Image
             src="/images/partners/loom.png"
             alt="Loom"
+            width={120}
+            height={40}
             className="h-10 mb-3 brightness-0 invert"
           />
           <h3 className="font-display text-sm mb-1">Loom</h3>

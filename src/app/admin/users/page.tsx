@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -293,10 +294,13 @@ export default function AdminUsersPage() {
                   <td>
                     <div className="flex items-center gap-3">
                       {user.avatarUrl ? (
-                        <img
+                        <Image
                           src={user.avatarUrl}
                           alt=""
+                          width={32}
+                          height={32}
                           className="w-8 h-8 rounded-full object-cover"
+                          unoptimized
                         />
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-bg-accent flex items-center justify-center text-text-muted">

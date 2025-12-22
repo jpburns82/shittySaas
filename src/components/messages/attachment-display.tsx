@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { MessageAttachment } from '@prisma/client'
 import { Modal } from '../ui/modal'
 
@@ -73,10 +74,13 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
                     onClick={() => setLightboxImage(publicUrl)}
                     className="block w-full cursor-pointer hover:opacity-80 transition-opacity"
                   >
-                    <img
+                    <Image
                       src={publicUrl}
                       alt={attachment.fileName}
+                      width={400}
+                      height={200}
                       className="max-w-full max-h-[200px] object-contain mx-auto"
+                      unoptimized
                     />
                   </button>
                   <div className="flex items-center justify-between text-xs">
@@ -124,10 +128,13 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
         size="lg"
       >
         {lightboxImage && (
-          <img
+          <Image
             src={lightboxImage}
             alt="Full size image"
+            width={1200}
+            height={800}
             className="max-w-full max-h-[80vh] object-contain mx-auto"
+            unoptimized
           />
         )}
       </Modal>

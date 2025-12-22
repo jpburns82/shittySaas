@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatPrice, formatDate } from '@/lib/utils'
@@ -66,10 +67,13 @@ export default async function DashboardPurchasesPage() {
               {/* Thumbnail */}
               <div className="w-24 h-24 bg-btn-bg border border-border-dark flex items-center justify-center">
                 {purchase.listing.thumbnailUrl ? (
-                  <img
+                  <Image
                     src={purchase.listing.thumbnailUrl}
                     alt=""
+                    width={96}
+                    height={96}
                     className="w-full h-full object-cover"
+                    unoptimized
                   />
                 ) : (
                   <span className="text-text-muted">📦</span>

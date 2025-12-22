@@ -49,6 +49,5 @@ prisma/migrations/**/migration_lock.toml
 *.seed
 nul
 
-# Claude workspace demo files
-.claude/avatar demo pics/
-.claude/test projects images/
+# Claude workspace files
+.claude/

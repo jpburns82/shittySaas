@@ -14,7 +14,7 @@ export function ProtectedBadge({
     if (hours === 0) return 'Instant'
     if (hours < 24) return `${hours}h`
     const days = Math.floor(hours / 24)
-    return `${days}d`
+    return `${days}-Day`
   }
 
   return (

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getPresignedDownloadUrl } from '@/lib/r2'
+import { getDownloadStatus, incrementDownloadCount } from '@/lib/download-limiter'
 
 interface RouteParams {
   params: Promise<{ purchaseId: string }>
@@ -55,6 +56,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
+    // Check download limits (admins bypass limits)
+    const downloadStatus = await getDownloadStatus(purchaseId)
+    if (downloadStatus && !downloadStatus.canDownload && !session.user.isAdmin) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Download limit reached (${downloadStatus.downloadCount}/${downloadStatus.maxDownloads}). Contact support if you need additional downloads.`,
+          data: {
+            downloadCount: downloadStatus.downloadCount,
+            maxDownloads: downloadStatus.maxDownloads,
+            remaining: downloadStatus.remaining,
+          },
+        },
+        { status: 403 }
+      )
+    }
+
     // Get listing files
     const files = purchase.listing.files
 
@@ -76,11 +94,24 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }))
     )
 
+    // Increment download count (only for non-admins)
+    if (!session.user.isAdmin) {
+      await incrementDownloadCount(purchaseId)
+    }
+
+    // Get updated download status
+    const updatedStatus = await getDownloadStatus(purchaseId)
+
     return NextResponse.json({
       success: true,
       data: {
         listingTitle: purchase.listing.title,
         files: downloadUrls,
+        downloadStatus: updatedStatus ? {
+          downloadCount: updatedStatus.downloadCount,
+          maxDownloads: updatedStatus.maxDownloads,
+          remaining: updatedStatus.remaining,
+        } : null,
       },
     })
   } catch (error) {

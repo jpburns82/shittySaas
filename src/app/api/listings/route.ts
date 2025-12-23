@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createListingSchema } from '@/lib/validations'
 import { slugify } from '@/lib/utils'
+import { canCreateListing } from '@/lib/seller-limits'
 
 // GET /api/listings - Get all listings with filters
 export async function GET(request: NextRequest) {
@@ -111,12 +112,38 @@ export async function POST(request: NextRequest) {
     // Check if user is banned
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { isBanned: true, deletedAt: true },
+      select: { isBanned: true, deletedAt: true, stripeAccountId: true, stripeOnboarded: true },
     })
 
     if (user?.isBanned || user?.deletedAt) {
       return NextResponse.json(
         { success: false, error: 'Your account is not active' },
+        { status: 403 }
+      )
+    }
+
+    // Check if user has completed Stripe onboarding
+    if (!user?.stripeAccountId || !user?.stripeOnboarded) {
+      return NextResponse.json(
+        { success: false, error: 'Please complete Stripe onboarding before creating listings. Go to Dashboard → Settings → Connect Stripe.' },
+        { status: 403 }
+      )
+    }
+
+    // Check listing limits based on seller tier
+    const listingCheck = await canCreateListing(session.user.id)
+    if (!listingCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `You've reached your listing limit (${listingCheck.currentCount}/${listingCheck.limit}). Complete more sales to unlock more listings.`,
+          data: {
+            tier: listingCheck.tier,
+            currentCount: listingCheck.currentCount,
+            limit: listingCheck.limit,
+            salesNeeded: listingCheck.tier === 'NEW' ? 1 : listingCheck.tier === 'VERIFIED' ? 3 : 10,
+          },
+        },
         { status: 403 }
       )
     }

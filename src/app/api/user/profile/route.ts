@@ -34,6 +34,8 @@ export async function GET() {
         websiteUrl: true,
         twitterHandle: true,
         githubHandle: true,
+        githubUsername: true,
+        githubVerifiedAt: true,
         createdAt: true,
       },
     })

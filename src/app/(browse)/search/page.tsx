@@ -103,7 +103,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       take: pageSize,
       include: {
         seller: {
-          select: { username: true, isVerifiedSeller: true, sellerTier: true },
+          select: { username: true, isVerifiedSeller: true, sellerTier: true, githubVerifiedAt: true, githubUsername: true },
         },
         category: {
           select: { slug: true, name: true },

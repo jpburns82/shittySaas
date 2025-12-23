@@ -94,6 +94,8 @@ export default async function ListingPage({ params }: ListingPageProps) {
           totalSales: true,
           totalDisputes: true,
           disputeRate: true,
+          githubVerifiedAt: true,
+          githubUsername: true,
           createdAt: true,
           _count: {
             select: {

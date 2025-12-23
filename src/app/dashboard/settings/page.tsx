@@ -3,15 +3,32 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ImageUpload } from '@/components/ui/image-upload'
+import { GitHubConnect } from '@/components/settings/github-connect'
 
 export default function DashboardSettingsPage() {
   const { data: session, update } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Check for GitHub connection status from URL
+  const githubStatus = searchParams.get('github')
+  const githubError = searchParams.get('error')
+
+  // GitHub verification state
+  const [githubInfo, setGithubInfo] = useState<{
+    isConnected: boolean
+    username: string | null
+    verifiedAt: string | null
+  }>({
+    isConnected: false,
+    username: null,
+    verifiedAt: null,
+  })
 
   const [profile, setProfile] = useState({
     displayName: '',
@@ -60,6 +77,13 @@ export default function DashboardSettingsPage() {
             githubHandle: data.data.githubHandle || '',
           })
           setAvatarUrl(data.data.avatarUrl || '')
+
+          // Set GitHub verification info
+          setGithubInfo({
+            isConnected: !!data.data.githubVerifiedAt,
+            username: data.data.githubUsername || null,
+            verifiedAt: data.data.githubVerifiedAt || null,
+          })
         }
       })
       .catch(console.error)
@@ -314,6 +338,29 @@ export default function DashboardSettingsPage() {
             Save Profile
           </Button>
         </form>
+      </section>
+
+      {/* GitHub Verification section */}
+      <section className="mb-8">
+        {githubStatus === 'connected' && (
+          <div className="alert alert-success mb-4">
+            GitHub connected successfully!
+          </div>
+        )}
+        {githubError && (
+          <div className="alert alert-error mb-4">
+            {githubError === 'github_denied' && 'GitHub authorization was denied.'}
+            {githubError === 'github_already_linked' && 'This GitHub account is already linked to another user.'}
+            {githubError === 'github_not_configured' && 'GitHub integration is not configured.'}
+            {githubError === 'github_error' && 'An error occurred connecting to GitHub.'}
+            {!['github_denied', 'github_already_linked', 'github_not_configured', 'github_error'].includes(githubError) && 'Failed to connect GitHub.'}
+          </div>
+        )}
+        <GitHubConnect
+          isConnected={githubInfo.isConnected}
+          username={githubInfo.username}
+          connectedAt={githubInfo.verifiedAt}
+        />
       </section>
 
       {/* Notification settings section */}

@@ -22,8 +22,9 @@ export type ListingCard = Pick<
   | 'downvoteCount'
   | 'createdAt'
   | 'featured'
+  | 'repoUrl'
 > & {
-  seller: Pick<User, 'username' | 'isVerifiedSeller' | 'sellerTier'>
+  seller: Pick<User, 'username' | 'isVerifiedSeller' | 'sellerTier' | 'githubVerifiedAt' | 'githubUsername'>
   category: Pick<Category, 'slug' | 'name'>
 }
 
@@ -41,6 +42,8 @@ export type ListingDetail = Listing & {
     | 'totalSales'
     | 'totalDisputes'
     | 'disputeRate'
+    | 'githubVerifiedAt'
+    | 'githubUsername'
     | 'createdAt'
   > & {
     _count: {

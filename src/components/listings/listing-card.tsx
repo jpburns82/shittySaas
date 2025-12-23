@@ -7,6 +7,7 @@ import { PriceBadge } from './price-badge'
 import { TechStackTags } from './tech-stack-tags'
 import { FeaturedBadge } from '../ui/badge'
 import { SellerTierBadge } from '../ui/badges/seller-tier-badge'
+import { GitHubBadge } from '../ui/badges/github-badge'
 import type { ListingCard as ListingCardType } from '@/types/listing'
 
 interface ListingCardProps {
@@ -82,6 +83,9 @@ export function ListingCard({ listing }: ListingCardProps) {
           </span>
           {listing.seller.sellerTier && (
             <SellerTierBadge tier={listing.seller.sellerTier} size="sm" />
+          )}
+          {listing.seller.githubVerifiedAt && listing.repoUrl?.includes('github.com') && (
+            <GitHubBadge verified username={listing.seller.githubUsername} />
           )}
         </div>
       </article>

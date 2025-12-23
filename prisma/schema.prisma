@@ -66,6 +66,12 @@ model User {
   // Notification Preferences
   messageNotifications String @default("instant") // "instant" | "digest" | "off"
 
+  // GitHub Verification (for repo ownership)
+  githubId          String?   @unique
+  githubUsername    String?
+  githubVerifiedAt  DateTime?
+  githubAccessToken String?
+
   // Timestamps
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

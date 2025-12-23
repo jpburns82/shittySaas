@@ -6,6 +6,7 @@ import { TechStackTags } from './tech-stack-tags'
 import { VoteButtons } from './vote-buttons'
 import { VerifiedBadge, FeaturedBadge } from '../ui/badge'
 import { SellerTierBadge } from '../ui/badges/seller-tier-badge'
+import { GitHubBadge } from '../ui/badges/github-badge'
 import { ProtectedBadge } from '../ui/badges/protected-badge'
 import { Button } from '../ui/button'
 import { ImageGallery } from '../ui/image-gallery'
@@ -218,6 +219,9 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
                   </Link>
                   {listing.seller.sellerTier && (
                     <SellerTierBadge tier={listing.seller.sellerTier} size="sm" />
+                  )}
+                  {listing.seller.githubVerifiedAt && listing.repoUrl?.includes('github.com') && (
+                    <GitHubBadge verified username={listing.seller.githubUsername} />
                   )}
                 </div>
                 <div className="text-xs text-text-muted mt-1">

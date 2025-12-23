@@ -41,6 +41,8 @@ async function FeaturedListingsSection() {
           username: true,
           isVerifiedSeller: true,
           sellerTier: true,
+          githubVerifiedAt: true,
+          githubUsername: true,
         },
       },
       category: {

@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createCheckoutSession } from '@/lib/stripe'
 import { calculatePlatformFee } from '@/lib/fees'
+import { canPurchase } from '@/lib/buyer-limits'
 
 // POST /api/stripe/checkout - Create a checkout session
 export async function POST(request: NextRequest) {
@@ -59,6 +60,17 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Cannot purchase your own listing' },
         { status: 400 }
       )
+    }
+
+    // Check buyer spend limits (only for logged-in users)
+    if (session?.user.id) {
+      const spendCheck = await canPurchase(session.user.id, listing.priceInCents)
+      if (!spendCheck.allowed) {
+        return NextResponse.json(
+          { success: false, error: spendCheck.reason },
+          { status: 400 }
+        )
+      }
     }
 
     // Calculate platform fee

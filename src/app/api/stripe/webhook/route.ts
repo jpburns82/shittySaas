@@ -3,6 +3,9 @@ import { headers } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { constructWebhookEvent } from '@/lib/stripe'
 import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail, sendFeaturedConfirmationEmail } from '@/lib/email'
+import { calculateEscrowExpiry } from '@/lib/escrow'
+import { releaseToSellerByPaymentIntent } from '@/lib/stripe-transfers'
+import { SellerTier } from '@prisma/client'
 import Stripe from 'stripe'
 
 // Disable body parsing for webhooks
@@ -67,27 +70,61 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const purchaseId = session.metadata?.purchaseId
   if (!purchaseId) return
 
+  // Get purchase with seller tier info for escrow calculation
+  const existingPurchase = await prisma.purchase.findUnique({
+    where: { id: purchaseId },
+    include: {
+      listing: true,
+      seller: { select: { sellerTier: true, id: true, email: true, username: true } },
+      buyer: { select: { email: true, username: true } },
+    },
+  })
+
+  if (!existingPurchase) return
+
+  // Note: scanStatus will be available after Phase 3 (VirusTotal integration)
+  // For now, undefined scanStatus is handled by escrow.ts as unscanned
+
+  // Calculate escrow expiry based on risk factors
+  const escrowExpiry = calculateEscrowExpiry({
+    deliveryMethod: existingPurchase.listing.deliveryMethod,
+    sellerTier: existingPurchase.seller.sellerTier,
+    // scanStatus will be passed here after Phase 3
+  })
+
+  // Determine if this is instant release
+  const isInstantRelease = escrowExpiry === null
+
+  // Update purchase with status and escrow info
   const purchase = await prisma.purchase.update({
     where: { id: purchaseId },
     data: {
       status: 'COMPLETED',
       stripePaymentIntentId: (session.payment_intent as string) || null,
-      deliveryStatus: 'PENDING',
+      deliveryStatus: existingPurchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD' ? 'AUTO_COMPLETED' : 'PENDING',
+      escrowStatus: isInstantRelease ? 'RELEASED' : 'HOLDING',
+      escrowExpiresAt: escrowExpiry,
+      escrowReleasedAt: isInstantRelease ? new Date() : null,
     },
     include: {
       listing: true,
       buyer: { select: { email: true, username: true } },
-      seller: { select: { email: true, username: true } },
+      seller: { select: { email: true, username: true, stripeAccountId: true, id: true } },
     },
   })
 
-  // Handle instant download listings
-  if (purchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD') {
-    await prisma.purchase.update({
-      where: { id: purchaseId },
-      data: { deliveryStatus: 'AUTO_COMPLETED' },
-    })
+  // If instant release, transfer funds immediately
+  if (isInstantRelease && purchase.seller.stripeAccountId && session.payment_intent) {
+    await releaseToSellerByPaymentIntent(
+      session.payment_intent as string,
+      purchase.seller.stripeAccountId,
+      purchase.sellerAmountCents,
+      purchaseId
+    )
   }
+
+  // Update seller tier based on completed sales
+  await updateSellerTier(purchase.seller.id)
 
   // Send confirmation emails
   const buyerEmail = purchase.buyer?.email || purchase.guestEmail
@@ -107,6 +144,29 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       purchase.buyer?.username || 'Guest'
     )
   }
+}
+
+// Update seller tier based on completed sales count
+async function updateSellerTier(sellerId: string) {
+  const salesCount = await prisma.purchase.count({
+    where: {
+      sellerId,
+      status: 'COMPLETED',
+    },
+  })
+
+  let newTier: SellerTier = 'NEW'
+  if (salesCount >= 10) newTier = 'PRO'
+  else if (salesCount >= 3) newTier = 'TRUSTED'
+  else if (salesCount >= 1) newTier = 'VERIFIED'
+
+  await prisma.user.update({
+    where: { id: sellerId },
+    data: {
+      sellerTier: newTier,
+      totalSales: salesCount,
+    },
+  })
 }
 
 async function handleAccountUpdated(account: Stripe.Account) {

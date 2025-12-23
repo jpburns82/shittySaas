@@ -760,12 +760,153 @@ if (!(await canPurchase(session.user.id, priceCents))) {
 
 ---
 
-## Phase 9: AI Guardian Bot (Future)
+## Phase 9: AI Guardian Bot (Tiered)
 
-To be designed separately:
-- Listing content analysis
-- Scam detection
-- Automated reviews
+Two-tier AI moderation system for cost-effective content analysis.
+
+### 9.1 Architecture
+
+```
+Listing Created
+      ↓
+┌─────────────────┐
+│  Gemini Flash   │  (~1 sec, free)
+│  Quick Scan     │
+└────────┬────────┘
+         ↓
+    ┌────┴────┐
+    │ Result? │
+    └────┬────┘
+         │
+    ┌────┼────────────────┐
+    ↓    ↓                ↓
+  CLEAN  LOW           MEDIUM/HIGH/CRITICAL
+    │    │                │
+    ↓    ↓                ↓
+ Auto-  Auto-      ┌──────────────┐
+ approve approve   │    Claude    │  (~3 sec, ~$0.01)
+         + log     │  Deep Scan   │
+                   └──────┬───────┘
+                          ↓
+                   ┌──────┴──────┐
+                   │   Result?   │
+                   └──────┬──────┘
+                          │
+              ┌───────────┼───────────┐
+              ↓           ↓           ↓
+           APPROVE     REVIEW      REJECT
+              │           │           │
+              ↓           ↓           ↓
+           Active    PENDING +    Rejected +
+                     SMS alert    SMS alert
+```
+
+**Cost Estimate:**
+- 100 listings, 90% clean: ~$0.10 (only 10 Claude calls)
+- 100 listings, 50% flagged: ~$0.50 (50 Claude calls)
+
+### 9.2 Install Dependencies
+
+```bash
+pnpm add @anthropic-ai/sdk
+```
+
+### 9.3 Create Guardian Utility
+
+**NEW FILE:** src/lib/guardian.ts
+
+```typescript
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import Anthropic from '@anthropic-ai/sdk'
+import { alertAdmin } from './twilio'
+
+const gemini = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!)
+const claude = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+interface GuardianResult {
+  risk_score: number
+  risk_level: 'CLEAN' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+  flags: string[]
+  recommendation: 'APPROVE' | 'REVIEW' | 'REJECT'
+  reason: string
+  model_used: 'gemini' | 'claude'
+}
+
+// Tier 1: Gemini Quick Scan (free, fast)
+async function geminiQuickScan(listing: ListingData): Promise<{
+  risk_level: string
+  flags: string[]
+  needs_deep_scan: boolean
+}>
+
+// Tier 2: Claude Deep Analysis (paid, smarter)
+async function claudeDeepScan(listing: ListingData, initialFlags: string[]): Promise<GuardianResult>
+
+// Main function - calls Gemini first, escalates to Claude if needed
+export async function analyzeListing(listing: ListingData): Promise<GuardianResult>
+```
+
+### 9.4 Schema Updates
+
+Add to Listing model:
+```prisma
+guardianScore      Int?
+guardianFlags      String[]
+guardianModel      String?       // 'gemini' or 'claude'
+guardianReviewedAt DateTime?
+guardianReason     String?
+```
+
+### 9.5 Integration
+
+**File:** src/app/api/listings/route.ts
+
+After validation, before saving:
+```typescript
+// Run AI Guardian analysis
+const guardianResult = await analyzeListing({
+  title: data.title,
+  description: data.description,
+  price: data.priceInCents / 100,
+  category: data.categoryId,
+  deliveryMethod: data.deliveryMethod,
+  seller: { sellerTier: user.sellerTier, totalSales: user.totalSales }
+})
+
+// Set status based on recommendation
+let status = 'DRAFT'
+if (guardianResult.recommendation === 'REJECT') {
+  return NextResponse.json({
+    success: false,
+    error: `Listing rejected: ${guardianResult.reason}`,
+    data: { guardianResult }
+  }, { status: 400 })
+}
+
+if (guardianResult.recommendation === 'REVIEW') {
+  status = 'PENDING_REVIEW'
+}
+```
+
+### 9.6 Red Flags Detected
+
+**Automatic Rejection:**
+- Guaranteed income claims
+- Crypto/trading bot promises
+- Account selling
+- Passive revenue guarantees
+- Vague description + high price
+
+**Manual Review:**
+- Unrealistic pricing
+- Suspicious keywords
+- New seller + high price
+
+### 9.7 Environment Variable
+
+```env
+ANTHROPIC_API_KEY=sk-ant-...
+```
 
 ---
 
@@ -804,13 +945,16 @@ CRON_SECRET=
 # GitHub OAuth
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
+
+# AI Guardian (Claude)
+ANTHROPIC_API_KEY=
 ```
 
 ---
 
-## New Files Summary (24 files)
+## New Files Summary (25 files)
 
-**Libraries (8):**
+**Libraries (9):**
 | File | Purpose |
 |------|---------|
 | src/lib/seller-limits.ts | Listing limit logic |
@@ -821,6 +965,7 @@ GITHUB_CLIENT_SECRET=
 | src/lib/twilio.ts | SMS alerts |
 | src/lib/github.ts | GitHub verification |
 | src/lib/buyer-limits.ts | Spend limits |
+| src/lib/guardian.ts | AI Guardian (Gemini + Claude tiered) |
 
 **Badge Components (5):**
 | File | Purpose |

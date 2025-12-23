@@ -50,6 +50,12 @@ model User {
   bannedAt          DateTime?
   banReason         String?
 
+  // Seller Tier (for limits and escrow)
+  sellerTier        SellerTier @default(NEW)
+  totalSales        Int        @default(0)
+  totalDisputes     Int        @default(0)
+  disputeRate       Float      @default(0)
+
   // Soft Delete
   deletedAt         DateTime?
 
@@ -296,6 +302,19 @@ model Purchase {
   downloadCount     Int @default(0)
   maxDownloads      Int @default(10)
 
+  // Escrow
+  escrowStatus      EscrowStatus @default(HOLDING)
+  escrowExpiresAt   DateTime?
+  escrowReleasedAt  DateTime?
+
+  // Dispute
+  disputedAt        DateTime?
+  disputeReason     DisputeReason?
+  disputeNotes      String?        @db.Text
+  resolvedAt        DateTime?
+  resolvedBy        String?        // admin user ID
+  resolution        String?        // explanation of resolution
+
   // Timestamps
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -305,6 +324,7 @@ model Purchase {
   @@index([sellerId])
   @@index([status])
   @@index([stripePaymentIntentId])
+  @@index([escrowStatus])
 }
 
 enum PurchaseStatus {
@@ -320,6 +340,29 @@ enum DeliveryStatus {
   DELIVERED         // Seller marked delivered
   CONFIRMED         // Buyer confirmed receipt
   AUTO_COMPLETED    // Auto-completed after X days
+}
+
+enum SellerTier {
+  NEW               // 0 sales, 1 active listing max
+  VERIFIED          // 1+ sales, 3 active listings max
+  TRUSTED           // 3+ sales, 10 active listings max
+  PRO               // 10+ sales or manually granted, unlimited
+}
+
+enum EscrowStatus {
+  HOLDING           // Funds held on platform
+  DISPUTED          // Buyer opened dispute
+  RELEASED          // Funds released to seller
+  REFUNDED          // Funds refunded to buyer
+}
+
+enum DisputeReason {
+  FILES_EMPTY       // Downloaded files were empty/corrupted
+  NOT_AS_DESCRIBED  // Product doesn't match listing
+  SELLER_UNRESPONSIVE // Seller not responding
+  SUSPECTED_STOLEN  // Code appears stolen
+  MALWARE           // Files contain malware
+  OTHER             // Other reason
 }
 
 // ============================================

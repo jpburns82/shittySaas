@@ -62,6 +62,8 @@ interface CreateCheckoutParams {
   listingTitle: string
   priceInCents: number
   sellerStripeAccountId: string
+  sellerId: string
+  deliveryMethod: string
   buyerId?: string
   buyerEmail?: string
   successUrl: string
@@ -73,13 +75,18 @@ export async function createCheckoutSession({
   listingTitle,
   priceInCents,
   sellerStripeAccountId,
+  sellerId,
+  deliveryMethod,
   buyerId,
   buyerEmail,
   successUrl,
   cancelUrl,
 }: CreateCheckoutParams) {
   const platformFee = calculatePlatformFee(priceInCents)
+  const sellerAmount = priceInCents - platformFee
 
+  // ESCROW: Funds stay on platform until escrow period expires
+  // No transfer_data - we transfer manually after escrow clears
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [
@@ -96,13 +103,14 @@ export async function createCheckoutSession({
       },
     ],
     payment_intent_data: {
-      application_fee_amount: platformFee,
-      transfer_data: {
-        destination: sellerStripeAccountId,
-      },
       metadata: {
         listingId,
         buyerId: buyerId || '',
+        sellerId,
+        sellerStripeAccountId,
+        deliveryMethod,
+        sellerAmount: sellerAmount.toString(),
+        platformFee: platformFee.toString(),
       },
     },
     customer_email: buyerEmail,
@@ -111,6 +119,9 @@ export async function createCheckoutSession({
     metadata: {
       listingId,
       buyerId: buyerId || '',
+      sellerId,
+      sellerStripeAccountId,
+      deliveryMethod,
     },
   })
 

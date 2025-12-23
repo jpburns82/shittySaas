@@ -1,202 +1,137 @@
-# UndeadList
+# 蘇生 UndeadList
 
-> コードのためのフリーマーケット — Flea Market for Code
+**コードのためのフリーマーケット** — The indie software flea market
 
-The indie software marketplace for side projects, dusty repos, and hidden gems. No MRR requirements, no subscriber minimums. Built it? Sell it.
+Built, but undiscovered. Buy and sell independent software projects that haven't found their audience yet.
+
+🔗 **[undeadlist.com](https://undeadlist.com)**
+
+---
 
 ## What is UndeadList?
 
-A marketplace where developers can buy and sell:
-- SaaS apps & MVPs
-- Scripts & utilities
-- Boilerplates & starter kits
-- Browser extensions
-- Mobile apps
-- APIs & microservices
-- AI tools & integrations
-- Games & game assets
-- Social media accounts
-- Newsletters
-- Online communities
+A marketplace for indie developers to buy and sell side projects, abandoned SaaS, scripts, boilerplates, and digital products. Think Craigslist meets Flippa — but for vibe coders.
 
-## Features
+**For sellers:** Turn your dusty repos into cash. List for free, pay 2-6% only when it sells.
 
-### For Sellers
-- Free to list (no upfront costs)
-- Low fees: 2-6% sliding scale (vs Gumroad's 10%)
-- Stripe Connect for instant payouts
-- Instant download OR one-time transfer delivery
-- AI-powered template customization (Gemini)
-- Soft delete preserves buyer access
+**For buyers:** Skip months of development. Find hidden gems ready for a second life.
 
-### For Buyers
-- One-click purchase (Stripe, Apple Pay, Google Pay)
-- Instant downloads for digital products
-- Messaging system to contact sellers
-- Due diligence resources & templates
-- No subscriptions - pay once, own forever
-
-### Platform
-- Dark mode cyberpunk/Tokyo aesthetic
-- Japanese UI accents
-- Voting system (Reanimate ⚡ / Bury ⚰️)
-- Comments & discussions
-- Admin moderation tools
-- User reporting system
+---
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Database**: PostgreSQL + Prisma ORM
-- **Auth**: NextAuth.js
-- **Payments**: Stripe Connect
-- **Storage**: Cloudflare R2
-- **Email**: Resend
-- **AI**: Google Gemini 2.5 Flash Lite
-- **Styling**: Tailwind CSS
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **Database:** PostgreSQL (Neon)
+- **ORM:** Prisma
+- **Auth:** NextAuth.js
+- **Payments:** Stripe Connect
+- **Storage:** Cloudflare R2
+- **Email:** Resend
+- **AI:** Google Gemini (template customization)
+- **Styling:** Tailwind CSS
 
-## Project Structure
+---
 
-```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── (browse)/          # Public browsing pages
-│   ├── (legal)/           # Terms, Privacy, FAQ, About
-│   ├── admin/             # Admin dashboard
-│   ├── api/               # API routes
-│   ├── dashboard/         # User dashboard
-│   ├── listing/           # Listing detail pages
-│   ├── resources/         # Seller & buyer resources
-│   └── sell/              # Listing creation/edit
-├── components/            # React components
-│   ├── dashboard/         # Dashboard-specific
-│   ├── layout/            # Header, Footer, Sidebar
-│   ├── listings/          # Listing cards, forms
-│   ├── messages/          # Messaging system
-│   ├── resources/         # Resource templates
-│   └── ui/                # Shared UI components
-├── lib/                   # Utilities & config
-│   ├── constants.ts       # App constants
-│   ├── prisma.ts          # Database client
-│   ├── r2.ts              # Cloudflare R2 client
-│   └── stripe.ts          # Stripe config
-└── types/                 # TypeScript types
-```
+## Features
+
+- 🛒 **Marketplace** — Browse, search, filter by category/price
+- 💳 **Stripe Connect** — Sellers get paid directly, platform takes 2-6%
+- 📁 **File Delivery** — Secure downloads via presigned URLs
+- 💬 **Messaging** — Buyer/seller communication
+- 🗳️ **Voting** — Reanimate ⚡ or Bury ⚰️ listings
+- 💬 **Comments** — Community discussion on listings
+- ⭐ **Featured Listings** — Promote for visibility
+- 🔐 **Admin Panel** — User/listing management, reports, audit log
+- 📊 **Dashboard** — Sales, purchases, payouts, analytics
+
+---
+
+## Categories
+
+SaaS Apps, Desktop Apps, Mobile Apps, Browser Extensions, APIs & Backends, Boilerplates & Starters, Scripts & Automations, AI & ML Projects, WordPress & CMS, Domains & Landing Pages, Design Assets, Games, Social Media Accounts, Newsletters, Online Communities, Crypto & Web3, NFT Projects, DeFi & Trading, Other
+
+---
 
 ## Environment Variables
 
-See `.env.example` for full documentation. Key variables:
-
+Create a `.env` file with:
 ```env
 # Database
-DATABASE_URL=postgresql://...
+DATABASE_URL="postgresql://..."
 
 # Auth
-NEXTAUTH_SECRET=          # openssl rand -base64 32
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL="https://undeadlist.com"
+NEXTAUTH_SECRET="your-secret"
 
 # Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_SECRET_KEY="sk_live_..."
+STRIPE_PUBLISHABLE_KEY="pk_live_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
 
 # Cloudflare R2
-R2_ACCOUNT_ID=
-R2_ACCESS_KEY_ID=
-R2_SECRET_ACCESS_KEY=
-R2_BUCKET_NAME=
-R2_PUBLIC_URL=
-NEXT_PUBLIC_R2_PUBLIC_URL=
+R2_ACCOUNT_ID=""
+R2_ACCESS_KEY_ID=""
+R2_SECRET_ACCESS_KEY=""
+R2_BUCKET_NAME=""
+R2_PUBLIC_URL=""
 
 # Email
-RESEND_API_KEY=re_...
+RESEND_API_KEY=""
 
-# AI
-GOOGLE_GEMINI_API_KEY=    # For template customization
+# AI (optional)
+GOOGLE_GEMINI_API_KEY=""
 
-# Cron Jobs
-CRON_SECRET=              # For featured listing expiration
-
-# App Config
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_APP_NAME=UndeadList
+# App
+NEXT_PUBLIC_APP_URL="https://undeadlist.com"
+NEXT_PUBLIC_APP_NAME="UndeadList"
 ```
 
-## Fee Structure
+---
 
-| Sale Price | Platform Fee |
-|------------|--------------|
-| Under $25 | 2% |
-| $25 - $100 | 3% |
-| $100 - $500 | 4% |
-| $500 - $2,000 | 5% |
-| $2,000+ | 6% |
-
-Minimum fee: $0.50 per transaction
-
-## Development
-
-### Requirements
-
-- Node.js 20+
-- pnpm (not npm/yarn)
-- PostgreSQL database
-- **WSL (Windows users)**: All commands must run in WSL bash, not PowerShell/CMD
-
-### Setup
-
+## Local Development
 ```bash
 # Install dependencies
 pnpm install
 
-# Copy environment file and fill in values
-cp .env.example .env.local
-
-# Generate Prisma client
-pnpm db:generate
-
-# Push schema to database
-pnpm db:push
-
-# Seed with sample data (optional)
-pnpm db:seed
+# Set up database
+pnpm prisma generate
+pnpm prisma db push
 
 # Run dev server
 pnpm dev
 ```
 
-### Commands
+---
 
+## Deployment
+
+Currently self-hosted via Cloudflare Tunnel.
 ```bash
-pnpm dev          # Start dev server (localhost:3000)
-pnpm build        # Build for production
-pnpm db:generate  # Generate Prisma client
-pnpm db:push      # Push schema to database
-pnpm db:seed      # Seed sample listings
-pnpm db:studio    # Open Prisma Studio
+# Build
+pnpm build
+
+# Start production server (with PM2)
+pm2 start npm --name "undeadlist" -- start
 ```
-
-### Test Accounts (after seeding)
-
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | (your account) | - |
-| Seller | ghostdev | Seller123! |
-| Buyer | zombiebuyer | Buyer123! |
-
-### Seed Data
-
-The seed script creates:
-- 4 sample listings (AstraAI, BreakUpBot, Prometheus AI, Y2K Messenger)
-- Test images in `/public/images/seed/`
-- Test accounts (ghostdev, zombiebuyer)
-
-To clean test data: `pnpm tsx scripts/clean-test-data.ts`
-
-## License
-
-Private - All rights reserved
 
 ---
 
-Built by developers, for developers. 🧟‍♂️
+## Fee Structure
+
+| Sale Price | Platform Fee |
+|------------|--------------|
+| $0 - $50 | 6% |
+| $51 - $200 | 4% |
+| $201+ | 2% |
+
+---
+
+## License
+
+Proprietary. All rights reserved.
+
+---
+
+**作られた。でも、まだ見つかっていない。**
+*Built. But undiscovered.*

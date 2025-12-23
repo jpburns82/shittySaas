@@ -173,9 +173,10 @@ export const EXTERNAL_LINKS = {
 // ----- SEO -----
 
 export const SEO = {
-  DEFAULT_TITLE: 'UndeadList — Built, but undiscovered.',
-  DEFAULT_DESCRIPTION: 'The indie software flea market. Buy and sell undiscovered SaaS, scripts, boilerplates, and side projects. No gatekeeping, no minimums.',
+  DEFAULT_TITLE: 'UndeadList — The Indie Software Flea Market | undead list',
+  DEFAULT_DESCRIPTION: 'UndeadList (undead list) — The indie software flea market. Buy and sell undiscovered SaaS, scripts, boilerplates, and side projects. No gatekeeping, no minimums.',
   OG_IMAGE: '/og-image.png',
+  KEYWORDS: 'undeadlist, undead list, indie software, side projects, buy saas, sell saas, software marketplace, abandoned projects, code marketplace, startup acquisition',
 } as const
 
 // ----- COMMENT SYSTEM -----

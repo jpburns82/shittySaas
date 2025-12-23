@@ -39,11 +39,11 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Create onboarding link
-    const { origin } = new URL(request.url)
+    // Create onboarding link - use configured app URL, not request origin (which may be localhost behind proxy)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://undeadlist.com'
     const accountLinkUrl = await createAccountLink(
       accountId,
-      `${origin}/dashboard/payouts`
+      `${appUrl}/dashboard/payouts`
     )
 
     return NextResponse.json({

@@ -204,15 +204,25 @@ model ListingFile {
   id          String   @id @default(cuid())
   listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   listingId   String
-  
+
   fileName    String
   fileSize    Int      // bytes
   fileKey     String   // R2/S3 object key
   mimeType    String?
-  
+
+  // VirusTotal scanning
+  fileHash      String?      // SHA256 hash
+  scanStatus    ScanStatus   @default(PENDING)
+  scanResult    Json?        // Full VT response
+  scannedAt     DateTime?
+  detections    Int          @default(0)  // Number of engines detecting threats
+  totalEngines  Int          @default(0)  // Total engines that scanned
+  vtAnalysisId  String?      // VT analysis ID for polling
+
   createdAt   DateTime @default(now())
-  
+
   @@index([listingId])
+  @@index([scanStatus])
 }
 
 enum PriceType {
@@ -363,6 +373,16 @@ enum DisputeReason {
   SUSPECTED_STOLEN  // Code appears stolen
   MALWARE           // Files contain malware
   OTHER             // Other reason
+}
+
+enum ScanStatus {
+  PENDING           // Not yet scanned
+  SCANNING          // Scan in progress (uploaded to VT)
+  CLEAN             // No threats detected
+  SUSPICIOUS        // Low threat score, review needed
+  MALICIOUS         // High threat score, blocked
+  ERROR             // Scan failed
+  SKIPPED           // File type not scannable
 }
 
 // ============================================

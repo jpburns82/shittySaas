@@ -5,6 +5,7 @@ import { constructWebhookEvent } from '@/lib/stripe'
 import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail, sendFeaturedConfirmationEmail } from '@/lib/email'
 import { calculateEscrowExpiry } from '@/lib/escrow'
 import { releaseToSellerByPaymentIntent } from '@/lib/stripe-transfers'
+import { alertHighValueSale } from '@/lib/twilio'
 import { SellerTier } from '@prisma/client'
 import Stripe from 'stripe'
 
@@ -143,6 +144,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       purchase.sellerAmountCents,
       purchase.buyer?.username || 'Guest'
     )
+  }
+
+  // Alert admin for high-value sales (>$500)
+  if (purchase.amountPaidCents >= 50000) {
+    await alertHighValueSale(purchase.listing.title, purchase.amountPaidCents)
   }
 }
 

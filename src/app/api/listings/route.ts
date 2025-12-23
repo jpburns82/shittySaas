@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { createListingSchema } from '@/lib/validations'
 import { slugify } from '@/lib/utils'
 import { canCreateListing } from '@/lib/seller-limits'
+import { alertNewSellerListing } from '@/lib/twilio'
 
 // GET /api/listings - Get all listings with filters
 export async function GET(request: NextRequest) {
@@ -175,6 +176,14 @@ export async function POST(request: NextRequest) {
         status: 'DRAFT', // Start as draft, seller publishes when ready
       },
     })
+
+    // Alert admin if this is a new seller's first listing
+    if (listingCheck.tier === 'NEW' && listingCheck.currentCount === 0) {
+      await alertNewSellerListing(
+        session.user.username || session.user.email || 'Unknown',
+        data.title
+      )
+    }
 
     return NextResponse.json({
       success: true,

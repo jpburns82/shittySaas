@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { canDispute } from '@/lib/escrow'
+import { alertDisputeOpened } from '@/lib/twilio'
 import { DisputeReason } from '@prisma/client'
 
 // POST /api/purchases/[purchaseId]/dispute - Buyer opens a dispute
@@ -51,7 +52,7 @@ export async function POST(
       include: {
         listing: { select: { title: true } },
         seller: { select: { email: true, username: true } },
-        buyer: { select: { id: true, email: true } },
+        buyer: { select: { id: true, email: true, username: true } },
       },
     })
 
@@ -111,7 +112,13 @@ export async function POST(
     }
 
     // TODO: Send notification emails (Phase 4)
-    // TODO: Send Twilio alert to admin (Phase 4)
+
+    // Send Twilio alert to admin
+    await alertDisputeOpened(
+      purchase.listing.title,
+      reason,
+      purchase.buyer?.username || session.user.username || 'Unknown'
+    )
 
     return NextResponse.json({
       success: true,

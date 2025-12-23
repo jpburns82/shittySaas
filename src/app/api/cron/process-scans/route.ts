@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAnalysisResults } from '@/lib/virustotal'
 import { deleteFile } from '@/lib/r2'
+import { alertMalwareDetected } from '@/lib/twilio'
 import { ScanStatus } from '@prisma/client'
 
 // GET /api/cron/process-scans - Poll VT for pending scan results
@@ -117,7 +118,9 @@ export async function GET(request: NextRequest) {
             console.error(`[process-scans] Failed to delete ${file.fileKey}:`, deleteError)
           }
 
-          // TODO: Notify admin via Twilio (Phase 4)
+          // Send Twilio alert for malware detection
+          await alertMalwareDetected(file.fileName, detections, totalEngines)
+
           // TODO: Email seller about rejected file (Phase 4)
         }
       } catch (error) {

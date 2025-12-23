@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { releaseToSellerByPaymentIntent, refundBuyer } from '@/lib/stripe-transfers'
+import { alertDisputeResolved } from '@/lib/twilio'
 
 type Resolution = 'REFUND_BUYER' | 'RELEASE_TO_SELLER' | 'PARTIAL_REFUND'
 
@@ -152,7 +153,9 @@ export async function POST(
     })
 
     // TODO: Send notification emails (Phase 4)
-    // TODO: Send Twilio alert (Phase 4)
+
+    // Send Twilio alert
+    await alertDisputeResolved(purchase.listing.title, resolution)
 
     return NextResponse.json({
       success: true,

@@ -56,6 +56,10 @@ model User {
   totalDisputes     Int        @default(0)
   disputeRate       Float      @default(0)
 
+  // Buyer Tier (for spend limits)
+  buyerTier         BuyerTier  @default(NEW)
+  totalPurchases    Int        @default(0)
+
   // Soft Delete
   deletedAt         DateTime?
 
@@ -357,6 +361,12 @@ enum SellerTier {
   VERIFIED          // 1+ sales, 3 active listings max
   TRUSTED           // 3+ sales, 10 active listings max
   PRO               // 10+ sales or manually granted, unlimited
+}
+
+enum BuyerTier {
+  NEW               // 0 purchases, $250/day limit
+  VERIFIED          // 1+ purchases, $500/day limit
+  TRUSTED           // 3+ purchases, $1000/day limit
 }
 
 enum EscrowStatus {

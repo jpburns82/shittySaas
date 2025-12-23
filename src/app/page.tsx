@@ -40,6 +40,7 @@ async function FeaturedListingsSection() {
         select: {
           username: true,
           isVerifiedSeller: true,
+          sellerTier: true,
         },
       },
       category: {

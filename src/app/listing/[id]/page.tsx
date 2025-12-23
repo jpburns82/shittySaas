@@ -90,6 +90,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
           avatarUrl: true,
           bio: true,
           isVerifiedSeller: true,
+          sellerTier: true,
+          totalSales: true,
+          totalDisputes: true,
+          disputeRate: true,
           createdAt: true,
           _count: {
             select: {

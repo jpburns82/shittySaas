@@ -65,7 +65,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       take: pageSize,
       include: {
         seller: {
-          select: { username: true, isVerifiedSeller: true },
+          select: { username: true, isVerifiedSeller: true, sellerTier: true },
         },
         category: {
           select: { slug: true, name: true },

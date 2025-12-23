@@ -453,6 +453,75 @@ tr:hover {
   color: var(--accent-yellow);
 }
 
+/* ----- PHASE 5: TRUST BADGES ----- */
+
+/* Seller Tier - PRO (Gold with pulse) */
+.badge-tier-pro {
+  background: rgba(255, 204, 0, 0.15);
+  border-color: var(--accent-yellow);
+  color: var(--accent-yellow);
+  animation: pulse-glow-gold 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-gold {
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 204, 0, 0.3); }
+  50% { box-shadow: 0 0 16px rgba(255, 204, 0, 0.5); }
+}
+
+/* Escrow Progress Bar */
+.escrow-progress {
+  height: 6px;
+  background: var(--bg-accent);
+  border: 1px solid var(--border-crypt);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.escrow-progress-bar {
+  height: 100%;
+  background: var(--accent-green);
+  transition: width 1s ease;
+}
+
+.escrow-progress-bar.warning {
+  background: var(--accent-yellow);
+}
+
+.escrow-progress-bar.critical {
+  background: var(--accent-red);
+  animation: pulse-red 1s ease-in-out infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Protected Badge */
+.protected-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(57, 255, 20, 0.1);
+  border: 1px solid var(--accent-green);
+  color: var(--accent-green);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  border-radius: 2px;
+}
+
+/* Scan Spinning Animation */
+.scan-spinning {
+  display: inline-block;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* ----- PRICE DISPLAY ----- */
 
 .price {

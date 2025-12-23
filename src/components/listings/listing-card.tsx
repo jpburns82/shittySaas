@@ -6,6 +6,7 @@ import { formatRelativeTime } from '@/lib/utils'
 import { PriceBadge } from './price-badge'
 import { TechStackTags } from './tech-stack-tags'
 import { FeaturedBadge } from '../ui/badge'
+import { SellerTierBadge } from '../ui/badges/seller-tier-badge'
 import type { ListingCard as ListingCardType } from '@/types/listing'
 
 interface ListingCardProps {
@@ -67,8 +68,8 @@ export function ListingCard({ listing }: ListingCardProps) {
         </div>
 
         {/* Seller */}
-        <div className="text-xs text-text-muted mt-2">
-          by{' '}
+        <div className="text-xs text-text-muted mt-2 flex items-center gap-1.5">
+          <span>by</span>
           <span
             className="hover:underline"
             onClick={(e) => {
@@ -79,8 +80,8 @@ export function ListingCard({ listing }: ListingCardProps) {
           >
             @{listing.seller.username}
           </span>
-          {listing.seller.isVerifiedSeller && (
-            <span className="ml-1 text-accent-green">✓</span>
+          {listing.seller.sellerTier && (
+            <SellerTierBadge tier={listing.seller.sellerTier} size="sm" />
           )}
         </div>
       </article>

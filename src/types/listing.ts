@@ -23,7 +23,7 @@ export type ListingCard = Pick<
   | 'createdAt'
   | 'featured'
 > & {
-  seller: Pick<User, 'username' | 'isVerifiedSeller'>
+  seller: Pick<User, 'username' | 'isVerifiedSeller' | 'sellerTier'>
   category: Pick<Category, 'slug' | 'name'>
 }
 
@@ -37,6 +37,10 @@ export type ListingDetail = Listing & {
     | 'avatarUrl'
     | 'bio'
     | 'isVerifiedSeller'
+    | 'sellerTier'
+    | 'totalSales'
+    | 'totalDisputes'
+    | 'disputeRate'
     | 'createdAt'
   > & {
     _count: {

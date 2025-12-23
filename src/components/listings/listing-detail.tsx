@@ -5,6 +5,8 @@ import { PriceBadge } from './price-badge'
 import { TechStackTags } from './tech-stack-tags'
 import { VoteButtons } from './vote-buttons'
 import { VerifiedBadge, FeaturedBadge } from '../ui/badge'
+import { SellerTierBadge } from '../ui/badges/seller-tier-badge'
+import { ProtectedBadge } from '../ui/badges/protected-badge'
 import { Button } from '../ui/button'
 import { ImageGallery } from '../ui/image-gallery'
 import type { ListingDetail as ListingDetailType } from '@/types/listing'
@@ -130,9 +132,14 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
         <aside className="space-y-4">
           {/* Price card */}
           <div className="card">
-            <div className="text-2xl font-mono font-bold text-accent-green mb-4">
+            <div className="text-2xl font-mono font-bold text-accent-green mb-2">
               <PriceBadge priceType={listing.priceType} priceInCents={listing.priceInCents} size="lg" />
             </div>
+            {listing.priceType !== 'CONTACT' && (
+              <div className="mb-4">
+                <ProtectedBadge />
+              </div>
+            )}
 
             {isOwner ? (
               <Link href={`/sell/${listing.id}/edit`}>
@@ -205,18 +212,25 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
                 </div>
               )}
               <div>
-                <Link href={`/user/${listing.seller.username}`} className="font-medium">
-                  @{listing.seller.username}
-                </Link>
-                {listing.seller.isVerifiedSeller && (
-                  <span className="text-accent-green ml-1">✓</span>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Link href={`/user/${listing.seller.username}`} className="font-medium">
+                    @{listing.seller.username}
+                  </Link>
+                  {listing.seller.sellerTier && (
+                    <SellerTierBadge tier={listing.seller.sellerTier} size="sm" />
+                  )}
+                </div>
                 <div className="text-xs text-text-muted mt-1">
                   Member since {formatDate(listing.seller.createdAt)}
                 </div>
                 <div className="text-xs text-text-muted">
                   {listing.seller._count.listings} listings · {listing.seller._count.sales} sold
                 </div>
+                {listing.seller.totalSales && listing.seller.totalSales > 0 && listing.seller.disputeRate !== undefined && listing.seller.disputeRate > 0 && (
+                  <div className="text-xs text-accent-yellow mt-1">
+                    {(listing.seller.disputeRate * 100).toFixed(1)}% dispute rate
+                  </div>
+                )}
               </div>
             </div>
           </div>

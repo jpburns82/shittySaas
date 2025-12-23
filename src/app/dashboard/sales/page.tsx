@@ -37,6 +37,36 @@ export default async function DashboardSalesPage() {
     }
   }
 
+  const escrowStatusVariant = (status: string | null) => {
+    switch (status) {
+      case 'RELEASED':
+        return 'green'
+      case 'HOLDING':
+        return 'yellow'
+      case 'DISPUTED':
+        return 'red'
+      case 'REFUNDED':
+        return 'blue'
+      default:
+        return 'default'
+    }
+  }
+
+  const escrowStatusLabel = (status: string | null) => {
+    switch (status) {
+      case 'RELEASED':
+        return '✓ Paid Out'
+      case 'HOLDING':
+        return 'In Escrow'
+      case 'DISPUTED':
+        return '⚠ Disputed'
+      case 'REFUNDED':
+        return 'Refunded'
+      default:
+        return 'Pending'
+    }
+  }
+
   return (
     <div>
       <h1 className="font-display text-2xl mb-6">Sales History</h1>
@@ -58,6 +88,7 @@ export default async function DashboardSalesPage() {
                 <th>Buyer</th>
                 <th>Amount</th>
                 <th>Your Earnings</th>
+                <th>Payout</th>
                 <th>Delivery</th>
               </tr>
             </thead>
@@ -82,6 +113,11 @@ export default async function DashboardSalesPage() {
                   <td className="font-mono">{formatPrice(sale.amountPaidCents)}</td>
                   <td className="font-mono text-accent-green">
                     {formatPrice(sale.sellerAmountCents)}
+                  </td>
+                  <td>
+                    <Badge variant={escrowStatusVariant(sale.escrowStatus)}>
+                      {escrowStatusLabel(sale.escrowStatus)}
+                    </Badge>
                   </td>
                   <td>
                     <Badge variant={deliveryStatusVariant(sale.deliveryStatus)}>

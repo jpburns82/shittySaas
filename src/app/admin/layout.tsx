@@ -35,10 +35,15 @@ export default async function AdminLayout({
     redirect('/login')
   }
 
+  // Count pending disputes for badge
+  const pendingDisputes = await prisma.purchase.count({
+    where: { escrowStatus: 'DISPUTED' },
+  })
+
   return (
     <div className="container py-8">
       <div className="flex gap-8">
-        <AdminSidebar />
+        <AdminSidebar pendingDisputes={pendingDisputes} />
         <main className="flex-1 min-w-0">{children}</main>
       </div>
     </div>

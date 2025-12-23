@@ -14,6 +14,7 @@ import {
   Users,
   Flag,
   FileText,
+  AlertTriangle,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -88,12 +89,13 @@ export function DashboardSidebar({ unreadMessages = 0, pendingDeliveries = 0 }) 
 }
 
 // Admin sidebar preset
-export function AdminSidebar({ unreadMessages = 0 }) {
+export function AdminSidebar({ unreadMessages = 0, pendingDisputes = 0 }) {
   const links: SidebarLink[] = [
     { href: '/admin', label: 'Overview', icon: <LayoutDashboard size={18} /> },
     { href: '/admin/listings', label: 'Listings', icon: <Package size={18} /> },
     { href: '/admin/users', label: 'Users', icon: <Users size={18} /> },
     { href: '/admin/reports', label: 'Reports', icon: <Flag size={18} /> },
+    { href: '/admin/disputes', label: 'Disputes', icon: <AlertTriangle size={18} />, badge: pendingDisputes || undefined },
     { href: '/admin/audit-log', label: 'Audit Log', icon: <FileText size={18} /> },
     { href: '/dashboard/messages', label: 'Messages', icon: <MessageSquare size={18} />, badge: unreadMessages || undefined },
   ]

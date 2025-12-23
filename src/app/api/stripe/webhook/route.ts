@@ -6,7 +6,7 @@ import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail, sendFeaturedC
 import { calculateEscrowExpiry } from '@/lib/escrow'
 import { releaseToSellerByPaymentIntent } from '@/lib/stripe-transfers'
 import { alertHighValueSale } from '@/lib/twilio'
-import { SellerTier } from '@prisma/client'
+import { SellerTier, BuyerTier } from '@prisma/client'
 import Stripe from 'stripe'
 
 // Disable body parsing for webhooks
@@ -127,6 +127,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Update seller tier based on completed sales
   await updateSellerTier(purchase.seller.id)
 
+  // Update buyer tier based on completed purchases (only for logged-in users)
+  if (purchase.buyerId) {
+    await updateBuyerTier(purchase.buyerId)
+  }
+
   // Send confirmation emails
   const buyerEmail = purchase.buyer?.email || purchase.guestEmail
   if (buyerEmail) {
@@ -171,6 +176,28 @@ async function updateSellerTier(sellerId: string) {
     data: {
       sellerTier: newTier,
       totalSales: salesCount,
+    },
+  })
+}
+
+// Update buyer tier based on completed purchases count
+async function updateBuyerTier(buyerId: string) {
+  const purchaseCount = await prisma.purchase.count({
+    where: {
+      buyerId,
+      status: 'COMPLETED',
+    },
+  })
+
+  let newTier: BuyerTier = 'NEW'
+  if (purchaseCount >= 3) newTier = 'TRUSTED'
+  else if (purchaseCount >= 1) newTier = 'VERIFIED'
+
+  await prisma.user.update({
+    where: { id: buyerId },
+    data: {
+      buyerTier: newTier,
+      totalPurchases: purchaseCount,
     },
   })
 }

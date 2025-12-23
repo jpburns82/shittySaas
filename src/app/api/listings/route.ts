@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * limit,
         take: limit,
         include: {
-          seller: { select: { username: true, displayName: true, avatarUrl: true } },
+          seller: { select: { username: true, displayName: true, avatarUrl: true, isVerifiedSeller: true, sellerTier: true } },
           category: { select: { name: true, slug: true } },
           _count: { select: { votes: true, comments: true } },
         },

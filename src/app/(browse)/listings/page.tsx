@@ -98,7 +98,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
         featuredUntil: true,
         createdAt: true,
         seller: {
-          select: { username: true, isVerifiedSeller: true },
+          select: { username: true, isVerifiedSeller: true, sellerTier: true },
         },
         category: {
           select: { slug: true, name: true },

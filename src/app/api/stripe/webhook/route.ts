@@ -124,36 +124,59 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     )
   }
 
+  // Post-purchase operations wrapped in try-catch to prevent cascading failures
+  // Each operation is independent - failure in one shouldn't stop others
+
   // Update seller tier based on completed sales
-  await updateSellerTier(purchase.seller.id)
+  try {
+    await updateSellerTier(purchase.seller.id)
+  } catch (error) {
+    console.error(`[webhook] Failed to update seller tier for ${purchase.seller.id}:`, error)
+  }
 
   // Update buyer tier based on completed purchases (only for logged-in users)
   if (purchase.buyerId) {
-    await updateBuyerTier(purchase.buyerId)
+    try {
+      await updateBuyerTier(purchase.buyerId)
+    } catch (error) {
+      console.error(`[webhook] Failed to update buyer tier for ${purchase.buyerId}:`, error)
+    }
   }
 
   // Send confirmation emails
   const buyerEmail = purchase.buyer?.email || purchase.guestEmail
   if (buyerEmail) {
-    await sendPurchaseConfirmationEmail(
-      buyerEmail,
-      purchase.listing.title,
-      purchase.amountPaidCents
-    )
+    try {
+      await sendPurchaseConfirmationEmail(
+        buyerEmail,
+        purchase.listing.title,
+        purchase.amountPaidCents
+      )
+    } catch (error) {
+      console.error(`[webhook] Failed to send purchase confirmation to ${buyerEmail}:`, error)
+    }
   }
 
   if (purchase.seller.email) {
-    await sendSaleNotificationEmail(
-      purchase.seller.email,
-      purchase.listing.title,
-      purchase.sellerAmountCents,
-      purchase.buyer?.username || 'Guest'
-    )
+    try {
+      await sendSaleNotificationEmail(
+        purchase.seller.email,
+        purchase.listing.title,
+        purchase.sellerAmountCents,
+        purchase.buyer?.username || 'Guest'
+      )
+    } catch (error) {
+      console.error(`[webhook] Failed to send sale notification to ${purchase.seller.email}:`, error)
+    }
   }
 
   // Alert admin for high-value sales (>$500)
   if (purchase.amountPaidCents >= 50000) {
-    await alertHighValueSale(purchase.listing.title, purchase.amountPaidCents)
+    try {
+      await alertHighValueSale(purchase.listing.title, purchase.amountPaidCents)
+    } catch (error) {
+      console.error(`[webhook] Failed to send high-value sale alert:`, error)
+    }
   }
 }
 

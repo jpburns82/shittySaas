@@ -31,72 +31,82 @@ export default async function ThreadDetailPage({ params, searchParams }: PagePro
   const { listing: listingId } = await searchParams
   const currentUserId = session.user.id
 
-  // Get recipient
-  const recipient = await prisma.user.findUnique({
-    where: { id: recipientId },
-    select: {
-      id: true,
-      username: true,
-      displayName: true,
-      avatarUrl: true,
-      isAdmin: true,
-    },
-  })
+  // Parallelize independent queries for performance
+  const [recipient, blockStatus, currentUser, listing, messages, thread] = await Promise.all([
+    // Get recipient
+    prisma.user.findUnique({
+      where: { id: recipientId },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+        isAdmin: true,
+      },
+    }),
+    // Check if blocked (either direction)
+    prisma.blockedUser.findFirst({
+      where: {
+        OR: [
+          { blockerId: currentUserId, blockedId: recipientId },
+          { blockerId: recipientId, blockedId: currentUserId },
+        ],
+      },
+    }),
+    // Get current user (for admin check)
+    prisma.user.findUnique({
+      where: { id: currentUserId },
+      select: { isAdmin: true },
+    }),
+    // Get listing if provided
+    listingId
+      ? prisma.listing.findUnique({
+          where: { id: listingId },
+          select: { id: true, title: true, slug: true, status: true },
+        })
+      : Promise.resolve(null),
+    // Get messages
+    prisma.message.findMany({
+      where: {
+        OR: [
+          { senderId: currentUserId, receiverId: recipientId },
+          { senderId: recipientId, receiverId: currentUserId },
+        ],
+        ...(listingId ? { listingId } : {}),
+      },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+        receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+        listing: { select: { id: true, title: true, slug: true } },
+        attachments: true,
+      },
+    }),
+    // Get or find thread for this conversation
+    prisma.messageThread.findFirst({
+      where: {
+        OR: [
+          { buyerId: currentUserId, sellerId: recipientId, listingId: listingId || null },
+          { buyerId: recipientId, sellerId: currentUserId, listingId: listingId || null },
+        ],
+      },
+      include: {
+        buyer: { select: { id: true, username: true } },
+        seller: { select: { id: true, username: true } },
+      },
+    }),
+  ])
 
   if (!recipient) {
     notFound()
   }
 
-  // Check if blocked (either direction)
-  const blockStatus = await prisma.blockedUser.findFirst({
-    where: {
-      OR: [
-        { blockerId: currentUserId, blockedId: recipientId },
-        { blockerId: recipientId, blockedId: currentUserId },
-      ],
-    },
-  })
-
   const isBlocked = !!blockStatus
   const blockedByMe = blockStatus?.blockerId === currentUserId
-
-  // Get current user (for admin check)
-  const currentUser = await prisma.user.findUnique({
-    where: { id: currentUserId },
-    select: { isAdmin: true },
-  })
-
-  // Get listing if provided
-  let listing: { id: string; title: string; slug: string; status: string } | null = null
-  if (listingId) {
-    listing = await prisma.listing.findUnique({
-      where: { id: listingId },
-      select: { id: true, title: true, slug: true, status: true },
-    })
-  }
-
   const isListingDeleted = listing?.status === 'REMOVED' || listing?.status === 'ARCHIVED'
 
-  // Get messages
-  const messages = await prisma.message.findMany({
-    where: {
-      OR: [
-        { senderId: currentUserId, receiverId: recipientId },
-        { senderId: recipientId, receiverId: currentUserId },
-      ],
-      ...(listingId ? { listingId } : {}),
-    },
-    orderBy: { createdAt: 'asc' },
-    include: {
-      sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
-      receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
-      listing: { select: { id: true, title: true, slug: true } },
-      attachments: true,
-    },
-  })
-
-  // Mark messages as read
-  await prisma.message.updateMany({
+  // Mark messages as read (fire-and-forget, don't block render)
+  prisma.message.updateMany({
     where: {
       receiverId: currentUserId,
       senderId: recipientId,
@@ -104,21 +114,7 @@ export default async function ThreadDetailPage({ params, searchParams }: PagePro
       readAt: null,
     },
     data: { readAt: new Date() },
-  })
-
-  // Get or find thread for this conversation
-  const thread = await prisma.messageThread.findFirst({
-    where: {
-      OR: [
-        { buyerId: currentUserId, sellerId: recipientId, listingId: listingId || null },
-        { buyerId: recipientId, sellerId: currentUserId, listingId: listingId || null },
-      ],
-    },
-    include: {
-      buyer: { select: { id: true, username: true } },
-      seller: { select: { id: true, username: true } },
-    },
-  })
+  }).catch(() => {}) // Ignore errors, this is non-critical
 
   // Get conversation start date
   const firstMessage = messages[0]

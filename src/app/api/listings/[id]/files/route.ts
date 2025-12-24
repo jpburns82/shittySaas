@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { uploadFile, deleteFile } from '@/lib/r2'
+import { uploadFile, deleteFile, sanitizeFilename } from '@/lib/r2'
 import { scanFile, shouldScanFile } from '@/lib/virustotal'
 import { nanoid } from 'nanoid'
 import type { Prisma as _Prisma } from '@prisma/client'
@@ -138,8 +138,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       )
     }
 
+    // Sanitize filename to prevent path traversal and other attacks
+    const safeFileName = sanitizeFilename(file.name)
+
     // Generate unique key with original extension
-    const ext = file.name.split('.').pop() || 'bin'
+    const ext = safeFileName.split('.').pop() || 'bin'
     const uniqueId = nanoid(12)
     const fileKey = `downloads/${listingId}/${uniqueId}.${ext}`
 
@@ -151,7 +154,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const listingFile = await prisma.listingFile.create({
       data: {
         listingId,
-        fileName: file.name,
+        fileName: safeFileName,
         fileSize: file.size,
         fileKey,
         mimeType: file.type,
@@ -159,9 +162,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     // Scan file with VirusTotal if applicable
-    if (shouldScanFile(file.type, file.name)) {
+    if (shouldScanFile(file.type, safeFileName)) {
       try {
-        const scanResult = await scanFile(buffer, file.name)
+        const scanResult = await scanFile(buffer, safeFileName)
 
         // Reject malicious files
         if (scanResult.verdict === 'MALICIOUS') {

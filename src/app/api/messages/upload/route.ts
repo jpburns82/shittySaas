@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { uploadFile, generateFileKey, validateFile } from '@/lib/r2'
+import { uploadFile, generateFileKey, validateFile, sanitizeFilename } from '@/lib/r2'
 import { MESSAGE_LIMITS } from '@/lib/constants'
 
 export async function POST(request: NextRequest) {
@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // Sanitize filename to prevent path traversal and other attacks
+      const safeFileName = sanitizeFilename(file.name)
+
       // Generate unique key
       const key = generateFileKey('message-attachments', file.name, session.user.id)
 
@@ -63,7 +66,7 @@ export async function POST(request: NextRequest) {
       uploadedFiles.push({
         key,
         url,
-        fileName: file.name,
+        fileName: safeFileName,
         fileSize: file.size,
         mimeType: file.type,
       })

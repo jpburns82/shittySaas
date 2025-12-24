@@ -3,24 +3,27 @@
  *
  * Limits daily spending based on buyer tier to prevent fraud
  * and protect new users.
+ * Thresholds defined in constants.ts BUYER_TIER_CONFIG
  */
 
 import { prisma } from './prisma'
+import { BUYER_TIER_CONFIG, GUEST_DAILY_LIMIT_CENTS } from '@/lib/constants'
 import type { BuyerTier } from '@prisma/client'
 
 /**
  * Get daily spend limit in cents based on buyer tier
  */
 export function getDailySpendLimit(buyerTier: BuyerTier): number {
-  switch (buyerTier) {
-    case 'TRUSTED':
-      return 100000 // $1000/day
-    case 'VERIFIED':
-      return 50000 // $500/day
-    case 'NEW':
-    default:
-      return 25000 // $250/day
-  }
+  return BUYER_TIER_CONFIG[buyerTier]?.dailySpendLimitCents ?? BUYER_TIER_CONFIG.NEW.dailySpendLimitCents
+}
+
+/**
+ * Get buyer tier based on purchase count
+ */
+export function getBuyerTier(purchaseCount: number): BuyerTier {
+  if (purchaseCount >= BUYER_TIER_CONFIG.TRUSTED.minPurchases) return 'TRUSTED'
+  if (purchaseCount >= BUYER_TIER_CONFIG.VERIFIED.minPurchases) return 'VERIFIED'
+  return 'NEW'
 }
 
 /**
@@ -97,11 +100,7 @@ export async function canPurchase(
   }
 }
 
-/**
- * Guest daily spend limit in cents ($50)
- * More restrictive than registered users to prevent fraud
- */
-const GUEST_DAILY_LIMIT_CENTS = 5000
+// Guest limit imported from constants.ts (GUEST_DAILY_LIMIT_CENTS = 5000 = $50/day)
 
 /**
  * Check if a guest can make a purchase of a given amount

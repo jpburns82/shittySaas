@@ -1,11 +1,9 @@
 import { prisma } from '@/lib/prisma'
+import { SELLER_TIER_CONFIG } from '@/lib/constants'
 
 /**
  * Seller Tier Limits:
- * - NEW (0 sales): 1 active listing
- * - VERIFIED (1+ sales): 3 active listings
- * - TRUSTED (3+ sales): 10 active listings
- * - PRO (10+ sales): Unlimited
+ * Thresholds defined in constants.ts SELLER_TIER_CONFIG
  */
 
 export type SellerTier = 'NEW' | 'VERIFIED' | 'TRUSTED' | 'PRO'
@@ -20,24 +18,14 @@ export async function getSellerSalesCount(userId: string): Promise<number> {
 }
 
 export function getSellerTier(salesCount: number): SellerTier {
-  if (salesCount >= 10) return 'PRO'
-  if (salesCount >= 3) return 'TRUSTED'
-  if (salesCount >= 1) return 'VERIFIED'
+  if (salesCount >= SELLER_TIER_CONFIG.PRO.minSales) return 'PRO'
+  if (salesCount >= SELLER_TIER_CONFIG.TRUSTED.minSales) return 'TRUSTED'
+  if (salesCount >= SELLER_TIER_CONFIG.VERIFIED.minSales) return 'VERIFIED'
   return 'NEW'
 }
 
 export function getListingLimitForTier(tier: SellerTier): number {
-  switch (tier) {
-    case 'PRO':
-      return Infinity
-    case 'TRUSTED':
-      return 10
-    case 'VERIFIED':
-      return 3
-    case 'NEW':
-    default:
-      return 1
-  }
+  return SELLER_TIER_CONFIG[tier].listingLimit
 }
 
 export async function getSellerListingLimit(userId: string): Promise<number> {

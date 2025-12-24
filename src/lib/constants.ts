@@ -187,3 +187,26 @@ export const COMMENT_LIMITS = {
   EDIT_WINDOW_MINUTES: 15,
   MAX_THREAD_DEPTH: 3,
 } as const
+
+// ----- SELLER TIERS -----
+
+export const SELLER_TIER_CONFIG = {
+  PRO: { minSales: 10, listingLimit: Infinity, label: 'Pro Seller' },
+  TRUSTED: { minSales: 3, listingLimit: 10, label: 'Trusted Seller' },
+  VERIFIED: { minSales: 1, listingLimit: 3, label: 'Verified Seller' },
+  NEW: { minSales: 0, listingLimit: 1, label: 'New Seller' },
+} as const
+
+export type SellerTierKey = keyof typeof SELLER_TIER_CONFIG
+
+// ----- BUYER TIERS -----
+
+export const BUYER_TIER_CONFIG = {
+  TRUSTED: { minPurchases: 3, dailySpendLimitCents: 100000, label: 'Trusted Buyer' }, // $1000/day
+  VERIFIED: { minPurchases: 1, dailySpendLimitCents: 50000, label: 'Verified Buyer' }, // $500/day
+  NEW: { minPurchases: 0, dailySpendLimitCents: 25000, label: 'New Buyer' }, // $250/day
+} as const
+
+export const GUEST_DAILY_LIMIT_CENTS = 5000 // $50/day for guests
+
+export type BuyerTierKey = keyof typeof BUYER_TIER_CONFIG

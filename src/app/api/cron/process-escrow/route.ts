@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { releaseToSellerByPaymentIntent } from '@/lib/stripe-transfers'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('process-escrow')
 
 // GET /api/cron/process-escrow - Auto-release expired escrows
 // Called by cron-job.org every hour
@@ -41,7 +44,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    console.log(`[process-escrow] Found ${expiredEscrows.length} expired escrows to process`)
+    log.info('Found expired escrows to process', { count: expiredEscrows.length })
 
     const results = {
       processed: 0,
@@ -55,7 +58,7 @@ export async function GET(request: NextRequest) {
 
       // Skip if no payment intent
       if (!purchase.stripePaymentIntentId) {
-        console.warn(`[process-escrow] Purchase ${purchase.id} has no payment intent, skipping`)
+        log.warn('Purchase has no payment intent, skipping', { purchaseId: purchase.id })
         results.errors.push(`${purchase.id}: No payment intent`)
         results.failed++
         continue
@@ -63,7 +66,7 @@ export async function GET(request: NextRequest) {
 
       // Skip if seller has no Stripe account
       if (!purchase.seller.stripeAccountId) {
-        console.warn(`[process-escrow] Purchase ${purchase.id} seller has no Stripe account, skipping`)
+        log.warn('Seller has no Stripe account, skipping', { purchaseId: purchase.id })
         results.errors.push(`${purchase.id}: Seller has no Stripe account`)
         results.failed++
         continue
@@ -72,7 +75,10 @@ export async function GET(request: NextRequest) {
       try {
         // Idempotency check: skip if already transferred
         if (purchase.stripeTransferId) {
-          console.log(`[process-escrow] Purchase ${purchase.id} already has transfer ${purchase.stripeTransferId}, skipping`)
+          log.info('Purchase already transferred, skipping', {
+            purchaseId: purchase.id,
+            transferId: purchase.stripeTransferId,
+          })
           continue
         }
 
@@ -85,7 +91,10 @@ export async function GET(request: NextRequest) {
         )
 
         if (!transferResult.success) {
-          console.error(`[process-escrow] Failed to release ${purchase.id}: ${transferResult.error}`)
+          log.error('Failed to release escrow', {
+            purchaseId: purchase.id,
+            error: transferResult.error,
+          })
           results.errors.push(`${purchase.id}: ${transferResult.error}`)
           results.failed++
           continue
@@ -101,23 +110,32 @@ export async function GET(request: NextRequest) {
           },
         })
 
-        console.log(`[process-escrow] Released escrow for purchase ${purchase.id}, transfer: ${transferResult.transferId}`)
+        log.info('Released escrow for purchase', {
+          purchaseId: purchase.id,
+          transferId: transferResult.transferId,
+        })
         results.released++
       } catch (error) {
-        console.error(`[process-escrow] Error processing ${purchase.id}:`, error)
+        log.error('Error processing purchase', {
+          purchaseId: purchase.id,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        })
         results.errors.push(`${purchase.id}: ${error instanceof Error ? error.message : 'Unknown error'}`)
         results.failed++
       }
     }
 
-    console.log(`[process-escrow] Complete: ${results.released} released, ${results.failed} failed`)
+    log.info('Escrow processing complete', {
+      released: results.released,
+      failed: results.failed,
+    })
 
     return NextResponse.json({
       success: true,
       data: results,
     })
   } catch (error) {
-    console.error('[process-escrow] Fatal error:', error)
+    log.error('Fatal error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return NextResponse.json(
       { success: false, error: 'Cron job failed' },
       { status: 500 }

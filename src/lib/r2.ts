@@ -36,13 +36,41 @@ function getKeyPrefix(category: FileCategory): string {
   }
 }
 
+/**
+ * Sanitize filename to prevent path traversal and other security issues
+ * Removes dangerous characters and limits length
+ */
+export function sanitizeFilename(filename: string): string {
+  let sanitized = filename
+    .replace(/\.\./g, '')           // Remove path traversal sequences
+    .replace(/[\/\\]/g, '')         // Remove forward and back slashes
+    .replace(/\x00/g, '')           // Remove null bytes
+    .replace(/[<>:"|?*]/g, '')      // Remove Windows-illegal characters
+    .trim()
+
+  // Ensure not empty after sanitization
+  if (!sanitized || sanitized === '.') {
+    sanitized = 'file'
+  }
+
+  // Limit length to 255 chars (filesystem limit)
+  if (sanitized.length > 255) {
+    const ext = sanitized.split('.').pop() || ''
+    const maxNameLen = 255 - ext.length - 1
+    sanitized = `${sanitized.slice(0, maxNameLen)}.${ext}`
+  }
+
+  return sanitized
+}
+
 // Generate unique file key
 export function generateFileKey(
   category: FileCategory,
   originalFilename: string,
   userId: string
 ): string {
-  const ext = originalFilename.split('.').pop() || ''
+  const sanitized = sanitizeFilename(originalFilename)
+  const ext = sanitized.split('.').pop() || ''
   const uniqueId = nanoid(12)
   const prefix = getKeyPrefix(category)
   return `${prefix}/${userId}/${uniqueId}.${ext}`

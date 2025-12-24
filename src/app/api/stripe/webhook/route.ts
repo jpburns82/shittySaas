@@ -6,7 +6,8 @@ import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail, sendFeaturedC
 import { calculateEscrowExpiry } from '@/lib/escrow'
 import { releaseToSellerByPaymentIntent } from '@/lib/stripe-transfers'
 import { alertHighValueSale } from '@/lib/twilio'
-import { SellerTier, BuyerTier } from '@prisma/client'
+import { getSellerTier } from '@/lib/seller-limits'
+import { getBuyerTier } from '@/lib/buyer-limits'
 import Stripe from 'stripe'
 
 // Disable body parsing for webhooks
@@ -189,10 +190,7 @@ async function updateSellerTier(sellerId: string) {
     },
   })
 
-  let newTier: SellerTier = 'NEW'
-  if (salesCount >= 10) newTier = 'PRO'
-  else if (salesCount >= 3) newTier = 'TRUSTED'
-  else if (salesCount >= 1) newTier = 'VERIFIED'
+  const newTier = getSellerTier(salesCount)
 
   await prisma.user.update({
     where: { id: sellerId },
@@ -212,9 +210,7 @@ async function updateBuyerTier(buyerId: string) {
     },
   })
 
-  let newTier: BuyerTier = 'NEW'
-  if (purchaseCount >= 3) newTier = 'TRUSTED'
-  else if (purchaseCount >= 1) newTier = 'VERIFIED'
+  const newTier = getBuyerTier(purchaseCount)
 
   await prisma.user.update({
     where: { id: buyerId },

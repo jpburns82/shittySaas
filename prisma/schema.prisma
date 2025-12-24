@@ -346,6 +346,9 @@ model Purchase {
   @@index([status])
   @@index([stripePaymentIntentId])
   @@index([escrowStatus])
+  // Composite indexes for performance optimization
+  @@index([escrowStatus, escrowExpiresAt])  // Escrow cron: WHERE status='HOLDING' AND expiry <= NOW()
+  @@index([buyerId, createdAt])              // Buyer spend limits: WHERE buyerId=? AND createdAt >= startOfDay
 }
 
 enum PurchaseStatus {

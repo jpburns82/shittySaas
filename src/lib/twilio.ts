@@ -11,6 +11,9 @@
  */
 
 import { Resend } from 'resend'
+import { createLogger } from './logger'
+
+const log = createLogger('twilio')
 
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN
@@ -38,7 +41,7 @@ export function isTwilioConfigured(): boolean {
  */
 async function sendEmailFallback(message: string): Promise<boolean> {
   if (!process.env.RESEND_API_KEY) {
-    console.log('[Email] Resend not configured, cannot send email fallback')
+    log.warn('Resend not configured, cannot send email fallback')
     return false
   }
 
@@ -61,10 +64,10 @@ async function sendEmailFallback(message: string): Promise<boolean> {
         </div>
       `,
     })
-    console.log('[Email] Alert sent to admin via Resend')
+    log.info('Alert sent to admin via email fallback')
     return true
   } catch (error) {
-    console.error('[Email] Failed to send alert email:', error)
+    log.error('Failed to send alert email', { error: String(error) })
     return false
   }
 }
@@ -75,7 +78,7 @@ async function sendEmailFallback(message: string): Promise<boolean> {
  */
 export async function alertAdmin(message: string): Promise<boolean> {
   // Always log the alert
-  console.log(`[ALERT] ${message}`)
+  log.info('Admin alert', { message })
 
   // Try Twilio first if configured
   if (isTwilioConfigured()) {
@@ -99,24 +102,24 @@ export async function alertAdmin(message: string): Promise<boolean> {
       })
 
       if (response.ok) {
-        console.log('[Twilio] SMS sent successfully')
+        log.info('SMS sent successfully')
         return true
       }
 
       // SMS failed, try email fallback
       const errorText = await response.text()
-      console.error('[Twilio] SMS failed:', response.status, errorText)
-      console.log('[Twilio] Falling back to email...')
+      log.error('SMS failed', { status: response.status, error: errorText })
+      log.info('Falling back to email')
       return await sendEmailFallback(message)
     } catch (error) {
-      console.error('[Twilio] Error sending SMS:', error)
-      console.log('[Twilio] Falling back to email...')
+      log.error('Error sending SMS', { error: String(error) })
+      log.info('Falling back to email')
       return await sendEmailFallback(message)
     }
   }
 
   // Twilio not configured, use email fallback
-  console.log('[Twilio] Not configured, using email fallback')
+  log.info('Twilio not configured, using email fallback')
   return await sendEmailFallback(message)
 }
 

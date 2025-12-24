@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { fetchWithCSRF } from '@/lib/fetch-with-csrf'
 
 interface ReportIssueModalProps {
   isOpen: boolean
@@ -45,7 +46,7 @@ export function ReportIssueModal({
     setError('')
 
     try {
-      const response = await fetch(`/api/purchases/${purchaseId}/dispute`, {
+      const response = await fetchWithCSRF(`/api/purchases/${purchaseId}/dispute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason, notes: notes || undefined }),

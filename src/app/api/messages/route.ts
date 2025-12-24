@@ -18,25 +18,34 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const otherUserId = searchParams.get('userId')
     const listingId = searchParams.get('listingId')
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50')))
 
     if (otherUserId) {
       // Get conversation with specific user
-      const messages = await prisma.message.findMany({
-        where: {
-          OR: [
-            { senderId: session.user.id, receiverId: otherUserId },
-            { senderId: otherUserId, receiverId: session.user.id },
-          ],
-          ...(listingId ? { listingId } : {}),
-        },
-        orderBy: { createdAt: 'asc' },
-        include: {
-          sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
-          receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
-          listing: { select: { id: true, title: true, slug: true } },
-          attachments: true,
-        },
-      })
+      const where = {
+        OR: [
+          { senderId: session.user.id, receiverId: otherUserId },
+          { senderId: otherUserId, receiverId: session.user.id },
+        ],
+        ...(listingId ? { listingId } : {}),
+      }
+
+      const [messages, total] = await Promise.all([
+        prisma.message.findMany({
+          where,
+          orderBy: { createdAt: 'asc' },
+          skip: (page - 1) * limit,
+          take: limit,
+          include: {
+            sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+            receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+            listing: { select: { id: true, title: true, slug: true } },
+            attachments: true,
+          },
+        }),
+        prisma.message.count({ where }),
+      ])
 
       // Mark messages as read
       await prisma.message.updateMany({
@@ -51,26 +60,47 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: messages,
+        pagination: {
+          page,
+          pageSize: limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasMore: page * limit < total,
+        },
       })
     }
 
     // Get all conversations (grouped)
-    const messages = await prisma.message.findMany({
-      where: {
-        OR: [{ senderId: session.user.id }, { receiverId: session.user.id }],
-      },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
-        receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
-        listing: { select: { id: true, title: true, slug: true } },
-        attachments: true,
-      },
-    })
+    const where = {
+      OR: [{ senderId: session.user.id }, { receiverId: session.user.id }],
+    }
+
+    const [messages, total] = await Promise.all([
+      prisma.message.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          sender: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+          receiver: { select: { id: true, username: true, displayName: true, avatarUrl: true, isAdmin: true } },
+          listing: { select: { id: true, title: true, slug: true } },
+          attachments: true,
+        },
+      }),
+      prisma.message.count({ where }),
+    ])
 
     return NextResponse.json({
       success: true,
       data: messages,
+      pagination: {
+        page,
+        pageSize: limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasMore: page * limit < total,
+      },
     })
   } catch (error) {
     console.error('GET /api/messages error:', error)

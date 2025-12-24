@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '../ui/button'
 import { formatPrice } from '@/lib/utils'
+import { fetchWithCSRF } from '@/lib/fetch-with-csrf'
 
 interface CheckoutButtonProps {
   listingId: string
@@ -24,7 +25,7 @@ export function CheckoutButton({
   const handleCheckout = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/stripe/checkout', {
+      const res = await fetchWithCSRF('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ listingId }),
@@ -77,7 +78,7 @@ export function QuickBuyButton({ listingId, priceInCents }: {
   const handleQuickBuy = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/stripe/checkout', {
+      const res = await fetchWithCSRF('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ listingId }),

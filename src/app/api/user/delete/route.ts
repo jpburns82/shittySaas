@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { validateCSRF } from '@/lib/csrf'
 
 const deleteAccountSchema = z.object({
   password: z.string().min(1, 'Password is required'),
@@ -11,8 +12,17 @@ const deleteAccountSchema = z.object({
   }),
 })
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
+    // CSRF protection
+    const csrfValid = await validateCSRF(request)
+    if (!csrfValid) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request. Please refresh and try again.' },
+        { status: 403 }
+      )
+    }
+
     const user = await requireAuth()
 
     const body = await request.json()

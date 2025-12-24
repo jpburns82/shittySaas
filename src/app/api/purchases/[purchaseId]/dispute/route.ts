@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { canDispute } from '@/lib/escrow'
 import { alertDisputeOpened } from '@/lib/twilio'
 import { DisputeReason } from '@prisma/client'
+import { validateCSRF } from '@/lib/csrf'
 
 // POST /api/purchases/[purchaseId]/dispute - Buyer opens a dispute
 export async function POST(
@@ -11,6 +12,15 @@ export async function POST(
   { params }: { params: Promise<{ purchaseId: string }> }
 ) {
   try {
+    // CSRF protection
+    const csrfValid = await validateCSRF(request)
+    if (!csrfValid) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request. Please refresh and try again.' },
+        { status: 403 }
+      )
+    }
+
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json(

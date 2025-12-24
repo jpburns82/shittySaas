@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { GitHubConnect } from '@/components/settings/github-connect'
+import { fetchWithCSRF } from '@/lib/fetch-with-csrf'
 
 export default function DashboardSettingsPage() {
   const { data: session, update } = useSession()
@@ -209,7 +210,7 @@ export default function DashboardSettingsPage() {
     }
 
     try {
-      const res = await fetch('/api/user/delete', {
+      const res = await fetchWithCSRF('/api/user/delete', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: deletePassword, confirmation: deleteConfirmation }),

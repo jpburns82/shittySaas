@@ -4,10 +4,20 @@ import { prisma } from '@/lib/prisma'
 import { createCheckoutSession } from '@/lib/stripe'
 import { calculatePlatformFee } from '@/lib/fees'
 import { canPurchase, canGuestPurchase } from '@/lib/buyer-limits'
+import { validateCSRF } from '@/lib/csrf'
 
 // POST /api/stripe/checkout - Create a checkout session
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection
+    const csrfValid = await validateCSRF(request)
+    if (!csrfValid) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request. Please refresh and try again.' },
+        { status: 403 }
+      )
+    }
+
     const session = await auth()
     const body = await request.json()
     const { listingId, guestEmail } = body

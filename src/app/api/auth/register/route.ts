@@ -41,21 +41,21 @@ export async function POST(request: NextRequest) {
       where: { email },
     })
 
+    // Check if email or username already exists (use generic error to prevent enumeration)
     if (existingEmail) {
       return NextResponse.json(
-        { success: false, error: 'Email already registered' },
+        { success: false, error: 'Registration failed. The email or username may already be in use.' },
         { status: 400 }
       )
     }
 
-    // Check if username already exists
     const existingUsername = await prisma.user.findUnique({
       where: { username },
     })
 
     if (existingUsername) {
       return NextResponse.json(
-        { success: false, error: 'Username already taken' },
+        { success: false, error: 'Registration failed. The email or username may already be in use.' },
         { status: 400 }
       )
     }

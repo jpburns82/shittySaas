@@ -5,6 +5,9 @@ import { canDispute } from '@/lib/escrow'
 import { alertDisputeOpened } from '@/lib/twilio'
 import { DisputeReason } from '@prisma/client'
 import { validateCSRF } from '@/lib/csrf'
+import { createLogger } from '@/lib/logger'
+
+const logger = createLogger('dispute')
 
 // POST /api/purchases/[purchaseId]/dispute - Buyer opens a dispute
 export async function POST(
@@ -89,37 +92,40 @@ export async function POST(
       )
     }
 
-    // Update purchase to disputed status
-    const updatedPurchase = await prisma.purchase.update({
-      where: { id: purchaseId },
-      data: {
-        escrowStatus: 'DISPUTED',
-        disputedAt: new Date(),
-        disputeReason: reason,
-        disputeNotes: notes || null,
-      },
-    })
-
-    // Update seller's dispute count
-    await prisma.user.update({
-      where: { id: purchase.sellerId },
-      data: {
-        totalDisputes: { increment: 1 },
-      },
-    })
-
-    // Recalculate dispute rate
-    const seller = await prisma.user.findUnique({
-      where: { id: purchase.sellerId },
-      select: { totalSales: true, totalDisputes: true },
-    })
-    if (seller && seller.totalSales > 0) {
-      const disputeRate = seller.totalDisputes / seller.totalSales
-      await prisma.user.update({
-        where: { id: purchase.sellerId },
-        data: { disputeRate },
+    // Wrap all dispute operations in a single transaction for atomicity
+    const updatedPurchase = await prisma.$transaction(async (tx) => {
+      // 1. Update purchase to disputed status
+      const disputedPurchase = await tx.purchase.update({
+        where: { id: purchaseId },
+        data: {
+          escrowStatus: 'DISPUTED',
+          disputedAt: new Date(),
+          disputeReason: reason,
+          disputeNotes: notes || null,
+        },
       })
-    }
+
+      // 2. Get current seller stats, increment, and recalculate rate atomically
+      const seller = await tx.user.findUnique({
+        where: { id: purchase.sellerId },
+        select: { totalSales: true, totalDisputes: true },
+      })
+
+      const newDisputeCount = (seller?.totalDisputes || 0) + 1
+      const disputeRate = seller && seller.totalSales > 0
+        ? newDisputeCount / seller.totalSales
+        : 0
+
+      await tx.user.update({
+        where: { id: purchase.sellerId },
+        data: {
+          totalDisputes: newDisputeCount,
+          disputeRate,
+        },
+      })
+
+      return disputedPurchase
+    })
 
     // TODO: Send notification emails (Phase 4)
 
@@ -140,7 +146,7 @@ export async function POST(
       },
     })
   } catch (error) {
-    console.error('POST /api/purchases/[purchaseId]/dispute error:', error)
+    logger.error('Failed to open dispute', { error })
     return NextResponse.json(
       { success: false, error: 'Failed to open dispute' },
       { status: 500 }

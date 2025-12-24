@@ -4,7 +4,9 @@
  * Use this for all POST/PUT/DELETE requests to protected endpoints
  */
 
-import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from './csrf'
+// Constants duplicated here to avoid importing server-only code from csrf.ts
+const CSRF_COOKIE_NAME = 'csrf_token'
+const CSRF_HEADER_NAME = 'x-csrf-token'
 
 /**
  * Get CSRF token from cookie

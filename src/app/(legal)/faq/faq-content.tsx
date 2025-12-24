@@ -6,182 +6,94 @@ import { APP_NAME } from '@/lib/constants'
 
 const generalFAQ = [
   {
-    question: 'What is UndeadList?',
+    question: `What is ${APP_NAME}?`,
     answer: (
       <p>
-        A flea market for indie software — side projects, dusty repos, and hidden gems
-        that deserve a second life. No MRR requirements, no subscriber minimums.
-        You built it? Sell it.
+        {APP_NAME} is a marketplace for software projects, SaaS platforms, and digital
+        assets. We connect developers who have built functional tools with buyers looking
+        for established codebases to grow or integrate.
       </p>
     ),
   },
   {
-    question: 'Who is UndeadList for?',
+    question: 'Who is it for?',
     answer: (
-      <>
-        <p>
-          Solo devs with dusty repos. Vibe coders who built something cool with Replit
-          or Lovable but don&apos;t know how to monetize it. Indie hackers who moved on.
-          Anyone with a project collecting dust that could be someone else&apos;s solution.
-        </p>
-        <p className="mt-2">
-          <strong>Target users:</strong> AI builders (Claude users), vibe coders,
-          indie hackers, devs with shelved side projects.
-        </p>
-      </>
+      <p>
+        Independent developers, AI builders (Vibe Coders), and indie hackers. Whether
+        you are offloading a side project or looking for a &quot;starter kit&quot; for
+        your next venture, this is the venue for it.
+      </p>
     ),
   },
 ]
 
 const sellingFAQ = [
   {
-    question: 'How do I sell a project?',
-    answer: (
-      <>
-        <p>It&apos;s simple:</p>
-        <ol className="mt-2 space-y-1">
-          <li>1. Create an account</li>
-          <li>2. Connect your Stripe account (for payouts)</li>
-          <li>3. List your project with a description and screenshots</li>
-          <li>4. Set your price</li>
-          <li>5. When someone buys, you get paid directly to Stripe minus our fee</li>
-        </ol>
-      </>
-    ),
-  },
-  {
-    question: 'What can I sell?',
-    answer: (
-      <>
-        <p>If you built it and own it, you can sell it:</p>
-        <ul className="mt-2 space-y-1">
-          <li>SaaS apps</li>
-          <li>Scripts and utilities</li>
-          <li>Boilerplates and starter kits</li>
-          <li>Templates (code, design, etc.)</li>
-          <li>Browser extensions</li>
-          <li>Mobile apps</li>
-          <li>APIs and microservices</li>
-          <li>Domains with attached projects</li>
-          <li>AI tools and integrations</li>
-          <li>Games and game assets</li>
-        </ul>
-      </>
-    ),
-  },
-  {
-    question: 'What are the fees?',
+    question: 'How do I list my project?',
     answer: (
       <>
         <p>
-          We keep fees low because we&apos;re here to help devs, not take their money:
-        </p>
-        <ul className="mt-3 space-y-2">
-          <li>
-            <strong>Under $25:</strong> 2%
-          </li>
-          <li>
-            <strong>$25 – $100:</strong> 3%
-          </li>
-          <li>
-            <strong>$100 – $500:</strong> 4%
-          </li>
-          <li>
-            <strong>$500 – $2,000:</strong> 5%
-          </li>
-          <li>
-            <strong>$2,000+:</strong> 6%
-          </li>
-        </ul>
-        <p className="mt-3 text-text-muted">
-          Minimum fee: $0.50 per transaction.
-        </p>
-        <p className="mt-2 text-text-muted">
-          Compare that to Gumroad&apos;s flat 10%.
+          Connect your Stripe account via the Dashboard, click &quot;New Listing,&quot;
+          and provide your project details. You can choose between Instant Download,
+          Repository Access, or Manual Transfer.
         </p>
       </>
     ),
   },
   {
-    question: 'When do I get paid?',
+    question: 'What are the platform fees?',
     answer: (
       <>
-        <p>
-          Payments are held during the buyer protection period, then released automatically:
+        <p>We use a sliding scale based on the sale price:</p>
+        <div className="overflow-x-auto my-3">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border-crypt">
+                <th className="text-left py-2 pr-4">Sale Price</th>
+                <th className="text-left py-2">Platform Fee</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-border-crypt/50">
+                <td className="py-2 pr-4">Under $25</td>
+                <td className="py-2">2%</td>
+              </tr>
+              <tr className="border-b border-border-crypt/50">
+                <td className="py-2 pr-4">$25 – $100</td>
+                <td className="py-2">3%</td>
+              </tr>
+              <tr className="border-b border-border-crypt/50">
+                <td className="py-2 pr-4">$100 – $500</td>
+                <td className="py-2">4%</td>
+              </tr>
+              <tr className="border-b border-border-crypt/50">
+                <td className="py-2 pr-4">$500 – $2,000</td>
+                <td className="py-2">5%</td>
+              </tr>
+              <tr>
+                <td className="py-2 pr-4">$2,000+</td>
+                <td className="py-2">6%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-text-muted">
+          The minimum fee is $0.50 per transaction.
         </p>
+      </>
+    ),
+  },
+  {
+    question: 'What are Seller Tiers?',
+    answer: (
+      <>
+        <p>Listing limits are based on your reputation to ensure marketplace quality:</p>
         <ul className="mt-2 space-y-1">
-          <li><strong>Instant Downloads (verified + scanned):</strong> Instant</li>
-          <li><strong>Instant Downloads (new seller):</strong> 72 hours</li>
-          <li><strong>Repository Access:</strong> 72 hours</li>
-          <li><strong>Manual Transfer:</strong> 7 days</li>
-          <li><strong>Domain Transfer:</strong> 14 days</li>
+          <li><strong>New:</strong> 1 active listing</li>
+          <li><strong>Verified (1+ Sale):</strong> 3 active listings</li>
+          <li><strong>Trusted (3+ Sales):</strong> 10 active listings</li>
+          <li><strong>Pro (10+ Sales):</strong> Unlimited</li>
         </ul>
-        <p className="mt-2">
-          After release, Stripe deposits to your bank in 2-7 business days.
-        </p>
-      </>
-    ),
-  },
-  {
-    question: 'What are the listing limits?',
-    answer: (
-      <>
-        <p>Limits based on your seller tier:</p>
-        <ul className="mt-2 space-y-1">
-          <li><strong>NEW (0 sales):</strong> 1 active listing</li>
-          <li><strong>VERIFIED (1+ sales):</strong> 3 active listings</li>
-          <li><strong>TRUSTED (3+ sales):</strong> 10 active listings</li>
-          <li><strong>PRO (10+ sales):</strong> Unlimited</li>
-        </ul>
-        <p className="mt-2">
-          Your tier upgrades automatically when you complete sales.
-        </p>
-      </>
-    ),
-  },
-  {
-    question: 'Why do I need to connect Stripe?',
-    answer: (
-      <>
-        <p>Stripe Connect handles:</p>
-        <ul className="mt-2 space-y-1">
-          <li>Identity verification (required for marketplace sellers)</li>
-          <li>Secure payment processing</li>
-          <li>Direct deposits to your bank account</li>
-        </ul>
-        <p className="mt-2">
-          You keep your own Stripe account — we never hold your money long-term.
-        </p>
-      </>
-    ),
-  },
-  {
-    question: 'Which delivery method should I use?',
-    answer: (
-      <>
-        <p>Choose based on what you&apos;re selling:</p>
-        <p className="mt-3">
-          <strong>Instant Download</strong> — Scripts, templates, boilerplates, design assets, games.
-          Files hosted on UndeadList. Buyer downloads immediately.
-          Protection: 72 hours (instant if verified + scanned).
-        </p>
-        <p className="mt-2">
-          <strong>Repository Access</strong> — SaaS apps, open source projects, code with git history.
-          You add the buyer as a collaborator to your repo.
-          Protection: 72 hours.
-        </p>
-        <p className="mt-2">
-          <strong>Manual Transfer</strong> — Social accounts, newsletters, communities, complex handoffs.
-          You handle the transfer directly with the buyer via messages.
-          Protection: 7 days.
-        </p>
-        <p className="mt-2">
-          <strong>Domain Transfer</strong> — Domains, landing pages, accounts requiring registrar changes.
-          Protection: 14 days.
-        </p>
-        <p className="mt-3 text-text-muted">
-          For sales $2,000+, consider using <a href="https://escrow.com" target="_blank" rel="noopener noreferrer">Escrow.com</a> for additional protection.
-        </p>
       </>
     ),
   },
@@ -189,88 +101,36 @@ const sellingFAQ = [
 
 const buyingFAQ = [
   {
-    question: 'How do I buy a project?',
+    question: 'How does Buyer Protection work?',
     answer: (
       <>
         <p>
-          Find something you want, click Buy, pay with card. For digital downloads,
-          you get instant access. For full project transfers, coordinate with the
-          seller via messages.
+          When you purchase a project, {APP_NAME} holds the funds in a secure state
+          until the verification period expires. This ensures you receive the assets
+          as described before the seller is paid.
         </p>
-      </>
-    ),
-  },
-  {
-    question: 'How does buyer protection work?',
-    answer: (
-      <>
-        <p>
-          When you purchase, payment is held before being released to the seller.
-          This gives you time to verify your purchase and report any issues.
-        </p>
-        <p className="mt-2"><strong>Protection periods by delivery type:</strong></p>
+        <p className="mt-3"><strong>Release Windows:</strong></p>
         <ul className="mt-2 space-y-1">
-          <li><strong>Instant Downloads (verified seller):</strong> Instant release</li>
-          <li><strong>Instant Downloads (new seller):</strong> Up to 72 hours</li>
-          <li><strong>Repository Access:</strong> 72 hours</li>
+          <li><strong>Instant Download (Verified Seller):</strong> Immediate release</li>
+          <li><strong>Instant Download (New Seller) / Repo Access:</strong> 72 hours</li>
           <li><strong>Manual Transfer:</strong> 7 days</li>
           <li><strong>Domain Transfer:</strong> 14 days</li>
         </ul>
-        <p className="mt-2">
-          During protection, you can report issues via the &quot;Report Issue&quot; button on your purchase.
-        </p>
       </>
     ),
   },
   {
-    question: 'What do the seller badges mean?',
-    answer: (
-      <>
-        <p>Badges show a seller&apos;s track record:</p>
-        <ul className="mt-2 space-y-1">
-          <li><strong>NEW (gray):</strong> 0 completed sales</li>
-          <li><strong>VERIFIED (blue):</strong> 1+ sales</li>
-          <li><strong>TRUSTED (green):</strong> 3+ sales</li>
-          <li><strong>PRO (gold):</strong> 10+ sales</li>
-        </ul>
-        <p className="mt-2">
-          Look for the <strong>GitHub ✓</strong> badge — it means the seller proved they own the linked repository.
-        </p>
-      </>
-    ),
-  },
-  {
-    question: "What if there's a problem?",
+    question: 'What if the project is not as described?',
     answer: (
       <>
         <p>
-          <strong>During buyer protection:</strong> Click &quot;Report Issue&quot; on your purchase.
-          Select the reason (empty files, not as described, malware, etc.).
-          Our team reviews and may pause the payment release.
+          If there is a critical issue (malware, missing files, or misleading description),
+          you must click &quot;Report Issue&quot; on the purchase page before the protection
+          timer expires. This pauses the fund release and initiates a manual review.
         </p>
-        <p className="mt-2">
-          <strong>After protection expires:</strong> Contact the seller directly.
-          Once funds are released, disputes are much harder to resolve.
-        </p>
-        <p className="mt-2">
-          <strong>For purchases over $2,000:</strong> We recommend using a third-party
-          escrow service like <a href="https://escrow.com" target="_blank" rel="noopener noreferrer">Escrow.com</a> for peace of mind.
-        </p>
-      </>
-    ),
-  },
-  {
-    question: "Why can't I buy more today?",
-    answer: (
-      <>
-        <p>New accounts have daily spend limits for fraud prevention:</p>
-        <ul className="mt-2 space-y-1">
-          <li><strong>New buyers:</strong> $250/day</li>
-          <li><strong>After 1 purchase:</strong> $500/day</li>
-          <li><strong>After 3 purchases:</strong> $1,000/day</li>
-        </ul>
-        <p className="mt-2">
-          Limits reset at midnight UTC and increase automatically as you complete purchases.
+        <p className="mt-2 text-text-muted">
+          <strong>Note:</strong> We only review messages sent through the {APP_NAME} platform
+          during dispute mediation.
         </p>
       </>
     ),
@@ -279,82 +139,26 @@ const buyingFAQ = [
 
 const trustFAQ = [
   {
-    question: 'How are files scanned for malware?',
+    question: 'How is code scanned for security?',
     answer: (
       <>
         <p>
-          Every uploaded file is scanned via VirusTotal (70+ antivirus engines).
-          Files flagged as malicious are rejected.
+          All uploaded files are automatically scanned via VirusTotal against 70+
+          antivirus engines. Projects that pass are marked with the ✓ Scanned badge.
         </p>
-        <p className="mt-2">Look for the scan badge:</p>
-        <ul className="mt-2 space-y-1">
-          <li><strong>✓ Scanned:</strong> Passed security check</li>
-          <li><strong>⏳ Pending:</strong> Scan in progress</li>
-          <li><strong>⚠️ Review:</strong> Flagged for manual review</li>
-        </ul>
       </>
     ),
   },
   {
-    question: 'How does GitHub verification work?',
+    question: 'How does ownership verification work?',
     answer: (
       <>
         <p>
-          Sellers can connect their GitHub account to prove repo ownership.
-          When a listing links to a repo the seller owns, it shows the <strong>GitHub ✓</strong> badge.
+          Sellers can link their GitHub profiles. When a listing corresponds to a
+          verified repository owned by the seller, it receives the GitHub ✓ badge.
         </p>
         <p className="mt-2">
           Connect GitHub in <Link href="/dashboard/settings">Dashboard → Settings</Link>.
-        </p>
-      </>
-    ),
-  },
-  {
-    question: 'What happens if there\'s a dispute?',
-    answer: (
-      <>
-        <p>During the buyer protection period:</p>
-        <ol className="mt-2 space-y-1">
-          <li>1. Click &quot;Report Issue&quot; on your purchase</li>
-          <li>2. Select the reason (empty files, not as described, malware, etc.)</li>
-          <li>3. Our team reviews and may pause the payment release</li>
-          <li>4. We work with both parties to resolve</li>
-        </ol>
-        <p className="mt-2">
-          After protection expires, funds are released and disputes are harder to resolve.
-        </p>
-      </>
-    ),
-  },
-]
-
-const accountFAQ = [
-  {
-    question: 'How do I delete my account?',
-    answer: (
-      <>
-        <p>
-          Go to <Link href="/dashboard/settings">Dashboard → Settings</Link> and
-          click &quot;Delete Account&quot; at the bottom.
-        </p>
-        <p className="mt-2">
-          Your data will be removed within 30 days. Transaction records are
-          anonymized but retained for legal/tax purposes.
-        </p>
-      </>
-    ),
-  },
-  {
-    question: 'How do I get paid?',
-    answer: (
-      <>
-        <p>
-          We use Stripe Connect. When you sell something, the money goes directly
-          to your Stripe account, minus our platform fee.
-        </p>
-        <p className="mt-2">
-          Payouts follow Stripe&apos;s schedule — typically 2-7 business days depending
-          on your country and account status.
         </p>
       </>
     ),
@@ -375,14 +179,11 @@ export function FAQContent() {
       <h2>Selling</h2>
       <Accordion items={sellingFAQ} />
 
-      <h2>Buying</h2>
+      <h2>Buying &amp; Protection</h2>
       <Accordion items={buyingFAQ} />
 
       <h2>Trust &amp; Safety</h2>
       <Accordion items={trustFAQ} />
-
-      <h2>Account</h2>
-      <Accordion items={accountFAQ} />
 
       <div className="mt-12 card">
         <h3 className="text-lg font-display mb-2">Still have questions?</h3>

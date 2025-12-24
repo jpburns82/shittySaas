@@ -11,159 +11,87 @@ export default function PrivacyPage() {
   return (
     <>
       <h1 className="font-display">Privacy Policy</h1>
-      <p className="text-text-muted mb-8">Last updated: December 2025</p>
+      <p className="text-text-muted mb-8">Last updated: December 23, 2025</p>
 
+      <h2>We&apos;re devs too.</h2>
       <p>
-        We&apos;re devs too. We hate invasive data practices as much as you do. Here&apos;s
-        exactly what we collect and why.
+        We hate invasive data practices. We collect only what is necessary to run
+        the marketplace, prevent fraud, and keep your account secure.
       </p>
 
-      <h2>Data We Collect</h2>
-
-      <h3>Account Information</h3>
-      <p>When you sign up, we collect:</p>
+      <h2>Data Collection &amp; Use</h2>
       <ul>
-        <li><strong>Email address</strong> — for login, notifications, and password resets</li>
-        <li><strong>Username</strong> — for your public profile</li>
-        <li><strong>Password</strong> — stored encrypted (bcrypt), we can&apos;t see it</li>
-      </ul>
-
-      <h3>Profile Information (Optional)</h3>
-      <p>You can add:</p>
-      <ul>
-        <li>Display name</li>
-        <li>Bio</li>
-        <li>Website and social links</li>
-        <li>Profile photo</li>
-      </ul>
-
-      <h3>Listing Data</h3>
-      <p>When you create listings:</p>
-      <ul>
-        <li>Listing content (title, description, screenshots)</li>
-        <li>Pricing information</li>
-        <li>Uploaded files for delivery</li>
-      </ul>
-
-      <h3>Messages</h3>
-      <p>
-        We store messages between buyers and sellers to facilitate transactions
-        and help with dispute resolution if needed.
-      </p>
-
-      <h3>Usage Data</h3>
-      <p>Basic analytics to improve the platform:</p>
-      <ul>
-        <li>Pages visited</li>
-        <li>Time on site</li>
-        <li>Browser and device type</li>
-        <li>IP address (for security/fraud prevention)</li>
-      </ul>
-
-      <h2>Payment Data</h2>
-      <p>
-        <strong>We never see or store your card numbers.</strong> All payment processing
-        is handled by Stripe. When you make a purchase, your payment info goes directly
-        to Stripe&apos;s secure servers.
-      </p>
-      <p>
-        What we do store: transaction records (amounts, dates, status) for your purchase
-        history and seller payouts.
-      </p>
-
-      <h2>Cookies</h2>
-      <p>
-        We use cookies for authentication and sessions only. No tracking cookies,
-        no ad networks, no creepy stuff.
-      </p>
-      <ul>
-        <li><strong>Session cookie</strong> — keeps you logged in</li>
-        <li><strong>CSRF token</strong> — security measure</li>
+        <li>
+          <strong>Account Data:</strong> Email (notifications/login), Username (public),
+          and Password (salted/hashed via bcrypt).
+        </li>
+        <li>
+          <strong>Listing &amp; Transaction Data:</strong> We store listing content,
+          uploaded files, and transaction history. This is required for delivery and
+          tax compliance.
+        </li>
+        <li>
+          <strong>Communication:</strong> We store on-platform messages to resolve disputes.
+        </li>
+        <li>
+          <strong>Financial Data:</strong> We use Stripe for payments. {APP_NAME} never
+          stores your credit card numbers. Stripe shares a &quot;token&quot; with us and
+          the last 4 digits for support purposes.
+        </li>
+        <li>
+          <strong>Technical Data:</strong> IP addresses and browser types are logged for
+          security and fraud prevention only (90-day retention).
+        </li>
       </ul>
 
       <h2>What We DON&apos;T Do</h2>
       <ul>
-        <li>We don&apos;t sell your data to anyone</li>
-        <li>We don&apos;t share your data with advertisers</li>
-        <li>We don&apos;t use your data for AI training</li>
-        <li>We don&apos;t track you across other websites</li>
+        <li>
+          <strong>No Selling Data:</strong> We never sell your info to third parties or
+          advertisers.
+        </li>
+        <li>
+          <strong>No AI Training:</strong> Your code and data are never used to train
+          LLMs or AI models.
+        </li>
+        <li>
+          <strong>No Tracking:</strong> We don&apos;t use &quot;creepy&quot; cross-site
+          tracking pixels.
+        </li>
       </ul>
 
-      <h2>When We Share Data</h2>
-      <p>We only share your data in these cases:</p>
+      <h2>Cookie Policy</h2>
+      <p>We use &quot;Essential Cookies&quot; only:</p>
+      <ol>
+        <li>
+          <strong>Session:</strong> To keep you logged in.
+        </li>
+        <li>
+          <strong>CSRF:</strong> To prevent cross-site request forgery attacks.
+        </li>
+      </ol>
+
+      <h2>Data Retention &amp; Deletion</h2>
       <ul>
         <li>
-          <strong>With Stripe</strong> — for payment processing (required to take payments)
+          <strong>Account Deletion:</strong> You can delete your account via{' '}
+          <Link href="/dashboard/settings">Settings</Link>. Most data is wiped within
+          30 days.
         </li>
         <li>
-          <strong>With email providers</strong> — to send you transactional emails
-          (purchase confirmations, password resets)
+          <strong>Legal Hold:</strong> Transaction records and tax-related data are
+          retained for 7 years as required by law.
         </li>
         <li>
-          <strong>If legally required</strong> — court orders, subpoenas, etc.
+          <strong>Security Logs:</strong> Automatically purged after 90 days.
         </li>
       </ul>
 
-      <h2>Data Retention</h2>
-      <ul>
-        <li>
-          <strong>Account data</strong> — kept until you delete your account
-        </li>
-        <li>
-          <strong>Transaction records</strong> — kept for 7 years (required for
-          tax/legal purposes)
-        </li>
-        <li>
-          <strong>Messages</strong> — kept until you delete your account
-        </li>
-        <li>
-          <strong>Logs</strong> — automatically deleted after 90 days
-        </li>
-      </ul>
-
-      <h2>Deleting Your Data</h2>
+      <h2>Strict 18+ Policy</h2>
       <p>
-        You can delete your account at any time from{' '}
-        <Link href="/dashboard/settings">Dashboard → Settings</Link>.
-      </p>
-      <p>When you delete your account:</p>
-      <ul>
-        <li>Your profile and listings are removed immediately</li>
-        <li>Your data is fully deleted within 30 days</li>
-        <li>
-          Transaction records are anonymized but retained (legal requirement)
-        </li>
-      </ul>
-
-      <h2>Your Rights</h2>
-      <p>You have the right to:</p>
-      <ul>
-        <li>Access your data (check your profile and dashboard)</li>
-        <li>Correct inaccurate data</li>
-        <li>Delete your account</li>
-        <li>Export your data (contact us)</li>
-        <li>Opt out of marketing emails (one-click unsubscribe)</li>
-      </ul>
-
-      <h2>Security</h2>
-      <p>We protect your data with:</p>
-      <ul>
-        <li>HTTPS encryption on all connections</li>
-        <li>Encrypted password storage (bcrypt)</li>
-        <li>Secure session handling</li>
-        <li>Regular security reviews</li>
-      </ul>
-
-      <h2>Children</h2>
-      <p>
-        {APP_NAME} is not intended for users under 18. We don&apos;t knowingly collect
-        data from minors.
-      </p>
-
-      <h2>Changes to This Policy</h2>
-      <p>
-        If we make significant changes to this policy, we&apos;ll notify you via email
-        or a notice on the site.
+        {APP_NAME} is strictly for users aged 18 and older. We do not knowingly collect
+        data from minors. If we discover an account belongs to a minor, it will be
+        terminated immediately and all associated data deleted.
       </p>
 
       <h2>Contact</h2>

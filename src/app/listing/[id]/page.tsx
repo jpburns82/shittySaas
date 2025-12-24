@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: ListingPageProps) {
       title: true,
       shortDescription: true,
       thumbnailUrl: true,
+      techStack: true,
     },
   })
 
@@ -30,11 +31,19 @@ export async function generateMetadata({ params }: ListingPageProps) {
     return { title: 'Listing Not Found' }
   }
 
+  // Add tech stack to title, but keep under 60 chars for Google SEO
+  const techStack = listing.techStack?.slice(0, 2).join(', ') || ''
+  const baseTitle = listing.title
+  // Only add stack if total stays under 50 chars (leaves room for " | UndeadList")
+  const fullTitle = techStack && (baseTitle.length + techStack.length + 5) < 50
+    ? `${baseTitle} (${techStack})`
+    : baseTitle
+
   return {
-    title: listing.title,
+    title: fullTitle,
     description: listing.shortDescription,
     openGraph: {
-      title: listing.title,
+      title: fullTitle,
       description: listing.shortDescription,
       images: listing.thumbnailUrl ? [listing.thumbnailUrl] : [],
     },
@@ -229,6 +238,35 @@ export default async function ListingPage({ params }: ListingPageProps) {
         listingId={listing.id}
         listingOwnerId={listing.sellerId}
         initialCommentCount={listing._count.comments}
+      />
+
+      {/* JSON-LD Product Schema for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: listing.title,
+            description: listing.shortDescription,
+            image: listing.thumbnailUrl,
+            category: listing.category?.name,
+            offers: {
+              '@type': 'Offer',
+              url: `https://undeadlist.com/listing/${listing.slug}`,
+              price: (listing.priceInCents ?? 0) / 100,
+              priceCurrency: 'USD',
+              availability:
+                listing.status === 'ACTIVE'
+                  ? 'https://schema.org/InStock'
+                  : 'https://schema.org/SoldOut',
+              seller: {
+                '@type': 'Person',
+                name: listing.seller?.displayName || listing.seller?.username,
+              },
+            },
+          }),
+        }}
       />
     </div>
   )

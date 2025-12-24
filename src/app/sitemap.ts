@@ -68,5 +68,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }))
 
-  return [...staticPages, ...listingPages, ...categoryPages, ...userPages]
+  // Stack/technology pages for SEO
+  const stackSlugs = [
+    'nextjs',
+    'react',
+    'typescript',
+    'tailwind',
+    'prisma',
+    'supabase',
+    'stripe',
+    'python',
+    'node',
+    'rust',
+    'tauri',
+    'electron',
+    'openai',
+    'langchain',
+    'vue',
+    'svelte',
+    'astro',
+    'remix',
+    'express',
+    'fastapi',
+  ]
+
+  const stackPages = stackSlugs.map(slug => ({
+    url: `${baseUrl}/stack/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
+  return [...staticPages, ...listingPages, ...categoryPages, ...userPages, ...stackPages]
 }

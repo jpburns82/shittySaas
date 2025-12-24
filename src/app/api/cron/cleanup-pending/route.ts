@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createLogger } from '@/lib/logger'
+import { TIME_MS, STALE_THRESHOLDS } from '@/lib/constants'
 
 const log = createLogger('cleanup-pending')
 
@@ -20,8 +21,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Calculate 24 hours ago
-    const staleThreshold = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    // Calculate threshold based on configured stale hours
+    const staleThreshold = new Date(Date.now() - STALE_THRESHOLDS.PENDING_PURCHASE_HOURS * TIME_MS.HOUR)
 
     // Find stale pending purchases
     const stalePurchases = await prisma.purchase.findMany({

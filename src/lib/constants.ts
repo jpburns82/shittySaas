@@ -211,6 +211,25 @@ export const GUEST_DAILY_LIMIT_CENTS = 5000 // $50/day for guests
 
 export type BuyerTierKey = keyof typeof BUYER_TIER_CONFIG
 
+// ----- TIME CONSTANTS -----
+
+/**
+ * Common time durations in milliseconds for consistency across the codebase
+ */
+export const TIME_MS = {
+  HOUR: 60 * 60 * 1000,
+  DAY: 24 * 60 * 60 * 1000,
+  WEEK: 7 * 24 * 60 * 60 * 1000,
+  MONTH: 30 * 24 * 60 * 60 * 1000,
+} as const
+
+/**
+ * Stale thresholds for cleanup jobs
+ */
+export const STALE_THRESHOLDS = {
+  PENDING_PURCHASE_HOURS: 24,
+} as const
+
 // ----- ESCROW DURATIONS -----
 
 /**

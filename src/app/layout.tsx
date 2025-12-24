@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Bungee, Dela_Gothic_One } from 'next/font/google'
+import Script from 'next/script'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Providers } from '@/components/providers'
@@ -72,6 +73,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
+      <head>
+        {/* Plausible Analytics - privacy-friendly analytics */}
+        <Script
+          defer
+          data-domain="undeadlist.com"
+          src="https://plausible.io/js/script.js"
+          strategy="afterInteractive"
+        />
+      </head>
       <body className={`${bungee.variable} ${delaGothic.variable} min-h-screen flex flex-col bg-bg-crypt text-text-bone`}>
         <Providers>
           <Header />

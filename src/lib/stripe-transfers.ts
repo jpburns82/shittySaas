@@ -1,4 +1,7 @@
 import { stripe } from './stripe'
+import { createLogger } from './logger'
+
+const log = createLogger('stripe-transfers')
 
 /**
  * Stripe Transfer Utilities for Escrow System
@@ -43,7 +46,12 @@ export async function releaseToSeller(
       transferId: transfer.id,
     }
   } catch (error) {
-    console.error('Failed to release funds to seller:', error)
+    log.error('Failed to release funds to seller', {
+      purchaseId,
+      sellerAccountId,
+      amountCents,
+      error: error instanceof Error ? error.message : String(error),
+    })
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Transfer failed',
@@ -81,7 +89,11 @@ export async function refundBuyer(
       refundId: refund.id,
     }
   } catch (error) {
-    console.error('Failed to refund buyer:', error)
+    log.error('Failed to refund buyer', {
+      purchaseId,
+      paymentIntentId,
+      error: error instanceof Error ? error.message : String(error),
+    })
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Refund failed',
@@ -119,7 +131,12 @@ export async function refundBuyerPartial(
       refundId: refund.id,
     }
   } catch (error) {
-    console.error('Failed to partially refund buyer:', error)
+    log.error('Failed to partially refund buyer', {
+      purchaseId,
+      paymentIntentId,
+      amountCents,
+      error: error instanceof Error ? error.message : String(error),
+    })
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Partial refund failed',
@@ -145,7 +162,10 @@ export async function getChargeIdFromPaymentIntent(
 
     return null
   } catch (error) {
-    console.error('Failed to get charge ID:', error)
+    log.error('Failed to get charge ID from payment intent', {
+      paymentIntentId,
+      error: error instanceof Error ? error.message : String(error),
+    })
     return null
   }
 }

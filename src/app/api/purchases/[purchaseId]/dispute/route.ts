@@ -127,7 +127,11 @@ export async function POST(
       return disputedPurchase
     })
 
-    // TODO: Send notification emails (Phase 4)
+    // GITHUB_ISSUE: Add dispute notification emails
+    // When a buyer opens a dispute, send email notifications to:
+    // - Seller: notify them a dispute was opened, include reason
+    // - Buyer: confirm their dispute was submitted
+    // Implementation: Create sendDisputeOpenedEmail() in src/lib/email.ts
 
     // Send Twilio alert to admin
     await alertDisputeOpened(

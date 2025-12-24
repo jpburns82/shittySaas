@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
   // Prevent ws package from being bundled (causes production errors)
@@ -20,6 +21,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '*.r2.cloudflarestorage.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'undeadlist.com',
         pathname: '/**',
       },
     ],
@@ -64,11 +70,11 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://plausible.io",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://*.r2.dev https://*.r2.cloudflarestorage.com https://*.stripe.com",
+              "img-src 'self' data: blob: https://*.r2.dev https://*.r2.cloudflarestorage.com https://*.stripe.com https://undeadlist.com",
               "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
-              "connect-src 'self' https://*.stripe.com wss://q.stripe.com",
+              "connect-src 'self' https://*.stripe.com wss://q.stripe.com https://*.ingest.sentry.io https://plausible.io",
               "font-src 'self'",
             ].join('; '),
           },
@@ -86,4 +92,37 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+// Sentry configuration options
+const sentryWebpackPluginOptions = {
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options
+
+  org: "undeadlist",
+  project: "javascript-nextjs",
+
+  // Only print logs for uploading source maps in CI
+  silent: !process.env.CI,
+
+  // Upload a larger set of source maps for prettier stack traces (increases build time)
+  widenClientFileUpload: true,
+
+  // Hides source maps from generated client bundles
+  hideSourceMaps: true,
+
+  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
+  tunnelRoute: "/monitoring",
+
+  // Webpack configuration for Sentry
+  webpack: {
+    // Tree-shake Sentry debug logging statements
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    // Annotate React components for better debugging
+    reactComponentAnnotation: {
+      enabled: true,
+    },
+  },
+}
+
+export default withSentryConfig(nextConfig, sentryWebpackPluginOptions)

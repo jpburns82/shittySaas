@@ -8,7 +8,10 @@ import { releaseToSellerByPaymentIntent } from '@/lib/stripe-transfers'
 import { alertHighValueSale } from '@/lib/twilio'
 import { getSellerTier } from '@/lib/seller-limits'
 import { getBuyerTier } from '@/lib/buyer-limits'
+import { createLogger } from '@/lib/logger'
 import Stripe from 'stripe'
+
+const log = createLogger('stripe-webhook')
 
 // Disable body parsing for webhooks
 export const runtime = 'nodejs'
@@ -60,7 +63,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error('Webhook error:', error)
+    log.error('Webhook processing error', {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }
@@ -118,38 +123,37 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       },
     })
 
-    // 2. Update seller tier atomically (inside transaction)
-    const salesCount = await tx.purchase.count({
-      where: {
-        sellerId: updatedPurchase.seller.id,
-        status: 'COMPLETED',
-      },
-    })
-    const newSellerTier = getSellerTier(salesCount)
-    await tx.user.update({
+    // 2. Update seller tier atomically using increment to prevent race conditions
+    // Increment is atomic even with concurrent transactions, preventing count drift
+    const updatedSeller = await tx.user.update({
       where: { id: updatedPurchase.seller.id },
       data: {
-        sellerTier: newSellerTier,
-        totalSales: salesCount,
+        totalSales: { increment: 1 },
       },
     })
-
-    // 3. Update buyer tier atomically (if not guest)
-    if (updatedPurchase.buyerId) {
-      const purchaseCount = await tx.purchase.count({
-        where: {
-          buyerId: updatedPurchase.buyerId,
-          status: 'COMPLETED',
-        },
-      })
-      const newBuyerTier = getBuyerTier(purchaseCount)
+    const newSellerTier = getSellerTier(updatedSeller.totalSales)
+    if (updatedSeller.sellerTier !== newSellerTier) {
       await tx.user.update({
+        where: { id: updatedPurchase.seller.id },
+        data: { sellerTier: newSellerTier },
+      })
+    }
+
+    // 3. Update buyer tier atomically using increment (if not guest)
+    if (updatedPurchase.buyerId) {
+      const updatedBuyer = await tx.user.update({
         where: { id: updatedPurchase.buyerId },
         data: {
-          buyerTier: newBuyerTier,
-          totalPurchases: purchaseCount,
+          totalPurchases: { increment: 1 },
         },
       })
+      const newBuyerTier = getBuyerTier(updatedBuyer.totalPurchases)
+      if (updatedBuyer.buyerTier !== newBuyerTier) {
+        await tx.user.update({
+          where: { id: updatedPurchase.buyerId },
+          data: { buyerTier: newBuyerTier },
+        })
+      }
     }
 
     return updatedPurchase
@@ -178,7 +182,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         purchase.amountPaidCents
       )
     } catch (error) {
-      console.error(`[webhook] Failed to send purchase confirmation to ${buyerEmail}:`, error)
+      log.error('Failed to send purchase confirmation email', {
+        buyerEmail,
+        purchaseId,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -191,7 +199,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         purchase.buyer?.username || 'Guest'
       )
     } catch (error) {
-      console.error(`[webhook] Failed to send sale notification to ${purchase.seller.email}:`, error)
+      log.error('Failed to send sale notification email', {
+        sellerEmail: purchase.seller.email,
+        purchaseId,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -200,57 +212,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     try {
       await alertHighValueSale(purchase.listing.title, purchase.amountPaidCents)
     } catch (error) {
-      console.error(`[webhook] Failed to send high-value sale alert:`, error)
+      log.error('Failed to send high-value sale alert', {
+        purchaseId,
+        amountCents: purchase.amountPaidCents,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
-}
-
-// Update seller tier based on completed sales count
-// Wrapped in transaction for atomicity when called standalone
-// Prefixed with underscore - kept for potential future callers outside main webhook flow
-async function _updateSellerTier(sellerId: string) {
-  await prisma.$transaction(async (tx) => {
-    const salesCount = await tx.purchase.count({
-      where: {
-        sellerId,
-        status: 'COMPLETED',
-      },
-    })
-
-    const newTier = getSellerTier(salesCount)
-
-    await tx.user.update({
-      where: { id: sellerId },
-      data: {
-        sellerTier: newTier,
-        totalSales: salesCount,
-      },
-    })
-  })
-}
-
-// Update buyer tier based on completed purchases count
-// Wrapped in transaction for atomicity when called standalone
-// Prefixed with underscore - kept for potential future callers outside main webhook flow
-async function _updateBuyerTier(buyerId: string) {
-  await prisma.$transaction(async (tx) => {
-    const purchaseCount = await tx.purchase.count({
-      where: {
-        buyerId,
-        status: 'COMPLETED',
-      },
-    })
-
-    const newTier = getBuyerTier(purchaseCount)
-
-    await tx.user.update({
-      where: { id: buyerId },
-      data: {
-        buyerTier: newTier,
-        totalPurchases: purchaseCount,
-      },
-    })
-  })
 }
 
 async function handleAccountUpdated(account: Stripe.Account) {
@@ -278,41 +246,47 @@ async function handleFeaturedPurchaseCompleted(session: Stripe.Checkout.Session)
   const featuredPurchaseId = session.metadata?.featuredPurchaseId
   if (!featuredPurchaseId) return
 
-  // Update featured purchase status
-  const featuredPurchase = await prisma.featuredPurchase.update({
-    where: { id: featuredPurchaseId },
-    data: {
-      stripePaymentIntentId: (session.payment_intent as string) || null,
-      status: 'ACTIVE',
-    },
-    include: {
-      listing: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          sellerId: true,
+  // Wrap all database operations in a single transaction for atomicity
+  // This ensures featuredPurchase update and listing update succeed or fail together
+  const { featuredPurchase, seller } = await prisma.$transaction(async (tx) => {
+    // 1. Update featured purchase status
+    const updatedFeaturedPurchase = await tx.featuredPurchase.update({
+      where: { id: featuredPurchaseId },
+      data: {
+        stripePaymentIntentId: (session.payment_intent as string) || null,
+        status: 'ACTIVE',
+      },
+      include: {
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            sellerId: true,
+          },
         },
       },
-    },
+    })
+
+    // 2. Update the listing to be featured (atomically with above)
+    await tx.listing.update({
+      where: { id: updatedFeaturedPurchase.listingId },
+      data: {
+        featured: true,
+        featuredUntil: updatedFeaturedPurchase.endDate,
+      },
+    })
+
+    // 3. Get seller email for confirmation (inside transaction for consistency)
+    const sellerData = await tx.user.findUnique({
+      where: { id: updatedFeaturedPurchase.listing.sellerId },
+      select: { email: true },
+    })
+
+    return { featuredPurchase: updatedFeaturedPurchase, seller: sellerData }
   })
 
-  // Update the listing to be featured
-  await prisma.listing.update({
-    where: { id: featuredPurchase.listingId },
-    data: {
-      featured: true,
-      featuredUntil: featuredPurchase.endDate,
-    },
-  })
-
-  // Get seller email for confirmation
-  const seller = await prisma.user.findUnique({
-    where: { id: featuredPurchase.listing.sellerId },
-    select: { email: true },
-  })
-
-  // Send confirmation email
+  // Send confirmation email (outside transaction - external service call)
   if (seller?.email) {
     const durationDays = Math.ceil(
       (featuredPurchase.endDate.getTime() - featuredPurchase.startDate.getTime()) / (1000 * 60 * 60 * 24)

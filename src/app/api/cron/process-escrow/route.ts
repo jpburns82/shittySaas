@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       }
 
       try {
-        // Idempotency check: skip if already transferred
+        // Idempotency check: skip if already transferred (from initial query)
         if (purchase.stripeTransferId) {
           log.info('Purchase already transferred, skipping', {
             purchaseId: purchase.id,
@@ -100,15 +100,29 @@ export async function GET(request: NextRequest) {
           continue
         }
 
-        // Update purchase status with transfer ID for idempotency
-        await prisma.purchase.update({
-          where: { id: purchase.id },
+        // ATOMIC UPDATE: Only update if stripeTransferId is still null
+        // This prevents race conditions with concurrent cron jobs
+        const updateResult = await prisma.purchase.updateMany({
+          where: {
+            id: purchase.id,
+            stripeTransferId: null,
+            escrowStatus: 'HOLDING',
+          },
           data: {
             escrowStatus: 'RELEASED',
             escrowReleasedAt: new Date(),
             stripeTransferId: transferResult.transferId,
           },
         })
+
+        if (updateResult.count === 0) {
+          // Another job already processed this purchase
+          log.warn('Purchase was processed by another job, skipping', {
+            purchaseId: purchase.id,
+            transferId: transferResult.transferId,
+          })
+          continue
+        }
 
         log.info('Released escrow for purchase', {
           purchaseId: purchase.id,

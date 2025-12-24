@@ -4,6 +4,9 @@ import { prisma } from '@/lib/prisma'
 import { releaseToSellerByPaymentIntent, refundBuyer, refundBuyerPartial } from '@/lib/stripe-transfers'
 import { calculatePlatformFee } from '@/lib/fees'
 import { alertDisputeResolved } from '@/lib/twilio'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('dispute-resolve')
 
 type Resolution = 'REFUND_BUYER' | 'RELEASE_TO_SELLER' | 'PARTIAL_REFUND'
 
@@ -168,7 +171,13 @@ export async function POST(
             )
             if (!transferResult.success) {
               // Log but don't fail - refund already issued to buyer
-              console.error('[resolve] Seller transfer failed after partial refund:', transferResult.error)
+              // Seller transfer failure is recoverable - admin can manually retry
+              log.error('Seller transfer failed after partial refund', {
+                purchaseId,
+                error: transferResult.error,
+                refundId: refundResult?.refundId,
+                partialAmountCents,
+              })
             }
           }
 
@@ -178,7 +187,11 @@ export async function POST(
         }
       }
     } catch (stripeError) {
-      console.error('Stripe operation failed:', stripeError)
+      log.error('Stripe operation failed during dispute resolution', {
+        purchaseId,
+        resolution,
+        error: stripeError instanceof Error ? stripeError.message : String(stripeError),
+      })
       return NextResponse.json(
         { success: false, error: 'Payment processing failed' },
         { status: 500 }
@@ -222,7 +235,12 @@ export async function POST(
       return updated
     })
 
-    // TODO: Send notification emails (Phase 4)
+    // GITHUB_ISSUE: Add dispute resolution notification emails
+    // When admin resolves a dispute, send email notifications to:
+    // - Buyer: notify them of the resolution and what it means for them
+    // - Seller: notify them of the resolution and next steps
+    // Include: resolution type, refund/payout amounts, any notes
+    // Implementation: Create sendDisputeResolvedEmail() in src/lib/email.ts
 
     // Send Twilio alert
     await alertDisputeResolved(purchase.listing.title, resolution)
@@ -237,7 +255,9 @@ export async function POST(
       },
     })
   } catch (error) {
-    console.error('POST /api/admin/disputes/[purchaseId]/resolve error:', error)
+    log.error('POST /api/admin/disputes/[purchaseId]/resolve error', {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json(
       { success: false, error: 'Failed to resolve dispute' },
       { status: 500 }

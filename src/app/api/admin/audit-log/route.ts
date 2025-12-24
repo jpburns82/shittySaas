@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
+import { TIME_MS } from '@/lib/constants'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('audit-log')
 
 // GET /api/admin/audit-log - Get audit log entries with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -41,13 +45,13 @@ export async function GET(request: NextRequest) {
 
       switch (timeRange) {
         case '24h':
-          startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+          startDate = new Date(now.getTime() - TIME_MS.DAY)
           break
         case '7d':
-          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+          startDate = new Date(now.getTime() - TIME_MS.WEEK)
           break
         case '30d':
-          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+          startDate = new Date(now.getTime() - TIME_MS.MONTH)
           break
         default:
           startDate = new Date(0)
@@ -107,7 +111,9 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('GET /api/admin/audit-log error:', error)
+    log.error('GET /api/admin/audit-log error', {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json(
       { success: false, error: 'Failed to fetch audit log' },
       { status: 500 }

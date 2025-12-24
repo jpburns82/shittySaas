@@ -123,7 +123,12 @@ export async function GET(request: NextRequest) {
           // Send Twilio alert for malware detection
           await alertMalwareDetected(file.fileName, detections, totalEngines)
 
-          // TODO: Email seller about rejected file (Phase 4)
+          // GITHUB_ISSUE: Email seller about malware-detected file
+          // When VirusTotal detects malware, email the seller:
+          // - Notify them the file was rejected
+          // - Include detection details (which engines flagged it)
+          // - Link to listing to upload a clean file
+          // Implementation: Create sendMalwareDetectedEmail() in src/lib/email.ts
         }
       } catch (error) {
         log.error('Error processing file', { fileId: file.id, error: error instanceof Error ? error.message : 'Unknown error' })

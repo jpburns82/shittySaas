@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { escapeHtml } from './utils'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -29,7 +30,7 @@ export async function sendVerificationEmail(
       html: `
         <div style="font-family: 'Courier New', monospace; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f0;">
           <h1 style="font-size: 24px; border-bottom: 2px solid #333; padding-bottom: 10px;">
-            Welcome to ${APP_NAME}, ${username}!
+            Welcome to ${APP_NAME}, ${escapeHtml(username)}!
           </h1>
           <p>Click the link below to verify your email address:</p>
           <p style="margin: 20px 0;">
@@ -113,7 +114,7 @@ export async function sendPurchaseConfirmationEmail(
           <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
             <tr>
               <td style="border: 1px solid #333; padding: 8px; background: #e0e0e0;">Item</td>
-              <td style="border: 1px solid #333; padding: 8px;">${listingTitle}</td>
+              <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(listingTitle)}</td>
             </tr>
             <tr>
               <td style="border: 1px solid #333; padding: 8px; background: #e0e0e0;">Amount</td>
@@ -166,12 +167,12 @@ export async function sendSaleNotificationEmail(
           <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
             <tr>
               <td style="border: 1px solid #333; padding: 8px; background: #e0e0e0;">Item</td>
-              <td style="border: 1px solid #333; padding: 8px;">${listingTitle}</td>
+              <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(listingTitle)}</td>
             </tr>
             ${buyerUsername ? `
             <tr>
               <td style="border: 1px solid #333; padding: 8px; background: #e0e0e0;">Buyer</td>
-              <td style="border: 1px solid #333; padding: 8px;">@${buyerUsername}</td>
+              <td style="border: 1px solid #333; padding: 8px;">@${escapeHtml(buyerUsername)}</td>
             </tr>
             ` : ''}
           </table>
@@ -213,7 +214,7 @@ export async function sendFeaturedConfirmationEmail(
           <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
             <tr>
               <td style="border: 1px solid #333; padding: 8px; background: #e0e0e0;">Listing</td>
-              <td style="border: 1px solid #333; padding: 8px;">${listingTitle}</td>
+              <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(listingTitle)}</td>
             </tr>
             <tr>
               <td style="border: 1px solid #333; padding: 8px; background: #e0e0e0;">Duration</td>
@@ -255,7 +256,7 @@ export async function sendMessageNotificationEmail(
           <h1 style="font-size: 24px; border-bottom: 2px solid #333; padding-bottom: 10px;">
             New Message
           </h1>
-          <p>You have a new message from @${senderUsername}${attachmentInfo || ''}.</p>
+          <p>You have a new message from @${escapeHtml(senderUsername)}${attachmentInfo ? escapeHtml(attachmentInfo) : ''}.</p>
           <p style="margin: 20px 0;">
             <a href="${APP_URL}/dashboard/messages" style="background: #e0e0e0; border: 2px outset #ccc; padding: 8px 16px; text-decoration: none; color: #000;">
               View Message

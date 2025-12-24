@@ -141,3 +141,15 @@ export function sanitizeForJsonLd(str: string | null | undefined): string {
     .replace(/>/g, '\\u003e')
     .replace(/&/g, '\\u0026')
 }
+
+/**
+ * Escape HTML special characters to prevent XSS in email templates
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}

@@ -305,7 +305,8 @@ model Purchase {
   stripePaymentIntentId String?  @unique
   stripeCheckoutSessionId String? @unique
   stripeTransferId  String?  // transfer to seller's connected account
-  
+  stripeRefundId    String?  // refund ID when dispute resolved in buyer's favor
+
   // Status
   status            PurchaseStatus @default(PENDING)
   

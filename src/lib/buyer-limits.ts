@@ -98,6 +98,52 @@ export async function canPurchase(
 }
 
 /**
+ * Guest daily spend limit in cents ($50)
+ * More restrictive than registered users to prevent fraud
+ */
+const GUEST_DAILY_LIMIT_CENTS = 5000
+
+/**
+ * Check if a guest can make a purchase of a given amount
+ * Tracks by email address only (no account required)
+ */
+export async function canGuestPurchase(
+  guestEmail: string,
+  amountCents: number
+): Promise<{
+  allowed: boolean
+  reason?: string
+  todaySpend: number
+  limit: number
+}> {
+  const startOfDay = new Date()
+  startOfDay.setHours(0, 0, 0, 0)
+
+  const result = await prisma.purchase.aggregate({
+    where: {
+      guestEmail: guestEmail,
+      status: 'COMPLETED',
+      createdAt: { gte: startOfDay },
+    },
+    _sum: { amountPaidCents: true },
+  })
+
+  const todaySpend = result._sum.amountPaidCents || 0
+  const limit = GUEST_DAILY_LIMIT_CENTS
+
+  if (todaySpend + amountCents > limit) {
+    return {
+      allowed: false,
+      reason: `Guest daily limit of $${(limit / 100).toFixed(0)} exceeded. Create an account for higher limits.`,
+      todaySpend,
+      limit,
+    }
+  }
+
+  return { allowed: true, todaySpend, limit }
+}
+
+/**
  * Get spend status for display
  */
 export async function getSpendStatus(userId: string): Promise<{

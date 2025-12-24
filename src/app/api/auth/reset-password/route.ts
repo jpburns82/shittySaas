@@ -2,10 +2,26 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hashPassword } from '@/lib/auth'
 import { resetPasswordSchema } from '@/lib/validations'
+import { resetPasswordRateLimiter, getClientIp, checkRateLimit } from '@/lib/rate-limit'
 
 // POST /api/auth/reset-password - Reset password with token
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting (more lenient for password reset)
+    const clientIp = getClientIp(request)
+    const rateLimit = await checkRateLimit(resetPasswordRateLimiter, `reset:${clientIp}`)
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: 'Too many attempts. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.ceil((rateLimit.reset || Date.now()) / 1000 - Date.now() / 1000)),
+          },
+        }
+      )
+    }
+
     const body = await request.json()
     const validation = resetPasswordSchema.safeParse(body)
 

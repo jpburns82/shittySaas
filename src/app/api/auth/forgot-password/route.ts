@@ -3,10 +3,26 @@ import { prisma } from '@/lib/prisma'
 import { forgotPasswordSchema } from '@/lib/validations'
 import { sendPasswordResetEmail } from '@/lib/email'
 import { randomBytes } from 'crypto'
+import { authRateLimiter, getClientIp, checkRateLimit } from '@/lib/rate-limit'
 
 // POST /api/auth/forgot-password - Request password reset
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const clientIp = getClientIp(request)
+    const rateLimit = await checkRateLimit(authRateLimiter, `forgot:${clientIp}`)
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.ceil((rateLimit.reset || Date.now()) / 1000 - Date.now() / 1000)),
+          },
+        }
+      )
+    }
+
     const body = await request.json()
     const validation = forgotPasswordSchema.safeParse(body)
 

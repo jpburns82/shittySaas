@@ -4,10 +4,26 @@ import { hashPassword } from '@/lib/auth'
 import { registerSchema } from '@/lib/validations'
 import { sendVerificationEmail } from '@/lib/email'
 import { randomBytes } from 'crypto'
+import { authRateLimiter, getClientIp, checkRateLimit } from '@/lib/rate-limit'
 
 // POST /api/auth/register - Register a new user
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const clientIp = getClientIp(request)
+    const rateLimit = await checkRateLimit(authRateLimiter, `register:${clientIp}`)
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: 'Too many registration attempts. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.ceil((rateLimit.reset || Date.now()) / 1000 - Date.now() / 1000)),
+          },
+        }
+      )
+    }
+
     const body = await request.json()
     const validation = registerSchema.safeParse(body)
 

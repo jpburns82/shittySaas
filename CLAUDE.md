@@ -96,8 +96,8 @@ grep -n "bg-zinc-900" src/components/ui/modal.tsx
 | Phase | Status | Description |
 |-------|--------|-------------|
 | Phase 0 - Emergency | **COMPLETE** | XSS fix (P1-001), Guest download auth (P1-006) |
-| Phase 1 - Security Foundation | Pending | Rate limiting, guest limits, escrow atomicity, CSP |
-| Phase 2 - Financial Integrity | Pending | WWW redirect, webhook resilience, cleanup cron |
+| Phase 1 - Security Foundation | **COMPLETE** | Rate limiting (P1-002), Guest limits (P1-003), Escrow atomicity (P1-004), Dispute atomicity (P1-005), CSP headers (P1-007) |
+| Phase 2 - Financial Integrity | **PARTIAL** | WWW redirect (P2-004) done. Pending: webhook resilience, cleanup cron |
 | Phase 3 - Stability | Pending | Pagination, CSRF, health check |
 | Phase 4 - Quality | Pending | Constants, logging, indexes |
 

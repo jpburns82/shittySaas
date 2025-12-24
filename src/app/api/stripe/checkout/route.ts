@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createCheckoutSession } from '@/lib/stripe'
 import { calculatePlatformFee } from '@/lib/fees'
-import { canPurchase } from '@/lib/buyer-limits'
+import { canPurchase, canGuestPurchase } from '@/lib/buyer-limits'
 
 // POST /api/stripe/checkout - Create a checkout session
 export async function POST(request: NextRequest) {
@@ -62,12 +62,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check buyer spend limits (only for logged-in users)
+    // Check buyer spend limits
     if (session?.user.id) {
+      // Logged-in user limits
       const spendCheck = await canPurchase(session.user.id, listing.priceInCents)
       if (!spendCheck.allowed) {
         return NextResponse.json(
           { success: false, error: spendCheck.reason },
+          { status: 400 }
+        )
+      }
+    } else if (guestEmail) {
+      // Guest checkout limits ($50/day)
+      const guestCheck = await canGuestPurchase(guestEmail, listing.priceInCents)
+      if (!guestCheck.allowed) {
+        return NextResponse.json(
+          { success: false, error: guestCheck.reason },
           { status: 400 }
         )
       }

@@ -70,6 +70,12 @@ export async function GET(request: NextRequest) {
       }
 
       try {
+        // Idempotency check: skip if already transferred
+        if (purchase.stripeTransferId) {
+          console.log(`[process-escrow] Purchase ${purchase.id} already has transfer ${purchase.stripeTransferId}, skipping`)
+          continue
+        }
+
         // Release funds to seller
         const transferResult = await releaseToSellerByPaymentIntent(
           purchase.stripePaymentIntentId,
@@ -85,16 +91,17 @@ export async function GET(request: NextRequest) {
           continue
         }
 
-        // Update purchase status
+        // Update purchase status with transfer ID for idempotency
         await prisma.purchase.update({
           where: { id: purchase.id },
           data: {
             escrowStatus: 'RELEASED',
             escrowReleasedAt: new Date(),
+            stripeTransferId: transferResult.transferId,
           },
         })
 
-        console.log(`[process-escrow] Released escrow for purchase ${purchase.id}`)
+        console.log(`[process-escrow] Released escrow for purchase ${purchase.id}, transfer: ${transferResult.transferId}`)
         results.released++
       } catch (error) {
         console.error(`[process-escrow] Error processing ${purchase.id}:`, error)

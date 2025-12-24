@@ -75,13 +75,20 @@ export async function POST(
     }
 
     let newEscrowStatus: 'RELEASED' | 'REFUNDED' = 'RELEASED'
-    let transferResult
+    let transferResult: { success: boolean; transferId?: string; error?: string } | undefined
+    let refundResult: { success: boolean; refundId?: string; error?: string } | undefined
 
     try {
       switch (resolution) {
         case 'REFUND_BUYER':
           // Full refund to buyer
-          await refundBuyer(purchase.stripePaymentIntentId, purchaseId, 'Dispute resolved in buyer favor')
+          refundResult = await refundBuyer(purchase.stripePaymentIntentId, purchaseId, 'Dispute resolved in buyer favor')
+          if (!refundResult.success) {
+            return NextResponse.json(
+              { success: false, error: refundResult.error || 'Failed to process refund' },
+              { status: 500 }
+            )
+          }
           newEscrowStatus = 'REFUNDED'
           break
 
@@ -124,32 +131,40 @@ export async function POST(
       )
     }
 
-    // Update purchase with resolution
-    const updatedPurchase = await prisma.purchase.update({
-      where: { id: purchaseId },
-      data: {
-        escrowStatus: newEscrowStatus,
-        escrowReleasedAt: newEscrowStatus === 'RELEASED' ? new Date() : null,
-        resolvedAt: new Date(),
-        resolvedBy: session.user.id,
-        resolution: `${resolution}${notes ? ': ' + notes : ''}`,
-      },
-    })
-
-    // Log the action
-    await prisma.auditLog.create({
-      data: {
-        action: 'DISPUTE_RESOLVED',
-        entityType: 'PURCHASE',
-        entityId: purchaseId,
-        actorId: session.user.id,
-        metadata: {
-          resolution,
-          notes,
+    // Update purchase and create audit log atomically
+    const updatedPurchase = await prisma.$transaction(async (tx) => {
+      const updated = await tx.purchase.update({
+        where: { id: purchaseId },
+        data: {
           escrowStatus: newEscrowStatus,
-          amountCents: purchase.amountPaidCents,
+          escrowReleasedAt: newEscrowStatus === 'RELEASED' ? new Date() : null,
+          stripeTransferId: transferResult?.transferId,
+          stripeRefundId: refundResult?.refundId,
+          resolvedAt: new Date(),
+          resolvedBy: session.user.id,
+          resolution: `${resolution}${notes ? ': ' + notes : ''}`,
         },
-      },
+      })
+
+      // Log the action in same transaction
+      await tx.auditLog.create({
+        data: {
+          action: 'DISPUTE_RESOLVED',
+          entityType: 'PURCHASE',
+          entityId: purchaseId,
+          actorId: session.user.id,
+          metadata: {
+            resolution,
+            notes,
+            escrowStatus: newEscrowStatus,
+            amountCents: purchase.amountPaidCents,
+            transferId: transferResult?.transferId,
+            refundId: refundResult?.refundId,
+          },
+        },
+      })
+
+      return updated
     })
 
     // TODO: Send notification emails (Phase 4)

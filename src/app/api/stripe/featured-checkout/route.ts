@@ -3,10 +3,23 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { stripe } from '@/lib/stripe'
 import { FEATURED_DURATION_OPTIONS, FeaturedDurationKey } from '@/lib/constants'
+import { validateCSRF } from '@/lib/csrf'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('featured-checkout')
 
 // POST /api/stripe/featured-checkout - Create a checkout session for featured listing promotion
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection
+    const csrfValid = await validateCSRF(request)
+    if (!csrfValid) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request. Please refresh and try again.' },
+        { status: 403 }
+      )
+    }
+
     const session = await auth()
     if (!session) {
       return NextResponse.json(
@@ -144,7 +157,7 @@ export async function POST(request: NextRequest) {
       data: { url: checkoutSession.url },
     })
   } catch (error) {
-    console.error('POST /api/stripe/featured-checkout error:', error)
+    log.error('Failed to create checkout session', { error: error instanceof Error ? error.message : 'Unknown error' })
     return NextResponse.json(
       { success: false, error: 'Failed to create checkout session' },
       { status: 500 }

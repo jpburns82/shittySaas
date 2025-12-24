@@ -4,6 +4,9 @@ import { getAnalysisResults } from '@/lib/virustotal'
 import { deleteFile } from '@/lib/r2'
 import { alertMalwareDetected } from '@/lib/twilio'
 import { ScanStatus } from '@prisma/client'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('process-scans')
 
 // GET /api/cron/process-scans - Poll VT for pending scan results
 // Called by cron-job.org every 5 minutes
@@ -39,7 +42,7 @@ export async function GET(request: NextRequest) {
       take: 50, // Process up to 50 per run to avoid rate limits
     })
 
-    console.log(`[process-scans] Found ${pendingScans.length} pending scans`)
+    log.info('Found pending scans', { count: pendingScans.length })
 
     const results = {
       processed: 0,
@@ -67,7 +70,7 @@ export async function GET(request: NextRequest) {
         }
 
         if (!analysisResult.result) {
-          console.error(`[process-scans] No result for ${file.id}`)
+          log.error('No result for file', { fileId: file.id })
           results.errors.push(`${file.id}: No result returned`)
           continue
         }
@@ -103,18 +106,18 @@ export async function GET(request: NextRequest) {
           },
         })
 
-        console.log(`[process-scans] File ${file.id}: ${newStatus} (${detections}/${totalEngines})`)
+        log.info('Scan completed', { fileId: file.id, status: newStatus, detections, totalEngines })
         results.completed++
 
         // If malicious, delete from R2 and update listing
         if (newStatus === 'MALICIOUS') {
           results.malicious++
-          console.log(`[process-scans] Deleting malicious file: ${file.fileKey}`)
+          log.warn('Deleting malicious file', { fileKey: file.fileKey })
 
           try {
             await deleteFile(file.fileKey)
           } catch (deleteError) {
-            console.error(`[process-scans] Failed to delete ${file.fileKey}:`, deleteError)
+            log.error('Failed to delete malicious file', { fileKey: file.fileKey, error: deleteError instanceof Error ? deleteError.message : 'Unknown error' })
           }
 
           // Send Twilio alert for malware detection
@@ -123,7 +126,7 @@ export async function GET(request: NextRequest) {
           // TODO: Email seller about rejected file (Phase 4)
         }
       } catch (error) {
-        console.error(`[process-scans] Error processing ${file.id}:`, error)
+        log.error('Error processing file', { fileId: file.id, error: error instanceof Error ? error.message : 'Unknown error' })
         results.errors.push(`${file.id}: ${error instanceof Error ? error.message : 'Unknown error'}`)
 
         // Mark as ERROR after too many failures
@@ -134,14 +137,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`[process-scans] Complete: ${results.completed} completed, ${results.stillPending} pending, ${results.malicious} malicious`)
+    log.info('Processing complete', { completed: results.completed, stillPending: results.stillPending, malicious: results.malicious })
 
     return NextResponse.json({
       success: true,
       data: results,
     })
   } catch (error) {
-    console.error('[process-scans] Fatal error:', error)
+    log.error('Fatal error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return NextResponse.json(
       { success: false, error: 'Cron job failed' },
       { status: 500 }

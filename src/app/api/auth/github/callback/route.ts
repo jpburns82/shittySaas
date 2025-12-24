@@ -6,6 +6,9 @@
 import { redirect } from 'next/navigation'
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('github')
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -15,12 +18,12 @@ export async function GET(request: NextRequest) {
 
   // Handle user denying access
   if (error) {
-    console.log('[GitHub] User denied access:', error)
+    log.warn('User denied access', { error })
     return redirect('/dashboard/settings?error=github_denied')
   }
 
   if (!code || !state) {
-    console.error('[GitHub] Missing code or state in callback')
+    log.error('Missing code or state in callback')
     return redirect('/dashboard/settings?error=github_invalid_callback')
   }
 
@@ -42,7 +45,7 @@ export async function GET(request: NextRequest) {
     const tokenData = await tokenResponse.json()
 
     if (tokenData.error) {
-      console.error('[GitHub] Token exchange failed:', tokenData.error)
+      log.error('Token exchange failed', { error: tokenData.error })
       return redirect('/dashboard/settings?error=github_token_failed')
     }
 
@@ -57,7 +60,7 @@ export async function GET(request: NextRequest) {
     })
 
     if (!userResponse.ok) {
-      console.error('[GitHub] Failed to fetch user profile:', userResponse.status)
+      log.error('Failed to fetch user profile', { status: userResponse.status })
       return redirect('/dashboard/settings?error=github_user_failed')
     }
 
@@ -69,7 +72,7 @@ export async function GET(request: NextRequest) {
     })
 
     if (existingUser && existingUser.id !== state) {
-      console.log('[GitHub] Account already linked to another user')
+      log.warn('Account already linked to another user', { githubId: githubUser.id })
       return redirect('/dashboard/settings?error=github_already_linked')
     }
 
@@ -84,10 +87,10 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    console.log(`[GitHub] Successfully linked ${githubUser.login} to user ${state}`)
+    log.info('Successfully linked GitHub account', { username: githubUser.login, userId: state })
     return redirect('/dashboard/settings?github=connected')
   } catch (error) {
-    console.error('[GitHub] Callback error:', error)
+    log.error('Callback error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return redirect('/dashboard/settings?error=github_error')
   }
 }

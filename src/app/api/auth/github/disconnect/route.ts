@@ -6,6 +6,9 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('github')
 
 export async function POST() {
   const session = await auth()
@@ -25,10 +28,10 @@ export async function POST() {
       },
     })
 
-    console.log(`[GitHub] Disconnected for user ${session.user.id}`)
+    log.info('Disconnected GitHub account', { userId: session.user.id })
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[GitHub] Disconnect error:', error)
+    log.error('Disconnect error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return NextResponse.json({ error: 'Failed to disconnect' }, { status: 500 })
   }
 }

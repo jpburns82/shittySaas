@@ -10,6 +10,9 @@
 import { randomBytes, timingSafeEqual } from 'crypto'
 import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
+import { createLogger } from './logger'
+
+const log = createLogger('csrf')
 
 export const CSRF_COOKIE_NAME = 'csrf_token'
 export const CSRF_HEADER_NAME = 'x-csrf-token'
@@ -47,7 +50,7 @@ export async function validateCSRF(request: NextRequest): Promise<boolean> {
       Buffer.from(cookieToken)
     )
   } catch (error) {
-    console.error('[csrf] Validation error:', error)
+    log.error('Validation error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return false
   }
 }

@@ -10,6 +10,8 @@
  *   log.error('Payment failed', { error: err.message })
  */
 
+/* eslint-disable no-console */
+
 type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
 const LOG_LEVELS: Record<LogLevel, number> = {

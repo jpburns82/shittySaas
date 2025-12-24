@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('cleanup-pending')
 
 // GET /api/cron/cleanup-pending - Clean up stale pending purchases
 // Called by cron-job.org daily
@@ -39,7 +42,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    console.log(`[cleanup-pending] Found ${stalePurchases.length} stale pending purchases`)
+    log.info('Found stale pending purchases', { count: stalePurchases.length })
 
     if (stalePurchases.length === 0) {
       return NextResponse.json({
@@ -61,11 +64,11 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    console.log(`[cleanup-pending] Deleted ${deleteResult.count} stale pending purchases`)
+    log.info('Deleted stale pending purchases', { count: deleteResult.count })
 
     // Log the deleted purchases for audit purposes
     for (const purchase of stalePurchases) {
-      console.log(`[cleanup-pending] Deleted: ${purchase.id} (${purchase.listing.title}) - created ${purchase.createdAt.toISOString()}`)
+      log.debug('Deleted purchase', { id: purchase.id, title: purchase.listing.title, createdAt: purchase.createdAt.toISOString() })
     }
 
     return NextResponse.json({
@@ -76,7 +79,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('[cleanup-pending] Fatal error:', error)
+    log.error('Fatal error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return NextResponse.json(
       { success: false, error: 'Cleanup job failed' },
       { status: 500 }

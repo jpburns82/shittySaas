@@ -1,4 +1,7 @@
 import crypto from 'crypto'
+import { createLogger } from './logger'
+
+const log = createLogger('virustotal')
 
 const VT_API_URL = 'https://www.virustotal.com/api/v3'
 const VT_API_KEY = process.env.VIRUSTOTAL_API_KEY!
@@ -42,7 +45,7 @@ export async function checkHashReputation(hash: string): Promise<ScanResult> {
     }
 
     if (!response.ok) {
-      console.error('[VT] Hash check failed:', response.status, await response.text())
+      log.error('Hash check failed', { status: response.status })
       return {
         verdict: 'ERROR',
         detections: 0,
@@ -54,7 +57,7 @@ export async function checkHashReputation(hash: string): Promise<ScanResult> {
     const data = await response.json()
     return parseVTResponse(data, hash)
   } catch (error) {
-    console.error('[VT] Hash check error:', error)
+    log.error('Hash check error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return {
       verdict: 'ERROR',
       detections: 0,
@@ -89,7 +92,7 @@ export async function uploadForScan(
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('[VT] Upload failed:', response.status, errorText)
+      log.error('Upload failed', { status: response.status, error: errorText })
       return { success: false, error: `Upload failed: ${response.status}` }
     }
 
@@ -100,10 +103,10 @@ export async function uploadForScan(
       return { success: false, error: 'No analysis ID returned' }
     }
 
-    console.log(`[VT] File uploaded, analysis ID: ${analysisId}`)
+    log.info('File uploaded', { analysisId })
     return { success: true, analysisId }
   } catch (error) {
-    console.error('[VT] Upload error:', error)
+    log.error('Upload error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return { success: false, error: error instanceof Error ? error.message : 'Upload failed' }
   }
 }
@@ -123,7 +126,7 @@ export async function getAnalysisResults(analysisId: string): Promise<{
     })
 
     if (!response.ok) {
-      console.error('[VT] Analysis fetch failed:', response.status)
+      log.error('Analysis fetch failed', { status: response.status })
       return { complete: false, error: `Fetch failed: ${response.status}` }
     }
 
@@ -161,7 +164,7 @@ export async function getAnalysisResults(analysisId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error('[VT] Analysis fetch error:', error)
+    log.error('Analysis fetch error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return { complete: false, error: error instanceof Error ? error.message : 'Fetch failed' }
   }
 }
@@ -180,12 +183,12 @@ export async function scanFile(
 
   if (hashResult.verdict !== 'UNKNOWN') {
     // File is known, return result immediately
-    console.log(`[VT] File ${filename} known by hash: ${hashResult.verdict}`)
+    log.info('File known by hash', { filename, verdict: hashResult.verdict })
     return hashResult
   }
 
   // File unknown, upload for scanning
-  console.log(`[VT] File ${filename} unknown, uploading for scan...`)
+  log.info('File unknown, uploading for scan', { filename })
   const uploadResult = await uploadForScan(buffer, filename)
 
   if (!uploadResult.success) {

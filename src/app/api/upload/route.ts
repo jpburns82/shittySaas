@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { uploadFile, validateFile, deleteFile, ALLOWED_IMAGE_TYPES, ALLOWED_FILE_TYPES, MAX_IMAGE_SIZE, MAX_FILE_SIZE } from '@/lib/r2'
 import { scanFile, shouldScanFile, getFileHash } from '@/lib/virustotal'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('upload')
 
 // POST /api/upload - Upload a file to R2
 export async function POST(request: NextRequest) {
@@ -55,7 +58,7 @@ export async function POST(request: NextRequest) {
 
         // If malicious, delete from R2 and reject
         if (scanResult.verdict === 'MALICIOUS') {
-          console.log(`[Upload] Malicious file rejected: ${file.name}`)
+          log.warn('Malicious file rejected', { filename: file.name })
           await deleteFile(key)
           return NextResponse.json(
             { success: false, error: 'File rejected: malware detected' },
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
         }
       } catch (scanError) {
         // Log but don't block upload on scan errors
-        console.error('[Upload] Scan error (continuing):', scanError)
+        log.error('Scan error (continuing)', { error: scanError instanceof Error ? scanError.message : 'Unknown error' })
         // Set scan status to ERROR so cron can retry later
         scanResult = {
           verdict: 'ERROR' as const,
@@ -112,7 +115,7 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('POST /api/upload error:', error)
+    log.error('Upload failed', { error: error instanceof Error ? error.message : 'Unknown error' })
     return NextResponse.json(
       { success: false, error: 'Failed to upload file' },
       { status: 500 }

@@ -62,7 +62,7 @@ export default async function UserProfilePage({ params }: Props) {
     },
     orderBy: { createdAt: 'desc' },
     include: {
-      seller: { select: { username: true, displayName: true, avatarUrl: true, isVerifiedSeller: true, sellerTier: true } },
+      seller: { select: { username: true, displayName: true, avatarUrl: true, isVerifiedSeller: true, sellerTier: true, githubUsername: true, githubVerifiedAt: true } },
       category: { select: { name: true, slug: true } },
       _count: { select: { votes: true, comments: true } },
     },

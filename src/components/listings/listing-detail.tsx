@@ -8,6 +8,7 @@ import { VerifiedBadge, FeaturedBadge } from '../ui/badge'
 import { SellerTierBadge } from '../ui/badges/seller-tier-badge'
 import { GitHubBadge } from '../ui/badges/github-badge'
 import { ProtectedBadge } from '../ui/badges/protected-badge'
+import { ScanBadge } from '../ui/badges/scan-badge'
 import { Button } from '../ui/button'
 import { ImageGallery } from '../ui/image-gallery'
 import type { ListingDetail as ListingDetailType } from '@/types/listing'
@@ -193,6 +194,19 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
             </ul>
           </div>
 
+          {/* Download files with scan status */}
+          {listing.files && listing.files.length > 0 && (
+            <div className="card">
+              <h3 className="font-display text-base mb-3">Download Files</h3>
+              {listing.files.map((file) => (
+                <div key={file.id} className="flex items-center justify-between text-sm mb-2">
+                  <span className="truncate max-w-[150px]">{file.fileName}</span>
+                  <ScanBadge status={file.scanStatus} />
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Seller info */}
           <div className="card">
             <h3 className="font-display text-base mb-3">Seller</h3>
@@ -221,7 +235,7 @@ export function ListingDetail({ listing, isOwner, currentUserVote }: ListingDeta
                     <SellerTierBadge tier={listing.seller.sellerTier} size="sm" />
                   )}
                   {listing.seller.githubVerifiedAt && listing.repoUrl?.includes('github.com') && (
-                    <GitHubBadge verified username={listing.seller.githubUsername} />
+                    <GitHubBadge verified username={listing.seller.githubUsername ?? undefined} />
                   )}
                 </div>
                 <div className="text-xs text-text-muted mt-1">

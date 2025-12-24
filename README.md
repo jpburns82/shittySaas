@@ -37,13 +37,18 @@ A marketplace for indie developers to buy and sell side projects, abandoned SaaS
 
 - 🛒 **Marketplace** — Browse, search, filter by category/price
 - 💳 **Stripe Connect** — Sellers get paid directly, platform takes 2-6%
-- 📁 **File Delivery** — Secure downloads via presigned URLs
-- 💬 **Messaging** — Buyer/seller communication
+- 🛡️ **Buyer Protection** — Payments held 72h-14d before release to seller
+- 🔬 **VirusTotal Scanning** — All uploads scanned for malware
+- 🏷️ **Seller Tiers** — NEW → VERIFIED → TRUSTED → PRO based on sales
+- 🐙 **GitHub Verification** — Sellers can prove repo ownership
+- 📁 **File Delivery** — Secure downloads via presigned URLs (10 per purchase)
+- 💬 **Messaging** — Buyer/seller communication with attachments
 - 🗳️ **Voting** — Reanimate ⚡ or Bury ⚰️ listings
 - 💬 **Comments** — Community discussion on listings
 - ⭐ **Featured Listings** — Promote for visibility
-- 🔐 **Admin Panel** — User/listing management, reports, audit log
+- 🔐 **Admin Panel** — User/listing management, disputes, reports, audit log
 - 📊 **Dashboard** — Sales, purchases, payouts, analytics
+- 💰 **Buyer Limits** — $250-$1000/day spend limits for fraud prevention
 
 ---
 
@@ -85,6 +90,25 @@ GOOGLE_GEMINI_API_KEY=""
 # App
 NEXT_PUBLIC_APP_URL="https://undeadlist.com"
 NEXT_PUBLIC_APP_NAME="UndeadList"
+
+# File Scanning
+VIRUSTOTAL_API_KEY=""
+
+# GitHub OAuth (seller verification)
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+
+# SMS Alerts (optional - falls back to email)
+TWILIO_ACCOUNT_SID=""
+TWILIO_AUTH_TOKEN=""
+TWILIO_PHONE_NUMBER=""
+ADMIN_PHONE_NUMBER=""
+
+# Cron Jobs
+CRON_SECRET=""
+
+# Admin
+ADMIN_EMAIL=""
 ```
 
 ---
@@ -121,9 +145,13 @@ pm2 start npm --name "undeadlist" -- start
 
 | Sale Price | Platform Fee |
 |------------|--------------|
-| $0 - $50 | 6% |
-| $51 - $200 | 4% |
-| $201+ | 2% |
+| Under $25 | 2% |
+| $25 - $100 | 3% |
+| $100 - $500 | 4% |
+| $500 - $2,000 | 5% |
+| $2,000+ | 6% |
+
+Minimum fee: $0.50 per transaction.
 
 ---
 

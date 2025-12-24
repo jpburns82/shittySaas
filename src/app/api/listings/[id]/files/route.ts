@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { uploadFile, deleteFile } from '@/lib/r2'
+import { scanFile, shouldScanFile } from '@/lib/virustotal'
 import { nanoid } from 'nanoid'
+import type { Prisma } from '@prisma/client'
 
 // Allowed file types for instant download
 const ALLOWED_FILE_TYPES = [
@@ -155,6 +157,45 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         mimeType: file.type,
       },
     })
+
+    // Scan file with VirusTotal if applicable
+    if (shouldScanFile(file.type, file.name)) {
+      try {
+        const scanResult = await scanFile(buffer, file.name)
+
+        // Reject malicious files
+        if (scanResult.verdict === 'MALICIOUS') {
+          await deleteFile(fileKey)
+          await prisma.listingFile.delete({ where: { id: listingFile.id } })
+          return NextResponse.json(
+            { success: false, error: 'File rejected: malware detected' },
+            { status: 400 }
+          )
+        }
+
+        await prisma.listingFile.update({
+          where: { id: listingFile.id },
+          data: {
+            fileHash: scanResult.hash,
+            scanStatus: scanResult.verdict === 'CLEAN' ? 'CLEAN'
+              : scanResult.verdict === 'SUSPICIOUS' ? 'SUSPICIOUS'
+              : scanResult.needsPolling ? 'SCANNING'
+              : 'PENDING',
+            scanResult: JSON.parse(JSON.stringify(scanResult)),
+            scannedAt: new Date(),
+            detections: scanResult.detections || 0,
+            totalEngines: scanResult.totalEngines || 0,
+            vtAnalysisId: scanResult.analysisId || null,
+          },
+        })
+      } catch (err) {
+        console.error('[ListingFiles] Scan error:', err)
+        await prisma.listingFile.update({
+          where: { id: listingFile.id },
+          data: { scanStatus: 'ERROR', scannedAt: new Date() },
+        })
+      }
+    }
 
     return NextResponse.json({
       success: true,

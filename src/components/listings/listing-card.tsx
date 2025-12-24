@@ -85,7 +85,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             <SellerTierBadge tier={listing.seller.sellerTier} size="sm" />
           )}
           {listing.seller.githubVerifiedAt && listing.repoUrl?.includes('github.com') && (
-            <GitHubBadge verified username={listing.seller.githubUsername} />
+            <GitHubBadge verified username={listing.seller.githubUsername ?? undefined} />
           )}
         </div>
       </article>

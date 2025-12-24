@@ -102,6 +102,89 @@ const sellingFAQ = [
       </>
     ),
   },
+  {
+    question: 'When do I get paid?',
+    answer: (
+      <>
+        <p>
+          Payments are held during the buyer protection period, then released automatically:
+        </p>
+        <ul className="mt-2 space-y-1">
+          <li><strong>Instant Downloads (verified + scanned):</strong> Instant</li>
+          <li><strong>Instant Downloads (new seller):</strong> 72 hours</li>
+          <li><strong>Repository Access:</strong> 72 hours</li>
+          <li><strong>Manual Transfer:</strong> 7 days</li>
+          <li><strong>Domain Transfer:</strong> 14 days</li>
+        </ul>
+        <p className="mt-2">
+          After release, Stripe deposits to your bank in 2-7 business days.
+        </p>
+      </>
+    ),
+  },
+  {
+    question: 'What are the listing limits?',
+    answer: (
+      <>
+        <p>Limits based on your seller tier:</p>
+        <ul className="mt-2 space-y-1">
+          <li><strong>NEW (0 sales):</strong> 1 active listing</li>
+          <li><strong>VERIFIED (1+ sales):</strong> 3 active listings</li>
+          <li><strong>TRUSTED (3+ sales):</strong> 10 active listings</li>
+          <li><strong>PRO (10+ sales):</strong> Unlimited</li>
+        </ul>
+        <p className="mt-2">
+          Your tier upgrades automatically when you complete sales.
+        </p>
+      </>
+    ),
+  },
+  {
+    question: 'Why do I need to connect Stripe?',
+    answer: (
+      <>
+        <p>Stripe Connect handles:</p>
+        <ul className="mt-2 space-y-1">
+          <li>Identity verification (required for marketplace sellers)</li>
+          <li>Secure payment processing</li>
+          <li>Direct deposits to your bank account</li>
+        </ul>
+        <p className="mt-2">
+          You keep your own Stripe account — we never hold your money long-term.
+        </p>
+      </>
+    ),
+  },
+  {
+    question: 'Which delivery method should I use?',
+    answer: (
+      <>
+        <p>Choose based on what you&apos;re selling:</p>
+        <p className="mt-3">
+          <strong>Instant Download</strong> — Scripts, templates, boilerplates, design assets, games.
+          Files hosted on UndeadList. Buyer downloads immediately.
+          Protection: 72 hours (instant if verified + scanned).
+        </p>
+        <p className="mt-2">
+          <strong>Repository Access</strong> — SaaS apps, open source projects, code with git history.
+          You add the buyer as a collaborator to your repo.
+          Protection: 72 hours.
+        </p>
+        <p className="mt-2">
+          <strong>Manual Transfer</strong> — Social accounts, newsletters, communities, complex handoffs.
+          You handle the transfer directly with the buyer via messages.
+          Protection: 7 days.
+        </p>
+        <p className="mt-2">
+          <strong>Domain Transfer</strong> — Domains, landing pages, accounts requiring registrar changes.
+          Protection: 14 days.
+        </p>
+        <p className="mt-3 text-text-muted">
+          For sales $2,000+, consider using <a href="https://escrow.com" target="_blank" rel="noopener noreferrer">Escrow.com</a> for additional protection.
+        </p>
+      </>
+    ),
+  },
 ]
 
 const buyingFAQ = [
@@ -118,12 +201,40 @@ const buyingFAQ = [
     ),
   },
   {
-    question: 'Are sales final?',
+    question: 'How does buyer protection work?',
     answer: (
       <>
         <p>
-          <strong>Yes.</strong> Do your due diligence before buying. Message the
-          seller with questions. We&apos;re a marketplace, not an escrow service.
+          When you purchase, payment is held before being released to the seller.
+          This gives you time to verify your purchase and report any issues.
+        </p>
+        <p className="mt-2"><strong>Protection periods by delivery type:</strong></p>
+        <ul className="mt-2 space-y-1">
+          <li><strong>Instant Downloads (verified seller):</strong> Instant release</li>
+          <li><strong>Instant Downloads (new seller):</strong> Up to 72 hours</li>
+          <li><strong>Repository Access:</strong> 72 hours</li>
+          <li><strong>Manual Transfer:</strong> 7 days</li>
+          <li><strong>Domain Transfer:</strong> 14 days</li>
+        </ul>
+        <p className="mt-2">
+          During protection, you can report issues via the &quot;Report Issue&quot; button on your purchase.
+        </p>
+      </>
+    ),
+  },
+  {
+    question: 'What do the seller badges mean?',
+    answer: (
+      <>
+        <p>Badges show a seller&apos;s track record:</p>
+        <ul className="mt-2 space-y-1">
+          <li><strong>NEW (gray):</strong> 0 completed sales</li>
+          <li><strong>VERIFIED (blue):</strong> 1+ sales</li>
+          <li><strong>TRUSTED (green):</strong> 3+ sales</li>
+          <li><strong>PRO (gold):</strong> 10+ sales</li>
+        </ul>
+        <p className="mt-2">
+          Look for the <strong>GitHub ✓</strong> badge — it means the seller proved they own the linked repository.
         </p>
       </>
     ),
@@ -132,14 +243,85 @@ const buyingFAQ = [
     question: "What if there's a problem?",
     answer: (
       <>
-        <p>Contact the seller first. Most issues can be resolved directly.</p>
-        <p className="mt-2">
-          If you can&apos;t resolve it, contact us and we&apos;ll try to help mediate —
-          but we&apos;re not obligated to issue refunds.
+        <p>
+          <strong>During buyer protection:</strong> Click &quot;Report Issue&quot; on your purchase.
+          Select the reason (empty files, not as described, malware, etc.).
+          Our team reviews and may pause the payment release.
         </p>
         <p className="mt-2">
-          <strong>For purchases over $500:</strong> We recommend using a third-party
-          escrow service for peace of mind.
+          <strong>After protection expires:</strong> Contact the seller directly.
+          Once funds are released, disputes are much harder to resolve.
+        </p>
+        <p className="mt-2">
+          <strong>For purchases over $2,000:</strong> We recommend using a third-party
+          escrow service like <a href="https://escrow.com" target="_blank" rel="noopener noreferrer">Escrow.com</a> for peace of mind.
+        </p>
+      </>
+    ),
+  },
+  {
+    question: "Why can't I buy more today?",
+    answer: (
+      <>
+        <p>New accounts have daily spend limits for fraud prevention:</p>
+        <ul className="mt-2 space-y-1">
+          <li><strong>New buyers:</strong> $250/day</li>
+          <li><strong>After 1 purchase:</strong> $500/day</li>
+          <li><strong>After 3 purchases:</strong> $1,000/day</li>
+        </ul>
+        <p className="mt-2">
+          Limits reset at midnight UTC and increase automatically as you complete purchases.
+        </p>
+      </>
+    ),
+  },
+]
+
+const trustFAQ = [
+  {
+    question: 'How are files scanned for malware?',
+    answer: (
+      <>
+        <p>
+          Every uploaded file is scanned via VirusTotal (70+ antivirus engines).
+          Files flagged as malicious are rejected.
+        </p>
+        <p className="mt-2">Look for the scan badge:</p>
+        <ul className="mt-2 space-y-1">
+          <li><strong>✓ Scanned:</strong> Passed security check</li>
+          <li><strong>⏳ Pending:</strong> Scan in progress</li>
+          <li><strong>⚠️ Review:</strong> Flagged for manual review</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    question: 'How does GitHub verification work?',
+    answer: (
+      <>
+        <p>
+          Sellers can connect their GitHub account to prove repo ownership.
+          When a listing links to a repo the seller owns, it shows the <strong>GitHub ✓</strong> badge.
+        </p>
+        <p className="mt-2">
+          Connect GitHub in <Link href="/dashboard/settings">Dashboard → Settings</Link>.
+        </p>
+      </>
+    ),
+  },
+  {
+    question: 'What happens if there\'s a dispute?',
+    answer: (
+      <>
+        <p>During the buyer protection period:</p>
+        <ol className="mt-2 space-y-1">
+          <li>1. Click &quot;Report Issue&quot; on your purchase</li>
+          <li>2. Select the reason (empty files, not as described, malware, etc.)</li>
+          <li>3. Our team reviews and may pause the payment release</li>
+          <li>4. We work with both parties to resolve</li>
+        </ol>
+        <p className="mt-2">
+          After protection expires, funds are released and disputes are harder to resolve.
         </p>
       </>
     ),
@@ -195,6 +377,9 @@ export function FAQContent() {
 
       <h2>Buying</h2>
       <Accordion items={buyingFAQ} />
+
+      <h2>Trust &amp; Safety</h2>
+      <Accordion items={trustFAQ} />
 
       <h2>Account</h2>
       <Accordion items={accountFAQ} />

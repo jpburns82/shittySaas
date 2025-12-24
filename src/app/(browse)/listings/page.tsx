@@ -97,6 +97,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
         featured: true,
         featuredUntil: true,
         createdAt: true,
+        repoUrl: true,
         seller: {
           select: { username: true, isVerifiedSeller: true, sellerTier: true, githubVerifiedAt: true, githubUsername: true },
         },

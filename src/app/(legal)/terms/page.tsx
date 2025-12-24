@@ -23,7 +23,6 @@ export default function TermsPage() {
       </p>
       <ul>
         <li>A party to any transaction between buyers and sellers</li>
-        <li>An escrow service</li>
         <li>A guarantor of project quality, functionality, or value</li>
         <li>A legal representative for either party</li>
       </ul>
@@ -45,33 +44,54 @@ export default function TermsPage() {
       <h2>For Buyers</h2>
       <p>When you purchase on {APP_NAME}, you&apos;re agreeing that:</p>
       <ul>
-        <li><strong>All sales are final.</strong> Do your homework before buying.</li>
         <li>You&apos;re responsible for your own due diligence</li>
         <li>Message sellers with questions before purchasing</li>
         <li>You understand we can&apos;t guarantee what you&apos;re buying will work as expected</li>
+        <li>You will verify your purchase during the buyer protection period</li>
       </ul>
 
-      <h2>High-Value Transactions ($500+)</h2>
+      <h2>Buyer Protection</h2>
       <p>
-        For sales over $500, we <strong>strongly recommend</strong> that buyers and sellers
-        arrange their own escrow service or legal agreement. {APP_NAME} provides messaging
-        and payment processing only — we are not equipped to mediate large transactions.
+        {APP_NAME} holds payment before releasing to sellers. This is NOT a licensed
+        escrow service — it&apos;s a marketplace protection feature.
+      </p>
+      <p>Protection periods:</p>
+      <ul>
+        <li><strong>Instant Downloads (verified seller, scanned files):</strong> Immediate release</li>
+        <li><strong>Instant Downloads (new seller or unscanned):</strong> Up to 72 hours</li>
+        <li><strong>Repository Access:</strong> 72 hours</li>
+        <li><strong>Manual Transfer:</strong> 7 days</li>
+        <li><strong>Domain Transfer:</strong> 14 days</li>
+      </ul>
+      <p>
+        During protection, buyers can report issues. After protection expires,
+        funds are automatically released to the seller.
+      </p>
+
+      <h2>High-Value Transactions ($2,000+)</h2>
+      <p>
+        For transactions over $2,000 or complex transfers (domains, accounts, etc.),
+        we <strong>strongly recommend</strong> using a licensed escrow service.
+        {APP_NAME} provides buyer protection, but we are not equipped to mediate
+        large or complex transactions.
       </p>
       <p>
-        Consider using a service like <a href={EXTERNAL_LINKS.ESCROW_SERVICE} target="_blank" rel="noopener noreferrer">Escrow.com</a> for
+        Consider using <a href={EXTERNAL_LINKS.ESCROW_SERVICE} target="_blank" rel="noopener noreferrer">Escrow.com</a> for
         significant purchases.
       </p>
 
       <h2>Disputes</h2>
-      <p>
-        If something goes wrong with a transaction:
-      </p>
+      <p>If there&apos;s a problem with a purchase:</p>
       <ol>
-        <li>Contact the other party first and try to resolve it</li>
-        <li>If that doesn&apos;t work, you can contact us</li>
-        <li>We may try to help mediate, but we&apos;re not obligated to</li>
-        <li>We are not responsible for resolving disputes or issuing refunds</li>
+        <li>Report the issue DURING the protection period via your Purchases page</li>
+        <li>We&apos;ll pause payment release and review</li>
+        <li>Valid reasons: empty files, malware, not as described, seller unresponsive</li>
+        <li>We&apos;ll work with both parties toward resolution</li>
       </ol>
+      <p>
+        <strong>Important:</strong> After protection ends and funds release, disputes
+        are much harder to resolve. Verify your purchase before the protection period expires.
+      </p>
 
       <h2>Account Requirements</h2>
       <ul>

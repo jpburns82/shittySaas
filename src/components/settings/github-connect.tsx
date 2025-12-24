@@ -48,7 +48,7 @@ export function GitHubConnect({
         <h3 className="font-display text-lg mb-4">GitHub Connected</h3>
 
         <div className="flex items-center gap-3 mb-3">
-          <GitHubBadge verified username={username} />
+          <GitHubBadge verified username={username ?? undefined} />
           <span className="text-text-muted">@{username}</span>
         </div>
 

@@ -97,25 +97,65 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Determine if this is instant release
   const isInstantRelease = escrowExpiry === null
 
-  // Update purchase with status and escrow info
-  const purchase = await prisma.purchase.update({
-    where: { id: purchaseId },
-    data: {
-      status: 'COMPLETED',
-      stripePaymentIntentId: (session.payment_intent as string) || null,
-      deliveryStatus: existingPurchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD' ? 'AUTO_COMPLETED' : 'PENDING',
-      escrowStatus: isInstantRelease ? 'RELEASED' : 'HOLDING',
-      escrowExpiresAt: escrowExpiry,
-      escrowReleasedAt: isInstantRelease ? new Date() : null,
-    },
-    include: {
-      listing: true,
-      buyer: { select: { email: true, username: true } },
-      seller: { select: { email: true, username: true, stripeAccountId: true, id: true } },
-    },
+  // Wrap purchase update + tier updates in a single transaction for atomicity
+  // This prevents race conditions where concurrent purchases could cause incorrect tier counts
+  const purchase = await prisma.$transaction(async (tx) => {
+    // 1. Update purchase with status and escrow info
+    const updatedPurchase = await tx.purchase.update({
+      where: { id: purchaseId },
+      data: {
+        status: 'COMPLETED',
+        stripePaymentIntentId: (session.payment_intent as string) || null,
+        deliveryStatus: existingPurchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD' ? 'AUTO_COMPLETED' : 'PENDING',
+        escrowStatus: isInstantRelease ? 'RELEASED' : 'HOLDING',
+        escrowExpiresAt: escrowExpiry,
+        escrowReleasedAt: isInstantRelease ? new Date() : null,
+      },
+      include: {
+        listing: true,
+        buyer: { select: { email: true, username: true } },
+        seller: { select: { email: true, username: true, stripeAccountId: true, id: true } },
+      },
+    })
+
+    // 2. Update seller tier atomically (inside transaction)
+    const salesCount = await tx.purchase.count({
+      where: {
+        sellerId: updatedPurchase.seller.id,
+        status: 'COMPLETED',
+      },
+    })
+    const newSellerTier = getSellerTier(salesCount)
+    await tx.user.update({
+      where: { id: updatedPurchase.seller.id },
+      data: {
+        sellerTier: newSellerTier,
+        totalSales: salesCount,
+      },
+    })
+
+    // 3. Update buyer tier atomically (if not guest)
+    if (updatedPurchase.buyerId) {
+      const purchaseCount = await tx.purchase.count({
+        where: {
+          buyerId: updatedPurchase.buyerId,
+          status: 'COMPLETED',
+        },
+      })
+      const newBuyerTier = getBuyerTier(purchaseCount)
+      await tx.user.update({
+        where: { id: updatedPurchase.buyerId },
+        data: {
+          buyerTier: newBuyerTier,
+          totalPurchases: purchaseCount,
+        },
+      })
+    }
+
+    return updatedPurchase
   })
 
-  // If instant release, transfer funds immediately
+  // If instant release, transfer funds immediately (OUTSIDE transaction - external API call)
   if (isInstantRelease && purchase.seller.stripeAccountId && session.payment_intent) {
     await releaseToSellerByPaymentIntent(
       session.payment_intent as string,
@@ -127,22 +167,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   // Post-purchase operations wrapped in try-catch to prevent cascading failures
   // Each operation is independent - failure in one shouldn't stop others
-
-  // Update seller tier based on completed sales
-  try {
-    await updateSellerTier(purchase.seller.id)
-  } catch (error) {
-    console.error(`[webhook] Failed to update seller tier for ${purchase.seller.id}:`, error)
-  }
-
-  // Update buyer tier based on completed purchases (only for logged-in users)
-  if (purchase.buyerId) {
-    try {
-      await updateBuyerTier(purchase.buyerId)
-    } catch (error) {
-      console.error(`[webhook] Failed to update buyer tier for ${purchase.buyerId}:`, error)
-    }
-  }
 
   // Send confirmation emails
   const buyerEmail = purchase.buyer?.email || purchase.guestEmail
@@ -182,42 +206,50 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 // Update seller tier based on completed sales count
-async function updateSellerTier(sellerId: string) {
-  const salesCount = await prisma.purchase.count({
-    where: {
-      sellerId,
-      status: 'COMPLETED',
-    },
-  })
+// Wrapped in transaction for atomicity when called standalone
+// Prefixed with underscore - kept for potential future callers outside main webhook flow
+async function _updateSellerTier(sellerId: string) {
+  await prisma.$transaction(async (tx) => {
+    const salesCount = await tx.purchase.count({
+      where: {
+        sellerId,
+        status: 'COMPLETED',
+      },
+    })
 
-  const newTier = getSellerTier(salesCount)
+    const newTier = getSellerTier(salesCount)
 
-  await prisma.user.update({
-    where: { id: sellerId },
-    data: {
-      sellerTier: newTier,
-      totalSales: salesCount,
-    },
+    await tx.user.update({
+      where: { id: sellerId },
+      data: {
+        sellerTier: newTier,
+        totalSales: salesCount,
+      },
+    })
   })
 }
 
 // Update buyer tier based on completed purchases count
-async function updateBuyerTier(buyerId: string) {
-  const purchaseCount = await prisma.purchase.count({
-    where: {
-      buyerId,
-      status: 'COMPLETED',
-    },
-  })
+// Wrapped in transaction for atomicity when called standalone
+// Prefixed with underscore - kept for potential future callers outside main webhook flow
+async function _updateBuyerTier(buyerId: string) {
+  await prisma.$transaction(async (tx) => {
+    const purchaseCount = await tx.purchase.count({
+      where: {
+        buyerId,
+        status: 'COMPLETED',
+      },
+    })
 
-  const newTier = getBuyerTier(purchaseCount)
+    const newTier = getBuyerTier(purchaseCount)
 
-  await prisma.user.update({
-    where: { id: buyerId },
-    data: {
-      buyerTier: newTier,
-      totalPurchases: purchaseCount,
-    },
+    await tx.user.update({
+      where: { id: buyerId },
+      data: {
+        buyerTier: newTier,
+        totalPurchases: purchaseCount,
+      },
+    })
   })
 }
 

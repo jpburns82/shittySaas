@@ -58,7 +58,7 @@ interface RefundResult {
 }
 
 /**
- * Refund buyer when dispute is resolved in their favor
+ * Refund buyer when dispute is resolved in their favor (full refund)
  */
 export async function refundBuyer(
   paymentIntentId: string,
@@ -85,6 +85,44 @@ export async function refundBuyer(
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Refund failed',
+    }
+  }
+}
+
+/**
+ * Partial refund to buyer (for partial dispute resolutions)
+ * @param paymentIntentId - The Stripe payment intent ID
+ * @param amountCents - The partial amount to refund in cents
+ * @param purchaseId - The purchase ID for metadata
+ * @param reason - Optional reason for the refund
+ */
+export async function refundBuyerPartial(
+  paymentIntentId: string,
+  amountCents: number,
+  purchaseId: string,
+  reason?: string
+): Promise<RefundResult> {
+  try {
+    const refund = await stripe.refunds.create({
+      payment_intent: paymentIntentId,
+      amount: amountCents,
+      reason: 'requested_by_customer',
+      metadata: {
+        purchaseId,
+        type: 'dispute_partial_refund',
+        reason: reason || 'Dispute resolved with partial refund',
+      },
+    })
+
+    return {
+      success: true,
+      refundId: refund.id,
+    }
+  } catch (error) {
+    console.error('Failed to partially refund buyer:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Partial refund failed',
     }
   }
 }
@@ -132,4 +170,28 @@ export async function releaseToSellerByPaymentIntent(
   }
 
   return releaseToSeller(chargeId, sellerAccountId, amountCents, purchaseId)
+}
+
+/**
+ * Release funds to seller - throws on failure for use in transactions
+ *
+ * Use this variant when you need to ensure the transfer succeeds
+ * or roll back the transaction.
+ */
+export async function releaseToSellerOrThrow(
+  paymentIntentId: string,
+  amountCents: number,
+  stripeAccountId: string,
+  purchaseId: string
+): Promise<{ transferId: string }> {
+  const result = await releaseToSellerByPaymentIntent(
+    paymentIntentId,
+    stripeAccountId,
+    amountCents,
+    purchaseId
+  )
+  if (!result.success) {
+    throw new Error(result.error || 'Transfer failed')
+  }
+  return { transferId: result.transferId! }
 }

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { releaseToSellerByPaymentIntent, refundBuyer } from '@/lib/stripe-transfers'
+import { releaseToSellerByPaymentIntent, refundBuyer, refundBuyerPartial } from '@/lib/stripe-transfers'
+import { calculatePlatformFee } from '@/lib/fees'
 import { alertDisputeResolved } from '@/lib/twilio'
 
 type Resolution = 'REFUND_BUYER' | 'RELEASE_TO_SELLER' | 'PARTIAL_REFUND'
@@ -22,7 +23,7 @@ export async function POST(
 
     const { purchaseId } = await params
     const body = await request.json()
-    const { resolution, notes, partialAmountCents: _partialAmountCents } = body as {
+    const { resolution, notes, partialAmountCents } = body as {
       resolution: Resolution
       notes?: string
       partialAmountCents?: number
@@ -115,13 +116,66 @@ export async function POST(
           newEscrowStatus = 'RELEASED'
           break
 
-        case 'PARTIAL_REFUND':
-          // Partial refund - not fully implemented yet
-          // Would need to calculate and process partial refund + partial release
-          return NextResponse.json(
-            { success: false, error: 'Partial refunds not yet implemented' },
-            { status: 501 }
+        case 'PARTIAL_REFUND': {
+          // Validate partial amount
+          if (!partialAmountCents || partialAmountCents <= 0) {
+            return NextResponse.json(
+              { success: false, error: 'Partial amount must be greater than 0' },
+              { status: 400 }
+            )
+          }
+          if (partialAmountCents >= purchase.amountPaidCents) {
+            return NextResponse.json(
+              { success: false, error: 'Partial amount must be less than total paid. Use REFUND_BUYER for full refunds.' },
+              { status: 400 }
+            )
+          }
+
+          // Validate seller has Stripe account for remaining payout
+          if (!purchase.seller.stripeAccountId) {
+            return NextResponse.json(
+              { success: false, error: 'Seller has no Stripe account for remaining payout' },
+              { status: 400 }
+            )
+          }
+
+          // 1. Refund partial amount to buyer
+          refundResult = await refundBuyerPartial(
+            purchase.stripePaymentIntentId,
+            partialAmountCents,
+            purchaseId,
+            'Dispute resolved with partial refund'
           )
+          if (!refundResult.success) {
+            return NextResponse.json(
+              { success: false, error: `Refund failed: ${refundResult.error}` },
+              { status: 500 }
+            )
+          }
+
+          // 2. Calculate seller payout (remaining amount minus platform fee)
+          const remainingAmount = purchase.amountPaidCents - partialAmountCents
+          const platformFee = calculatePlatformFee(remainingAmount)
+          const sellerPayout = remainingAmount - platformFee
+
+          // 3. Transfer remaining to seller if there's enough after fees
+          if (sellerPayout > 0) {
+            transferResult = await releaseToSellerByPaymentIntent(
+              purchase.stripePaymentIntentId,
+              purchase.seller.stripeAccountId,
+              sellerPayout,
+              purchaseId
+            )
+            if (!transferResult.success) {
+              // Log but don't fail - refund already issued to buyer
+              console.error('[resolve] Seller transfer failed after partial refund:', transferResult.error)
+            }
+          }
+
+          // Use RELEASED status to indicate funds have been distributed
+          newEscrowStatus = 'RELEASED'
+          break
+        }
       }
     } catch (stripeError) {
       console.error('Stripe operation failed:', stripeError)
@@ -158,6 +212,7 @@ export async function POST(
             notes,
             escrowStatus: newEscrowStatus,
             amountCents: purchase.amountPaidCents,
+            partialRefundCents: resolution === 'PARTIAL_REFUND' ? partialAmountCents : undefined,
             transferId: transferResult?.transferId,
             refundId: refundResult?.refundId,
           },

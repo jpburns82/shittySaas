@@ -210,3 +210,18 @@ export const BUYER_TIER_CONFIG = {
 export const GUEST_DAILY_LIMIT_CENTS = 5000 // $50/day for guests
 
 export type BuyerTierKey = keyof typeof BUYER_TIER_CONFIG
+
+// ----- ESCROW DURATIONS -----
+
+/**
+ * Escrow hold durations in hours based on risk factors
+ */
+export const ESCROW_DURATIONS = {
+  INSTANT_RELEASE: 0,
+  NEW_SELLER_UNSCANNED: 72,      // 3 days
+  VERIFIED_SELLER_UNCLEAN: 24,   // 1 day
+  REPOSITORY_ACCESS: 72,          // 3 days
+  MANUAL_TRANSFER: 168,           // 7 days
+  DOMAIN_TRANSFER: 336,           // 14 days
+  DEFAULT: 72,                    // 3 days
+} as const

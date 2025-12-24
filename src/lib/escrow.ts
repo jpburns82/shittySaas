@@ -1,4 +1,5 @@
 import { DeliveryMethod, SellerTier, EscrowStatus } from '@prisma/client'
+import { ESCROW_DURATIONS } from './constants'
 
 /**
  * Dynamic Escrow Duration System
@@ -39,36 +40,36 @@ export function getEscrowDurationHours(params: EscrowParams): number {
     sellerTier !== 'NEW' &&
     scanStatus === 'CLEAN'
   ) {
-    return 0 // Instant release
+    return ESCROW_DURATIONS.INSTANT_RELEASE
   }
 
   // Instant DL handling
   if (deliveryMethod === 'INSTANT_DOWNLOAD') {
     // New seller or unscanned = 72 hours
     if (sellerTier === 'NEW' || !scanStatus || scanStatus === 'PENDING') {
-      return 72
+      return ESCROW_DURATIONS.NEW_SELLER_UNSCANNED
     }
     // Verified/Trusted seller but not clean scan = 24 hours
-    return 24
+    return ESCROW_DURATIONS.VERIFIED_SELLER_UNCLEAN
   }
 
   // Repository access = 72 hours (need time to verify access)
   if (deliveryMethod === 'REPOSITORY_ACCESS') {
-    return 72
+    return ESCROW_DURATIONS.REPOSITORY_ACCESS
   }
 
   // Manual transfer = 7 days (168 hours) - complex handoff
   if (deliveryMethod === 'MANUAL_TRANSFER') {
-    return 168
+    return ESCROW_DURATIONS.MANUAL_TRANSFER
   }
 
   // Domain transfer = 14 days (336 hours) - registrar delays
   if (deliveryMethod === 'DOMAIN_TRANSFER') {
-    return 336
+    return ESCROW_DURATIONS.DOMAIN_TRANSFER
   }
 
   // Default fallback
-  return 72
+  return ESCROW_DURATIONS.DEFAULT
 }
 
 /**

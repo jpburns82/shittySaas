@@ -50,7 +50,7 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
     >
       <div
         className={cn(
-          'bg-zinc-900 border border-border-light rounded-lg shadow-lg max-h-[90vh] overflow-auto',
+          'bg-[#18181b] border border-border-light rounded-lg shadow-lg max-h-[90vh] overflow-auto',
           {
             'w-full max-w-sm': size === 'sm',
             'w-full max-w-lg': size === 'md',
@@ -60,7 +60,7 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-4 py-3 bg-zinc-800 border-b border-border-dark">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#27272a] border-b border-border-dark">
             <h2 id="modal-title" className="font-display text-lg">
               {title}
             </h2>

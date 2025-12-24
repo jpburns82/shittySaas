@@ -355,9 +355,10 @@ export default function AdminListingsPage() {
               <div className="flex flex-wrap gap-2">
                 {DURATION_OPTIONS.map((opt) => (
                   <button
+                    type="button"
                     key={opt.value}
                     onClick={() => setFeatureDuration(opt.value)}
-                    className={`px-4 py-2 border ${
+                    className={`px-4 py-2 border rounded ${
                       featureDuration === opt.value
                         ? 'bg-accent-electric/20 text-accent-electric border-accent-electric'
                         : 'border-border-dark hover:bg-bg-accent'

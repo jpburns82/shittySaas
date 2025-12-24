@@ -3,6 +3,8 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { Button } from '@/components/ui/button'
 import { PurchaseCard } from '@/components/purchases/purchase-card'
+import { BuyerTierBadge } from '@/components/ui/badges/buyer-tier-badge'
+import { getSpendStatus } from '@/lib/buyer-limits'
 
 export const metadata = {
   title: 'My Purchases',
@@ -11,25 +13,32 @@ export const metadata = {
 export default async function DashboardPurchasesPage() {
   const session = await auth()
 
-  const purchases = await prisma.purchase.findMany({
-    where: {
-      buyerId: session!.user.id,
-    },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      listing: {
-        select: {
-          title: true,
-          slug: true,
-          deliveryMethod: true,
-          thumbnailUrl: true,
-          deletedAt: true,
-          status: true,
-        },
+  const [purchases, user, spendStatus] = await Promise.all([
+    prisma.purchase.findMany({
+      where: {
+        buyerId: session!.user.id,
       },
-      seller: { select: { username: true, sellerTier: true } },
-    },
-  })
+      orderBy: { createdAt: 'desc' },
+      include: {
+        listing: {
+          select: {
+            title: true,
+            slug: true,
+            deliveryMethod: true,
+            thumbnailUrl: true,
+            deletedAt: true,
+            status: true,
+          },
+        },
+        seller: { select: { username: true, sellerTier: true } },
+      },
+    }),
+    prisma.user.findUnique({
+      where: { id: session!.user.id },
+      select: { buyerTier: true },
+    }),
+    getSpendStatus(session!.user.id),
+  ])
 
   // Transform purchases to include required fields with defaults
   const purchasesWithDefaults = purchases.map((p) => ({
@@ -42,7 +51,17 @@ export default async function DashboardPurchasesPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl mb-6">My Purchases</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="font-display text-2xl">My Purchases</h1>
+        {user && (
+          <div className="flex items-center gap-3">
+            <BuyerTierBadge tier={user.buyerTier} size="sm" />
+            <span className="text-xs text-text-muted">
+              ${(spendStatus.remaining / 100).toFixed(0)} remaining today
+            </span>
+          </div>
+        )}
+      </div>
 
       {purchasesWithDefaults.length === 0 ? (
         <div className="card text-center py-12">

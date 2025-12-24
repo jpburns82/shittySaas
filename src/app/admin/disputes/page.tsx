@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Modal } from '@/components/ui/modal'
 import { SellerTierBadge } from '@/components/ui/badges/seller-tier-badge'
+import { BuyerTierBadge } from '@/components/ui/badges/buyer-tier-badge'
 import { formatDate, formatRelativeTime, formatPrice } from '@/lib/utils'
 
 type SellerTier = 'NEW' | 'VERIFIED' | 'TRUSTED' | 'PRO'
+type BuyerTier = 'NEW' | 'VERIFIED' | 'TRUSTED'
 
 type Dispute = {
   id: string
@@ -22,6 +24,7 @@ type Dispute = {
     id: string
     username: string
     email: string
+    buyerTier: BuyerTier
   } | null
   seller: {
     id: string
@@ -249,12 +252,15 @@ export default function AdminDisputesPage() {
                   </td>
                   <td>
                     {dispute.buyer ? (
-                      <Link
-                        href={`/user/${dispute.buyer.username}`}
-                        className="hover:underline text-sm"
-                      >
-                        @{dispute.buyer.username}
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/user/${dispute.buyer.username}`}
+                          className="hover:underline text-sm"
+                        >
+                          @{dispute.buyer.username}
+                        </Link>
+                        <BuyerTierBadge tier={dispute.buyer.buyerTier} size="sm" />
+                      </div>
                     ) : (
                       <span className="text-text-muted text-sm">Guest</span>
                     )}
@@ -388,12 +394,15 @@ export default function AdminDisputesPage() {
               <div className="mt-2 flex items-center justify-between">
                 {detailModal.dispute.buyer ? (
                   <>
-                    <Link
-                      href={`/user/${detailModal.dispute.buyer.username}`}
-                      className="font-medium hover:underline"
-                    >
-                      @{detailModal.dispute.buyer.username}
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/user/${detailModal.dispute.buyer.username}`}
+                        className="font-medium hover:underline"
+                      >
+                        @{detailModal.dispute.buyer.username}
+                      </Link>
+                      <BuyerTierBadge tier={detailModal.dispute.buyer.buyerTier} size="sm" />
+                    </div>
                     <span className="text-sm text-text-muted">
                       {detailModal.dispute.buyer.email}
                     </span>

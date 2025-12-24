@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { createConnectAccount, createAccountLink } from '@/lib/stripe'
 
 // POST /api/stripe/connect - Start Stripe Connect onboarding
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const session = await auth()
     if (!session) {

@@ -22,7 +22,7 @@ export async function POST(
 
     const { purchaseId } = await params
     const body = await request.json()
-    const { resolution, notes, partialAmountCents } = body as {
+    const { resolution, notes, partialAmountCents: _partialAmountCents } = body as {
       resolution: Resolution
       notes?: string
       partialAmountCents?: number

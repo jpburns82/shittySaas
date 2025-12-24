@@ -3,7 +3,7 @@ import { Bungee, Dela_Gothic_One } from 'next/font/google'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Providers } from '@/components/providers'
-import { SEO, APP_NAME, APP_URL, JP_ACCENTS } from '@/lib/constants'
+import { SEO, APP_NAME, APP_URL } from '@/lib/constants'
 import './globals.css'
 
 const bungee = Bungee({

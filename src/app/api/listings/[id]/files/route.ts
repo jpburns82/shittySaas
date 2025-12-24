@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { uploadFile, deleteFile } from '@/lib/r2'
 import { scanFile, shouldScanFile } from '@/lib/virustotal'
 import { nanoid } from 'nanoid'
-import type { Prisma } from '@prisma/client'
+import type { Prisma as _Prisma } from '@prisma/client'
 
 // Allowed file types for instant download
 const ALLOWED_FILE_TYPES = [

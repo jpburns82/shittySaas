@@ -23,6 +23,20 @@ Japanese cyberpunk aesthetic / Tokyo underground dark theme
 5. **NEVER expose phone numbers or API keys in code/logs**
 6. **NEVER delete or heavily modify existing working files** - Create new files instead
 7. **NEVER claim something is done without showing proof**
+8. **NEVER run `pnpm prisma db seed`** - This runs test data scripts that can corrupt production
+9. **NEVER run any command that deletes, truncates, or drops tables**
+10. **NEVER run database commands without explicit user permission** - ASK FIRST
+
+## DATABASE RULES
+
+**CRITICAL: This is a PRODUCTION database. Treat it with extreme caution.**
+
+- NEVER run `pnpm prisma db seed` - Use `prisma/seed-categories-only.ts` for category updates
+- NEVER truncate or delete tables
+- ALWAYS use upsert for reference data (categories, etc.)
+- ALWAYS verify data counts before and after any DB operation
+- ALWAYS ask user before running ANY database modification command
+- For category updates ONLY: `pnpm tsx prisma/seed-categories-only.ts`
 
 ## Verification Requirements
 

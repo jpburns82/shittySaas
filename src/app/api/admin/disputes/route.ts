@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
               id: true,
               username: true,
               email: true,
+              buyerTier: true,
             },
           },
           seller: {

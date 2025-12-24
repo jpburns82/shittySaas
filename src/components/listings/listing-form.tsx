@@ -81,7 +81,7 @@ function CategorySelect({ categories, value, onChange, error }: CategorySelectPr
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-bg-grave border border-border-dark rounded shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 w-full mt-1 bg-[#0a0a0a] border border-border-dark rounded shadow-lg max-h-60 overflow-auto">
           {categories.map((category) => (
             <button
               key={category.id}
@@ -373,10 +373,17 @@ export function ListingForm({
             name="price"
             type="number"
             min="0"
-            step="1"
-            value={formData.priceInCents ? formData.priceInCents / 100 : ''}
-            onChange={(e) => handleChange('priceInCents', Math.round(parseFloat(e.target.value) * 100))}
-            placeholder="49"
+            step="0.01"
+            value={formData.priceInCents !== undefined && formData.priceInCents !== null ? formData.priceInCents / 100 : ''}
+            onChange={(e) => {
+              const val = e.target.value
+              if (val === '' || val === undefined) {
+                handleChange('priceInCents', 0)
+              } else {
+                handleChange('priceInCents', Math.round(parseFloat(val) * 100))
+              }
+            }}
+            placeholder="49.99"
             error={errors.priceInCents}
           />
         )}
@@ -387,10 +394,17 @@ export function ListingForm({
             name="minPrice"
             type="number"
             min="0"
-            step="1"
-            value={formData.minPriceInCents ? formData.minPriceInCents / 100 : ''}
-            onChange={(e) => handleChange('minPriceInCents', Math.round(parseFloat(e.target.value) * 100))}
-            placeholder="0"
+            step="0.01"
+            value={formData.minPriceInCents !== undefined && formData.minPriceInCents !== null ? formData.minPriceInCents / 100 : ''}
+            onChange={(e) => {
+              const val = e.target.value
+              if (val === '' || val === undefined) {
+                handleChange('minPriceInCents', 0)
+              } else {
+                handleChange('minPriceInCents', Math.round(parseFloat(val) * 100))
+              }
+            }}
+            placeholder="0.00"
           />
         )}
       </fieldset>

@@ -132,3 +132,12 @@ export const isServer = typeof window === 'undefined'
 
 // Check if we're on the client
 export const isClient = !isServer
+
+// Sanitize string for JSON-LD to prevent XSS via script tag breakout
+export function sanitizeForJsonLd(str: string | null | undefined): string {
+  if (!str) return ''
+  return str
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+}

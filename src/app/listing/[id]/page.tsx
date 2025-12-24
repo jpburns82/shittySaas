@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { sanitizeForJsonLd } from '@/lib/utils'
 import { ListingDetail } from '@/components/listings/listing-detail'
 import { CommentSection } from '@/components/comments/comment-section'
 import type { Prisma } from '@prisma/client'
@@ -247,10 +248,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Product',
-            name: listing.title,
-            description: listing.shortDescription,
+            name: sanitizeForJsonLd(listing.title),
+            description: sanitizeForJsonLd(listing.shortDescription),
             image: listing.thumbnailUrl,
-            category: listing.category?.name,
+            category: sanitizeForJsonLd(listing.category?.name),
             offers: {
               '@type': 'Offer',
               url: `https://undeadlist.com/listing/${listing.slug}`,
@@ -262,7 +263,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
                   : 'https://schema.org/SoldOut',
               seller: {
                 '@type': 'Person',
-                name: listing.seller?.displayName || listing.seller?.username,
+                name: sanitizeForJsonLd(listing.seller?.displayName || listing.seller?.username),
               },
             },
           }),

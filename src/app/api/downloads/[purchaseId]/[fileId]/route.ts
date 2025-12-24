@@ -49,8 +49,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
 
-    // Verify user owns this purchase
-    if (purchase.buyerId !== session.user.id) {
+    // Verify user owns this purchase (check both regular buyer and guest email)
+    const isOwner = purchase.buyerId === session.user.id
+    const isGuestOwner = purchase.guestEmail && purchase.guestEmail === session.user.email
+
+    if (!isOwner && !isGuestOwner) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }

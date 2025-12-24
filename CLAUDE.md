@@ -91,6 +91,18 @@ grep -n "bg-zinc-900" src/components/ui/modal.tsx
 | Phase 8 - Documentation | Pending |
 | Phase 9 - AI Guardian | Pending |
 
+## Security Audit Remediation
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Phase 0 - Emergency | **COMPLETE** | XSS fix (P1-001), Guest download auth (P1-006) |
+| Phase 1 - Security Foundation | Pending | Rate limiting, guest limits, escrow atomicity, CSP |
+| Phase 2 - Financial Integrity | Pending | WWW redirect, webhook resilience, cleanup cron |
+| Phase 3 - Stability | Pending | Pagination, CSRF, health check |
+| Phase 4 - Quality | Pending | Constants, logging, indexes |
+
+See `.claude/audits/IMPLEMENTATION_PLAN_v2.md` for full details.
+
 ## Key Reference Files
 
 - `GOLDEN_ANCHOR.md` - Complete project state documentation

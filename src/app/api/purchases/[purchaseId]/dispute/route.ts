@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { canDispute } from '@/lib/escrow'
 import { alertDisputeOpened } from '@/lib/twilio'
+import { sendDisputeOpenedSellerEmail, sendDisputeOpenedBuyerConfirmEmail } from '@/lib/email'
 import { DisputeReason } from '@prisma/client'
 import { validateCSRF } from '@/lib/csrf'
 import { createLogger } from '@/lib/logger'
@@ -127,11 +128,27 @@ export async function POST(
       return disputedPurchase
     })
 
-    // GITHUB_ISSUE: Add dispute notification emails
-    // When a buyer opens a dispute, send email notifications to:
-    // - Seller: notify them a dispute was opened, include reason
-    // - Buyer: confirm their dispute was submitted
-    // Implementation: Create sendDisputeOpenedEmail() in src/lib/email.ts
+    // Send dispute notification emails (non-blocking)
+    const buyerEmail = purchase.buyer?.email || session.user.email
+    const buyerUsername = purchase.buyer?.username || session.user.username || 'Unknown'
+
+    if (purchase.seller.email) {
+      sendDisputeOpenedSellerEmail(
+        purchase.seller.email,
+        purchase.listing.title,
+        reason,
+        buyerUsername,
+        notes
+      ).catch((err) => logger.error('Failed to send seller dispute email', { err }))
+    }
+
+    if (buyerEmail) {
+      sendDisputeOpenedBuyerConfirmEmail(
+        buyerEmail,
+        purchase.listing.title,
+        notes
+      ).catch((err) => logger.error('Failed to send buyer dispute confirm email', { err }))
+    }
 
     // Send Twilio alert to admin
     await alertDisputeOpened(

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { releaseToSellerByPaymentIntent, refundBuyer, refundBuyerPartial } from '@/lib/stripe-transfers'
 import { calculatePlatformFee } from '@/lib/fees'
 import { alertDisputeResolved } from '@/lib/twilio'
+import { sendDisputeResolvedBuyerEmail, sendDisputeResolvedSellerEmail } from '@/lib/email'
 import { createLogger } from '@/lib/logger'
 
 const log = createLogger('dispute-resolve')
@@ -235,12 +236,39 @@ export async function POST(
       return updated
     })
 
-    // GITHUB_ISSUE: Add dispute resolution notification emails
-    // When admin resolves a dispute, send email notifications to:
-    // - Buyer: notify them of the resolution and what it means for them
-    // - Seller: notify them of the resolution and next steps
-    // Include: resolution type, refund/payout amounts, any notes
-    // Implementation: Create sendDisputeResolvedEmail() in src/lib/email.ts
+    // Send dispute resolution notification emails (non-blocking)
+    // Calculate amounts for emails
+    const refundAmountForBuyer = resolution === 'REFUND_BUYER'
+      ? purchase.amountPaidCents
+      : resolution === 'PARTIAL_REFUND'
+      ? partialAmountCents
+      : undefined
+
+    const payoutAmountForSeller = resolution === 'RELEASE_TO_SELLER'
+      ? purchase.sellerAmountCents
+      : resolution === 'PARTIAL_REFUND'
+      ? (purchase.amountPaidCents - (partialAmountCents || 0) - calculatePlatformFee(purchase.amountPaidCents - (partialAmountCents || 0)))
+      : undefined
+
+    if (purchase.buyer?.email) {
+      sendDisputeResolvedBuyerEmail(
+        purchase.buyer.email,
+        purchase.listing.title,
+        resolution,
+        refundAmountForBuyer,
+        notes
+      ).catch((err) => log.error('Failed to send buyer resolution email', { err }))
+    }
+
+    if (purchase.seller.email) {
+      sendDisputeResolvedSellerEmail(
+        purchase.seller.email,
+        purchase.listing.title,
+        resolution,
+        payoutAmountForSeller,
+        notes
+      ).catch((err) => log.error('Failed to send seller resolution email', { err }))
+    }
 
     // Send Twilio alert
     await alertDisputeResolved(purchase.listing.title, resolution)

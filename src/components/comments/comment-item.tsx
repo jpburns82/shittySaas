@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Comment } from './comment-section'
@@ -41,6 +41,12 @@ export function CommentItem({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showReportModal, setShowReportModal] = useState(false)
   const [editError, setEditError] = useState<string | null>(null)
+  const [timeAgo, setTimeAgo] = useState<string>('')
+
+  // Calculate time after mount to avoid hydration mismatch
+  useEffect(() => {
+    setTimeAgo(formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true }))
+  }, [comment.createdAt])
 
   const isOwner = currentUserId === comment.author.id
   const isOP = comment.author.id === listingOwnerId
@@ -95,8 +101,6 @@ export function CommentItem({
     setIsReplying(false)
   }
 
-  const timeAgo = formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
-
   return (
     <div className={`group ${isOP ? 'op-glow rounded p-3 -ml-3' : ''}`}>
       {/* Comment Header */}
@@ -145,7 +149,7 @@ export function CommentItem({
             )}
 
             {/* Timestamp */}
-            <span className="text-text-dust text-xs">
+            <span className="text-text-dust text-xs" suppressHydrationWarning>
               {timeAgo}
               {comment.editedAt && ' (edited)'}
             </span>

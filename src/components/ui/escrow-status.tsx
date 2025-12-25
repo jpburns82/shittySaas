@@ -46,9 +46,20 @@ export function EscrowStatus({
   showProgressBar = true,
   className,
 }: EscrowStatusProps) {
-  const [timeRemaining, setTimeRemaining] = useState(
-    expiresAt ? getTimeRemaining(expiresAt) : null
-  )
+  const [timeRemaining, setTimeRemaining] = useState<{
+    total: number
+    days: number
+    hours: number
+    minutes: number
+    formatted: string
+  } | null>(null)
+
+  // Calculate time after mount to avoid hydration mismatch
+  useEffect(() => {
+    if (expiresAt && status === 'HOLDING') {
+      setTimeRemaining(getTimeRemaining(expiresAt))
+    }
+  }, [expiresAt, status])
 
   // Update countdown every minute
   useEffect(() => {

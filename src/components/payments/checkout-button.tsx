@@ -33,10 +33,10 @@ export function CheckoutButton({
 
       const data = await res.json()
 
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl
+      if (data.success && data.data?.url) {
+        window.location.href = data.data.url
       } else {
-        console.error('Failed to create checkout session:', data.error)
+        console.error('Failed to create checkout session:', data.error || 'Unknown error')
       }
     } catch (error) {
       console.error('Checkout error:', error)
@@ -85,8 +85,10 @@ export function QuickBuyButton({ listingId, priceInCents }: {
       })
 
       const data = await res.json()
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl
+      if (data.success && data.data?.url) {
+        window.location.href = data.data.url
+      } else {
+        console.error('Quick buy failed:', data.error || 'Unknown error')
       }
     } catch (error) {
       console.error('Quick buy error:', error)

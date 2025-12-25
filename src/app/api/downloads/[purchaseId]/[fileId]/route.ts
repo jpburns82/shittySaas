@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getPresignedDownloadUrl } from '@/lib/r2'
+import { incrementDownloadCount } from '@/lib/download-limiter'
 
 interface RouteContext {
   params: Promise<{ purchaseId: string; fileId: string }>
@@ -87,6 +88,15 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json(
         { success: false, error: 'File not found' },
         { status: 404 }
+      )
+    }
+
+    // Check and increment download count
+    const canDownload = await incrementDownloadCount(purchaseId)
+    if (!canDownload) {
+      return NextResponse.json(
+        { success: false, error: 'Download limit exceeded. Contact seller for additional downloads.' },
+        { status: 403 }
       )
     }
 

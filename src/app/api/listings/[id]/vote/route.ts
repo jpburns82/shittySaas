@@ -72,59 +72,63 @@ export async function POST(
     if (existingVote) {
       if (existingVote.value === value) {
         // Same vote value = remove vote (toggle off)
-        await prisma.vote.delete({
-          where: { id: existingVote.id },
-        })
-
-        // Update denormalized counts
-        await prisma.listing.update({
-          where: { id: listingId },
-          data: {
-            voteScore: { decrement: value },
-            upvoteCount: value === 1 ? { decrement: 1 } : undefined,
-            downvoteCount: value === -1 ? { decrement: 1 } : undefined,
-          },
+        await prisma.$transaction(async (tx) => {
+          await tx.vote.delete({
+            where: { id: existingVote.id },
+          })
+          await tx.listing.update({
+            where: { id: listingId },
+            data: {
+              voteScore: { decrement: value },
+              upvoteCount: value === 1 ? { decrement: 1 } : undefined,
+              downvoteCount: value === -1 ? { decrement: 1 } : undefined,
+            },
+          })
         })
 
         action = 'removed'
         result = null
       } else {
         // Different vote value = change vote
-        result = await prisma.vote.update({
-          where: { id: existingVote.id },
-          data: { value },
-        })
-
-        // Update denormalized counts (swing of 2: remove old vote effect, add new)
-        await prisma.listing.update({
-          where: { id: listingId },
-          data: {
-            voteScore: { increment: value * 2 }, // +2 or -2
-            upvoteCount: value === 1 ? { increment: 1 } : { decrement: 1 },
-            downvoteCount: value === -1 ? { increment: 1 } : { decrement: 1 },
-          },
+        result = await prisma.$transaction(async (tx) => {
+          const voteResult = await tx.vote.update({
+            where: { id: existingVote.id },
+            data: { value },
+          })
+          // Update denormalized counts (swing of 2: remove old vote effect, add new)
+          await tx.listing.update({
+            where: { id: listingId },
+            data: {
+              voteScore: { increment: value * 2 }, // +2 or -2
+              upvoteCount: value === 1 ? { increment: 1 } : { decrement: 1 },
+              downvoteCount: value === -1 ? { increment: 1 } : { decrement: 1 },
+            },
+          })
+          return voteResult
         })
 
         action = 'updated'
       }
     } else {
       // Create new vote
-      result = await prisma.vote.create({
-        data: {
-          userId: session.user.id,
-          listingId,
-          value,
-        },
-      })
-
-      // Update denormalized counts
-      await prisma.listing.update({
-        where: { id: listingId },
-        data: {
-          voteScore: { increment: value },
-          upvoteCount: value === 1 ? { increment: 1 } : undefined,
-          downvoteCount: value === -1 ? { increment: 1 } : undefined,
-        },
+      result = await prisma.$transaction(async (tx) => {
+        const voteResult = await tx.vote.create({
+          data: {
+            userId: session.user.id,
+            listingId,
+            value,
+          },
+        })
+        // Update denormalized counts
+        await tx.listing.update({
+          where: { id: listingId },
+          data: {
+            voteScore: { increment: value },
+            upvoteCount: value === 1 ? { increment: 1 } : undefined,
+            downvoteCount: value === -1 ? { increment: 1 } : undefined,
+          },
+        })
+        return voteResult
       })
 
       action = 'created'

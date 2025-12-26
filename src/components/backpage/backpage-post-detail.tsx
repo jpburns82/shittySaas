@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
 import { useSession } from 'next-auth/react'
-import { Zap, Skull, ArrowLeft, Send, Trash2 } from 'lucide-react'
+import { ArrowLeft, Send, Trash2 } from 'lucide-react'
 import { CATEGORY_LABELS, BACKPAGE_LIMITS } from '@/lib/backpage'
 
 interface Reply {
@@ -179,7 +179,7 @@ export function BackPagePostDetail({ post }: BackPagePostDetailProps) {
                     : 'bg-zinc-800 hover:bg-zinc-700 text-text-secondary'
                 }`}
               >
-                <Zap size={14} />
+                <span>⚡</span>
                 {votes.up}
               </button>
               <button
@@ -190,7 +190,7 @@ export function BackPagePostDetail({ post }: BackPagePostDetailProps) {
                     : 'bg-zinc-800 hover:bg-zinc-700 text-text-secondary'
                 }`}
               >
-                <Skull size={14} />
+                <span>⚰️</span>
                 {votes.down}
               </button>
             </div>

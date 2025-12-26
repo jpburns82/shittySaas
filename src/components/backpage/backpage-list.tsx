@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
-import { Zap, Skull, MessageSquare } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 import { CATEGORY_LABELS } from '@/lib/backpage'
 
 interface Post {
@@ -46,11 +46,11 @@ export function BackPageList({ posts }: BackPageListProps) {
             {/* Vote counts */}
             <div className="flex flex-col items-center text-sm min-w-[50px] gap-1">
               <span className="flex items-center gap-1 text-accent-cyan">
-                <Zap size={14} />
+                <span>⚡</span>
                 {post.upvotes}
               </span>
               <span className="flex items-center gap-1 text-text-tertiary">
-                <Skull size={14} />
+                <span>⚰️</span>
                 {post.downvotes}
               </span>
             </div>

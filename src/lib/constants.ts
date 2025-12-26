@@ -5,7 +5,7 @@
 
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'UndeadList'
 export const APP_TAGLINE = 'Built, but undiscovered. Buy and sell independent software projects that haven\'t found their audience yet — SaaS apps, scripts, boilerplates, and more.'
-export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://undeadlist.com'
 
 // Japanese accent text for UI decoration
 export const JP_ACCENTS = {

@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Create Stripe checkout session (platform payment, not connected account)
-    const { origin } = new URL(request.url)
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://undeadlist.com'
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [

@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Create Stripe checkout session
-    const { origin } = new URL(request.url)
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://undeadlist.com'
     const checkoutSession = await createCheckoutSession({
       listingId: listing.id,
       listingTitle: listing.title,

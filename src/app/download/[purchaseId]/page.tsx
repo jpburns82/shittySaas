@@ -3,9 +3,11 @@ import Link from 'next/link'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatFileSize, formatDate } from '@/lib/utils'
+import { verifyDownloadToken } from '@/lib/download-token'
 
 interface Props {
   params: Promise<{ purchaseId: string }>
+  searchParams: Promise<{ token?: string }>
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -22,14 +24,27 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export default async function DownloadPage({ params }: Props) {
+export default async function DownloadPage({ params, searchParams }: Props) {
+  const { purchaseId } = await params
+  const { token } = await searchParams
   const session = await auth()
 
-  if (!session) {
-    redirect('/login?redirect=/download/' + (await params).purchaseId)
+  // Check JWT token for guest access
+  let isValidGuestToken = false
+  let guestEmailFromToken: string | null = null
+
+  if (token) {
+    const payload = verifyDownloadToken(token)
+    if (payload && payload.purchaseId === purchaseId) {
+      isValidGuestToken = true
+      guestEmailFromToken = payload.email
+    }
   }
 
-  const { purchaseId } = await params
+  // If no valid token and no session, redirect to login
+  if (!isValidGuestToken && !session) {
+    redirect('/login?redirect=/download/' + purchaseId)
+  }
 
   // Get purchase with listing files
   const purchase = await prisma.purchase.findUnique({
@@ -67,10 +82,18 @@ export default async function DownloadPage({ params }: Props) {
     notFound()
   }
 
-  // Check if user owns this purchase (by buyer ID or guest email)
-  const isOwner =
-    purchase.buyerId === session.user.id ||
-    (purchase.guestEmail && purchase.guestEmail === session.user.email)
+  // Check ownership
+  let isOwner = false
+
+  if (isValidGuestToken) {
+    // Guest with valid token - verify email matches purchase
+    isOwner = purchase.guestEmail === guestEmailFromToken
+  } else if (session) {
+    // Logged in user - check by buyer ID or matching email
+    isOwner =
+      purchase.buyerId === session.user.id ||
+      (purchase.guestEmail !== null && purchase.guestEmail === session.user.email)
+  }
 
   if (!isOwner) {
     return (
@@ -80,9 +103,15 @@ export default async function DownloadPage({ params }: Props) {
           <p className="text-text-muted mb-6">
             You don&apos;t have access to download these files.
           </p>
-          <Link href="/dashboard/purchases" className="btn btn-primary">
-            View Your Purchases
-          </Link>
+          {session ? (
+            <Link href="/dashboard/purchases" className="btn btn-primary">
+              View Your Purchases
+            </Link>
+          ) : (
+            <Link href="/login" className="btn btn-primary">
+              Login
+            </Link>
+          )}
         </div>
       </div>
     )
@@ -133,9 +162,15 @@ export default async function DownloadPage({ params }: Props) {
     <div className="container py-8 max-w-2xl">
       {/* Header */}
       <div className="mb-6">
-        <Link href="/dashboard/purchases" className="text-link text-sm mb-2 inline-block">
-          ← Back to Purchases
-        </Link>
+        {session ? (
+          <Link href="/dashboard/purchases" className="text-link text-sm mb-2 inline-block">
+            ← Back to Purchases
+          </Link>
+        ) : (
+          <Link href="/" className="text-link text-sm mb-2 inline-block">
+            ← Back to UndeadList
+          </Link>
+        )}
         <h1 className="font-display text-2xl">{purchase.listing.title}</h1>
         <p className="text-text-muted">
           Purchased from @{purchase.seller.username} on {formatDate(purchase.createdAt)}
@@ -183,12 +218,18 @@ export default async function DownloadPage({ params }: Props) {
 
       {/* Support info */}
       <div className="mt-6 text-sm text-text-muted">
-        <p>
-          Having trouble with your download?{' '}
-          <Link href={`/dashboard/messages?to=${purchase.seller.username}`} className="text-link">
-            Contact the seller
-          </Link>
-        </p>
+        {session ? (
+          <p>
+            Having trouble with your download?{' '}
+            <Link href={`/dashboard/messages?to=${purchase.seller.username}`} className="text-link">
+              Contact the seller
+            </Link>
+          </p>
+        ) : (
+          <p>
+            Having trouble? Reply to your purchase confirmation email for support.
+          </p>
+        )}
       </div>
     </div>
   )

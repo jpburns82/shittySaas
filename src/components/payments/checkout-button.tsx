@@ -11,6 +11,7 @@ interface CheckoutButtonProps {
   priceInCents: number
   priceType: string
   disabled?: boolean
+  guestEmail?: string
 }
 
 export function CheckoutButton({
@@ -19,16 +20,19 @@ export function CheckoutButton({
   priceInCents,
   priceType,
   disabled,
+  guestEmail,
 }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleCheckout = async () => {
     setLoading(true)
+    setError(null)
     try {
       const res = await fetchWithCSRF('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId }),
+        body: JSON.stringify({ listingId, guestEmail }),
       })
 
       const data = await res.json()
@@ -36,10 +40,12 @@ export function CheckoutButton({
       if (data.success && data.data?.url) {
         window.location.href = data.data.url
       } else {
+        setError(data.error || 'Failed to create checkout session')
         console.error('Failed to create checkout session:', data.error || 'Unknown error')
       }
-    } catch (error) {
-      console.error('Checkout error:', error)
+    } catch (err) {
+      setError('Checkout failed. Please try again.')
+      console.error('Checkout error:', err)
     } finally {
       setLoading(false)
     }
@@ -47,9 +53,16 @@ export function CheckoutButton({
 
   if (priceType === 'FREE') {
     return (
-      <Button onClick={handleCheckout} variant="primary" loading={loading} disabled={disabled}>
-        Get for Free
-      </Button>
+      <div>
+        {error && (
+          <div className="mb-3 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-accent-red text-sm">
+            {error}
+          </div>
+        )}
+        <Button onClick={handleCheckout} variant="primary" loading={loading} disabled={disabled}>
+          Get for Free
+        </Button>
+      </div>
     )
   }
 
@@ -62,9 +75,16 @@ export function CheckoutButton({
   }
 
   return (
-    <Button onClick={handleCheckout} variant="primary" loading={loading} disabled={disabled}>
-      Buy Now — {formatPrice(priceInCents)}
-    </Button>
+    <div>
+      {error && (
+        <div className="mb-3 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-accent-red text-sm">
+          {error}
+        </div>
+      )}
+      <Button onClick={handleCheckout} variant="primary" loading={loading} disabled={disabled}>
+        Buy Now — {formatPrice(priceInCents)}
+      </Button>
+    </div>
   )
 }
 

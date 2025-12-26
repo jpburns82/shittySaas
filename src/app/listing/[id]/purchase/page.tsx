@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { CheckoutButton } from '@/components/payments/checkout-button'
+import { GuestCheckoutForm } from '@/components/payments/guest-checkout-form'
 import { PriceBadge } from '@/components/listings/price-badge'
 import { Button } from '@/components/ui/button'
 
@@ -132,24 +133,29 @@ export default async function PurchasePage({ params }: PurchasePageProps) {
             Refunds are at the seller&apos;s discretion.
           </div>
 
-          {/* Checkout button */}
-          <CheckoutButton
-            listingId={listing.id}
-            listingTitle={listing.title}
-            priceInCents={listing.priceInCents || 0}
-            priceType={listing.priceType}
-          />
-
-          {/* Guest checkout note */}
-          {!session?.user && (
-            <p className="text-xs text-text-muted mt-4 text-center">
-              You can checkout as a guest. Download link will be sent to your email.
-              <br />
-              <Link href="/login" className="text-link">
-                Login
-              </Link>{' '}
-              to track your purchases.
-            </p>
+          {/* Checkout section */}
+          {session?.user ? (
+            <CheckoutButton
+              listingId={listing.id}
+              listingTitle={listing.title}
+              priceInCents={listing.priceInCents || 0}
+              priceType={listing.priceType}
+            />
+          ) : (
+            <>
+              <GuestCheckoutForm
+                listingId={listing.id}
+                listingTitle={listing.title}
+                priceInCents={listing.priceInCents || 0}
+                priceType={listing.priceType}
+              />
+              <p className="text-xs text-text-muted mt-4 text-center">
+                <Link href="/login" className="text-link">
+                  Login
+                </Link>{' '}
+                to track your purchases in your dashboard.
+              </p>
+            </>
           )}
         </div>
       </div>

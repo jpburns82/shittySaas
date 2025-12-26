@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { constructWebhookEvent } from '@/lib/stripe'
-import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail, sendFeaturedConfirmationEmail } from '@/lib/email'
+import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail, sendFeaturedConfirmationEmail, sendGuestDownloadEmail } from '@/lib/email'
 import { calculateEscrowExpiry } from '@/lib/escrow'
 import { releaseToSellerByPaymentIntent } from '@/lib/stripe-transfers'
 import { alertHighValueSale } from '@/lib/twilio'
@@ -184,6 +184,23 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     } catch (error) {
       log.error('Failed to send purchase confirmation email', {
         buyerEmail,
+        purchaseId,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+
+  // Send guest download email for instant downloads
+  if (purchase.guestEmail && purchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD') {
+    try {
+      await sendGuestDownloadEmail(
+        purchase.guestEmail,
+        purchase.listing.title,
+        purchase.id
+      )
+    } catch (error) {
+      log.error('Failed to send guest download email', {
+        guestEmail: purchase.guestEmail,
         purchaseId,
         error: error instanceof Error ? error.message : String(error),
       })

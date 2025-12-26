@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { escapeHtml } from './utils'
+import { generateDownloadUrl } from './download-token'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -488,6 +489,51 @@ export async function sendDisputeResolvedSellerEmail(
     return { success: true }
   } catch (error) {
     console.error('Failed to send dispute resolved seller email:', error)
+    return { success: false, error: 'Failed to send email' }
+  }
+}
+
+// Guest download email (for guest purchases)
+export async function sendGuestDownloadEmail(
+  email: string,
+  listingTitle: string,
+  purchaseId: string
+): Promise<EmailResult> {
+  try {
+    const downloadUrl = generateDownloadUrl(purchaseId, email)
+
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `Your download: ${listingTitle}`,
+      html: `
+        <div style="font-family: 'Courier New', monospace; max-width: 600px; margin: 0 auto; padding: 20px; background: #1a1a1a; color: #e8e8e8;">
+          <h1 style="font-size: 24px; color: #22d3ee; border-bottom: 2px solid #22d3ee; padding-bottom: 10px;">
+            Your Purchase is Ready!
+          </h1>
+          <p style="margin-bottom: 16px;">
+            Thank you for purchasing <strong style="color: #22d3ee;">${escapeHtml(listingTitle)}</strong>
+          </p>
+          <p style="margin-bottom: 24px;">
+            Click the button below to download your files:
+          </p>
+          <p style="margin: 20px 0;">
+            <a href="${downloadUrl}" style="display: inline-block; background: #22d3ee; color: #000; padding: 12px 24px; text-decoration: none; font-weight: bold;">
+              Download Now
+            </a>
+          </p>
+          <p style="margin-top: 24px; font-size: 14px; color: #888;">
+            This link expires in 7 days. If you have any issues, reply to this email.
+          </p>
+          <p style="font-size: 12px; color: #666; margin-top: 30px; border-top: 1px solid #333; padding-top: 10px;">
+            ${APP_NAME} - Where dead code gets a second life
+          </p>
+        </div>
+      `,
+    })
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to send guest download email:', error)
     return { success: false, error: 'Failed to send email' }
   }
 }

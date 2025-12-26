@@ -75,12 +75,14 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         {/* Plausible Analytics - privacy-friendly analytics */}
-        <Script
-          defer
-          data-domain="undeadlist.com"
-          src="https://plausible.io/js/script.js"
-          strategy="afterInteractive"
-        />
+        {process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN && (
+          <Script
+            defer
+            data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
+            src="https://plausible.io/js/script.js"
+            strategy="afterInteractive"
+          />
+        )}
       </head>
       <body className={`${bungee.variable} ${delaGothic.variable} min-h-screen flex flex-col bg-bg-crypt text-text-bone`}>
         <Providers>

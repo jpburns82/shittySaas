@@ -92,6 +92,11 @@ model User {
   sellerThreads     MessageThread[]   @relation("SellerThreads")
   warnings          UserWarning[]
 
+  // バックページ (Community Board)
+  backPagePosts     BackPagePost[]   @relation("BackPagePosts")
+  backPageReplies   BackPageReply[]  @relation("BackPageReplies")
+  backPageVotes     BackPageVote[]   @relation("BackPageVotes")
+
   @@index([email])
   @@index([username])
   @@index([stripeAccountId])
@@ -778,3 +783,83 @@ model ListingView {
 
 // Add relation to FeaturedPurchase in Listing
 // featuredPurchases FeaturedPurchase[]
+
+// ============================================
+// バックページ (Community Board)
+// Weekly community board - posts expire every Monday
+// ============================================
+
+model BackPagePost {
+  id          String           @id @default(cuid())
+  title       String
+  body        String           @db.Text
+  slug        String           @unique
+  category    BackPageCategory @default(GENERAL)
+
+  // Author
+  authorId    String
+  author      User             @relation("BackPagePosts", fields: [authorId], references: [id])
+
+  // Stats (denormalized)
+  upvotes     Int              @default(0)
+  downvotes   Int              @default(0)
+  replyCount  Int              @default(0)
+
+  // Timestamps
+  createdAt   DateTime         @default(now())
+  expiresAt   DateTime         // Next Monday 00:00 UTC
+
+  // Relations
+  replies     BackPageReply[]
+  votes       BackPageVote[]
+
+  @@index([category])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@index([authorId])
+}
+
+model BackPageReply {
+  id        String       @id @default(cuid())
+  body      String       @db.Text
+
+  // Post reference
+  postId    String
+  post      BackPagePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // Author
+  authorId  String
+  author    User         @relation("BackPageReplies", fields: [authorId], references: [id])
+
+  createdAt DateTime     @default(now())
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model BackPageVote {
+  id        String       @id @default(cuid())
+
+  // Post reference
+  postId    String
+  post      BackPagePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // Voter
+  userId    String
+  user      User         @relation("BackPageVotes", fields: [userId], references: [id])
+
+  value     Int          // 1 for upvote, -1 for downvote
+
+  createdAt DateTime     @default(now())
+
+  @@unique([postId, userId]) // One vote per user per post
+  @@index([postId])
+  @@index([userId])
+}
+
+enum BackPageCategory {
+  GENERAL
+  SHOW_TELL
+  LOOKING_FOR
+  HELP
+}

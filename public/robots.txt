@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://undeadlist.com/sitemap.xml
+
+# Protected areas
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /purchase/
+Disallow: /download/
+Disallow: /messages/

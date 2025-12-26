@@ -9,6 +9,7 @@ export async function Nav() {
     <nav className="nav">
       <Link href="/listings">Browse</Link>
       <Link href="/sell">Sell</Link>
+      <Link href="/backpage">Back Page</Link>
 
       {user ? (
         <>
@@ -41,6 +42,7 @@ export function NavClient({ user }: {
     <nav className="nav">
       <Link href="/listings">Browse</Link>
       <Link href="/sell">Sell</Link>
+      <Link href="/backpage">Back Page</Link>
 
       {user ? (
         <>

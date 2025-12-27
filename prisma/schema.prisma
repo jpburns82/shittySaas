@@ -187,7 +187,14 @@ model Listing {
   downvoteCount         Int       @default(0)
   commentCount          Int       @default(0)
   purchaseCount         Int       @default(0)
-  
+
+  // Content Scanning (Guardian AI moderation)
+  contentScanStatus     ContentScanStatus @default(PENDING)
+  contentScannedAt      DateTime?
+  lastScanFlags         String[]          @default([])
+  lastScanScore         Int?
+  scanDigestSentAt      DateTime?         // Track when included in digest
+
   // Ownership
   seller                User      @relation(fields: [sellerId], references: [id])
   sellerId              String
@@ -217,6 +224,8 @@ model Listing {
   @@index([voteScore])
   @@index([publishedAt])
   @@index([deletedAt])
+  @@index([contentScanStatus])
+  @@index([contentScannedAt])
 }
 
 model ListingFile {
@@ -412,6 +421,16 @@ enum ScanStatus {
   MALICIOUS         // High threat score, blocked
   ERROR             // Scan failed
   SKIPPED           // File type not scannable
+}
+
+// Content scanning status (Guardian AI moderation)
+enum ContentScanStatus {
+  PENDING           // Never scanned
+  CLEAN             // No issues found
+  LOW               // Minor issues, approved
+  MEDIUM            // Needs review
+  HIGH              // Flagged for review
+  CRITICAL          // Blocked
 }
 
 // ============================================

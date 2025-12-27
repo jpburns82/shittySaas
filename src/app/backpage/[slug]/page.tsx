@@ -44,6 +44,7 @@ export default async function BackPagePostPage({ params }: Props) {
         },
       },
       replies: {
+        where: { status: 'ACTIVE' }, // Only show active (not removed) replies
         include: {
           author: {
             select: {
@@ -60,6 +61,20 @@ export default async function BackPagePostPage({ params }: Props) {
 
   if (!post) {
     notFound()
+  }
+
+  // Check if removed
+  if (post.status === 'REMOVED') {
+    return (
+      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-2">Post Removed</h1>
+          <p className="text-text-secondary">
+            This post has been removed for violating community guidelines.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   // Check if expired

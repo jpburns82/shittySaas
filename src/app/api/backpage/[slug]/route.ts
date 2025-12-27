@@ -27,6 +27,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           },
         },
         replies: {
+          where: { status: 'ACTIVE' }, // Only show active (not removed) replies
           include: {
             author: {
               select: {
@@ -45,6 +46,14 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json(
         { success: false, error: 'Post not found' },
         { status: 404 }
+      )
+    }
+
+    // Check if removed
+    if (post.status === 'REMOVED') {
+      return NextResponse.json(
+        { success: false, error: 'This post has been removed' },
+        { status: 410 }
       )
     }
 

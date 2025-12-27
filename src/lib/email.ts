@@ -493,6 +493,54 @@ export async function sendDisputeResolvedSellerEmail(
   }
 }
 
+// Warning notification email (for admin-issued warnings)
+export async function sendWarningEmail(
+  email: string,
+  username: string,
+  reason: string,
+  notes?: string
+): Promise<EmailResult> {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `Warning issued on your ${APP_NAME} account`,
+      html: `
+        <div style="font-family: 'Courier New', monospace; max-width: 600px; margin: 0 auto; padding: 20px; background: #1a1a1a; color: #e8e8e8;">
+          <h1 style="font-size: 24px; color: #ff3366; border-bottom: 2px solid #ff3366; padding-bottom: 10px;">
+            ⚠️ Account Warning
+          </h1>
+          <p>Hi ${escapeHtml(username)},</p>
+          <p>Your account has received a warning for a policy violation.</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: #2a2a2a;">
+            <tr>
+              <td style="border: 1px solid #444; padding: 8px; background: #333; color: #22d3ee;">Reason</td>
+              <td style="border: 1px solid #444; padding: 8px;">${escapeHtml(reason.replace(/_/g, ' '))}</td>
+            </tr>
+            ${notes ? `
+            <tr>
+              <td style="border: 1px solid #444; padding: 8px; background: #333; color: #22d3ee;">Details</td>
+              <td style="border: 1px solid #444; padding: 8px;">${escapeHtml(notes)}</td>
+            </tr>
+            ` : ''}
+          </table>
+          <p style="color: #ff3366;">
+            Repeated violations may result in account suspension or permanent ban.
+          </p>
+          <p>Please review our community guidelines to avoid future issues.</p>
+          <p style="font-size: 12px; color: #666; margin-top: 30px; border-top: 1px solid #333; padding-top: 10px;">
+            If you believe this warning was issued in error, please contact support.
+          </p>
+        </div>
+      `,
+    })
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to send warning email:', error)
+    return { success: false, error: 'Failed to send email' }
+  }
+}
+
 // Guest download email (for guest purchases)
 export async function sendGuestDownloadEmail(
   email: string,

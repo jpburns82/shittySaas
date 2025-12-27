@@ -1,4 +1,5 @@
 import { redirect, notFound } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -109,13 +110,28 @@ export default async function EditListingPage({ params }: EditListingPageProps) 
       }
     }
 
-    const updatedListing = await prisma.listing.update({
-      where: { id },
-      data: {
-        ...validData,
-        slug: newSlug,
-      },
-    })
+    let updatedListing
+
+    try {
+      updatedListing = await prisma.listing.update({
+        where: { id },
+        data: {
+          ...validData,
+          slug: newSlug,
+        },
+      })
+    } catch (error) {
+      console.error('[EDIT] ❌ Prisma update failed:', error)
+      return {
+        success: false,
+        errors: {},
+        message: 'Failed to save changes. Please try again.',
+      }
+    }
+
+    // Revalidate cached pages before redirect
+    revalidatePath(`/sell/${id}/edit`)
+    revalidatePath(`/listing/${updatedListing.slug}`)
 
     redirect(`/listing/${updatedListing.slug}`)
   }

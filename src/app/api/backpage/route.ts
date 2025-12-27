@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: Prisma.BackPagePostWhereInput = {
       expiresAt: { gt: new Date() }, // Only non-expired posts
+      status: 'ACTIVE', // Only active (not removed) posts
     }
 
     if (category && category !== 'ALL' && VALID_CATEGORIES.includes(category as typeof VALID_CATEGORIES[number])) {

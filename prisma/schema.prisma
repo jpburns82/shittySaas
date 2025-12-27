@@ -93,9 +93,13 @@ model User {
   warnings          UserWarning[]
 
   // バックページ (Community Board)
-  backPagePosts     BackPagePost[]   @relation("BackPagePosts")
-  backPageReplies   BackPageReply[]  @relation("BackPageReplies")
-  backPageVotes     BackPageVote[]   @relation("BackPageVotes")
+  backPagePosts         BackPagePost[]   @relation("BackPagePosts")
+  backPageReplies       BackPageReply[]  @relation("BackPageReplies")
+  backPageVotes         BackPageVote[]   @relation("BackPageVotes")
+  backPageReports       BackPageReport[] @relation("BackPageReporter")
+  backPageReviews       BackPageReport[] @relation("BackPageReviewer")
+  backPagePostRemovals  BackPagePost[]   @relation("BackPagePostRemovals")
+  backPageReplyRemovals BackPageReply[]  @relation("BackPageReplyRemovals")
 
   @@index([email])
   @@index([username])
@@ -597,6 +601,10 @@ model Message {
   // Status
   readAt      DateTime?
 
+  // Soft delete (per-user visibility)
+  deletedBySender    Boolean @default(false)
+  deletedByReceiver  Boolean @default(false)
+
   // Timestamps
   createdAt   DateTime @default(now())
 
@@ -790,51 +798,71 @@ model ListingView {
 // ============================================
 
 model BackPagePost {
-  id          String           @id @default(cuid())
+  id          String             @id @default(cuid())
   title       String
-  body        String           @db.Text
-  slug        String           @unique
-  category    BackPageCategory @default(GENERAL)
+  body        String             @db.Text
+  slug        String             @unique
+  category    BackPageCategory   @default(GENERAL)
 
   // Author
   authorId    String
-  author      User             @relation("BackPagePosts", fields: [authorId], references: [id])
+  author      User               @relation("BackPagePosts", fields: [authorId], references: [id])
 
   // Stats (denormalized)
-  upvotes     Int              @default(0)
-  downvotes   Int              @default(0)
-  replyCount  Int              @default(0)
+  upvotes     Int                @default(0)
+  downvotes   Int                @default(0)
+  replyCount  Int                @default(0)
 
   // Timestamps
-  createdAt   DateTime         @default(now())
-  expiresAt   DateTime         // Next Monday 00:00 UTC
+  createdAt   DateTime           @default(now())
+  expiresAt   DateTime           // Next Monday 00:00 UTC
+
+  // Moderation
+  status        BackPagePostStatus @default(ACTIVE)
+  removedAt     DateTime?
+  removedById   String?
+  removedBy     User?              @relation("BackPagePostRemovals", fields: [removedById], references: [id])
+  removalReason String?
 
   // Relations
   replies     BackPageReply[]
   votes       BackPageVote[]
+  reports     BackPageReport[]
 
   @@index([category])
   @@index([createdAt])
   @@index([expiresAt])
   @@index([authorId])
+  @@index([status])
 }
 
 model BackPageReply {
-  id        String       @id @default(cuid())
-  body      String       @db.Text
+  id        String              @id @default(cuid())
+  body      String              @db.Text
 
   // Post reference
   postId    String
-  post      BackPagePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post      BackPagePost        @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   // Author
   authorId  String
-  author    User         @relation("BackPageReplies", fields: [authorId], references: [id])
+  author    User                @relation("BackPageReplies", fields: [authorId], references: [id])
 
-  createdAt DateTime     @default(now())
+  createdAt DateTime            @default(now())
+
+  // Moderation
+  status        BackPageReplyStatus @default(ACTIVE)
+  removedAt     DateTime?
+  removedById   String?
+  removedBy     User?               @relation("BackPageReplyRemovals", fields: [removedById], references: [id])
+  removalReason String?
+
+  // Relations
+  reports   BackPageReport[]
 
   @@index([postId])
   @@index([authorId])
+  @@index([status])
 }
 
 model BackPageVote {
@@ -862,4 +890,58 @@ enum BackPageCategory {
   SHOW_TELL
   LOOKING_FOR
   HELP
+}
+
+enum BackPagePostStatus {
+  ACTIVE
+  REMOVED
+}
+
+enum BackPageReplyStatus {
+  ACTIVE
+  REMOVED
+}
+
+enum BackPageReportReason {
+  SPAM
+  HARASSMENT
+  SCAM
+  OFF_TOPIC
+  OTHER
+}
+
+model BackPageReport {
+  id           String               @id @default(cuid())
+
+  // What was reported (one of these)
+  postId       String?
+  post         BackPagePost?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  replyId      String?
+  reply        BackPageReply?       @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  // Who reported
+  reporterId   String
+  reporter     User                 @relation("BackPageReporter", fields: [reporterId], references: [id])
+
+  // Report details
+  reason       BackPageReportReason
+  details      String?              @db.Text
+
+  // Status & resolution (reuses existing ReportStatus enum)
+  status       ReportStatus         @default(PENDING)
+  reviewedById String?
+  reviewedBy   User?                @relation("BackPageReviewer", fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+  resolution   String?
+
+  createdAt    DateTime             @default(now())
+
+  // Spam prevention - one report per user per post/reply
+  @@unique([postId, reporterId])
+  @@unique([replyId, reporterId])
+
+  @@index([status])
+  @@index([postId])
+  @@index([replyId])
+  @@index([reporterId])
 }

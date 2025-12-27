@@ -70,8 +70,14 @@ export const createListingSchema = z.object({
   priceInCents: z.number().min(0).optional(),
   minPriceInCents: z.number().min(0).optional(),
   techStack: z.array(z.string()).max(LISTING_LIMITS.MAX_TECH_STACK_TAGS),
-  thumbnailUrl: z.string().url().optional().or(z.literal('')),
-  screenshots: z.array(z.string().url()).max(6).default([]),
+  thumbnailUrl: z.string().refine(
+    (val) => !val || val === '' || val.startsWith('/') || val.startsWith('http://') || val.startsWith('https://'),
+    { message: 'Invalid URL or path' }
+  ).optional().or(z.literal('')),
+  screenshots: z.array(z.string().refine(
+    (val) => val.startsWith('/') || val.startsWith('http://') || val.startsWith('https://'),
+    { message: 'Invalid URL or path' }
+  )).max(6).default([]),
   liveUrl: z.string().url().optional().or(z.literal('')),
   repoUrl: z.string().url().optional().or(z.literal('')),
   videoUrl: z.string().url().optional().or(z.literal('')),

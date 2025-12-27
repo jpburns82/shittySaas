@@ -1,19 +1,40 @@
 'use client'
 
+import { useState } from 'react'
 import { formatRelativeTime } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import type { MessageWithAttachments } from '@/types/user'
 import { AttachmentDisplay } from './attachment-display'
+import { Trash2 } from 'lucide-react'
 
 interface MessageBubbleProps {
   message: MessageWithAttachments
   currentUserId: string
+  onDelete?: (messageId: string) => void
 }
 
-export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
+export function MessageBubble({ message, currentUserId, onDelete }: MessageBubbleProps) {
+  const [isDeleting, setIsDeleting] = useState(false)
   const isMe = message.senderId === currentUserId
   const sender = message.sender
   const isAdmin = sender.isAdmin
+
+  const handleDelete = async () => {
+    if (isDeleting) return
+    if (!confirm('Delete this message? This only removes it from your view.')) return
+
+    setIsDeleting(true)
+    try {
+      const res = await fetch(`/api/messages/${message.id}`, { method: 'DELETE' })
+      if (res.ok && onDelete) {
+        onDelete(message.id)
+      }
+    } catch {
+      console.error('Failed to delete message')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   // Determine sender display name (used for display/accessibility)
   const _senderName = isMe
@@ -32,7 +53,7 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full group">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
         {/* Avatar */}
@@ -64,11 +85,21 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
         <span className="text-xs text-text-muted">
           {formatRelativeTime(message.createdAt)}
         </span>
+
+        {/* Delete button */}
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-text-muted hover:text-accent-red disabled:opacity-50"
+          title="Delete message (only for you)"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Message Body */}
-      <div className={cn('p-3 ml-10', getBubbleStyles())}>
-        <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+      <div className={cn('p-3', getBubbleStyles())}>
+        <p className="whitespace-pre-wrap text-sm break-words">{message.content}</p>
 
         {/* Attachments */}
         {message.attachments && message.attachments.length > 0 && (

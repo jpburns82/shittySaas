@@ -36,7 +36,8 @@ export default function LoginPage() {
         router.push(callbackUrl)
         router.refresh()
       }
-    } catch {
+    } catch (error) {
+      console.error('[LOGIN] Error during sign in:', error)
       setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)

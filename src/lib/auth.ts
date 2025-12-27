@@ -84,12 +84,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
-        session.user.username = token.username as string
-        session.user.isAdmin = token.isAdmin as boolean
-        session.user.isVerifiedSeller = token.isVerifiedSeller as boolean
-        session.user.stripeOnboarded = token.stripeOnboarded as boolean
+      try {
+        if (session.user && token) {
+          session.user.id = (token.id as string) || ''
+          session.user.username = (token.username as string) || ''
+          session.user.isAdmin = (token.isAdmin as boolean) || false
+          session.user.isVerifiedSeller = (token.isVerifiedSeller as boolean) || false
+          session.user.stripeOnboarded = (token.stripeOnboarded as boolean) || false
+        }
+      } catch (error) {
+        console.error('[AUTH] Session callback error:', error)
       }
       return session
     },

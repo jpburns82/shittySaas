@@ -64,9 +64,9 @@ export default async function DashboardPage() {
         buyer: { select: { username: true } },
       },
     }),
-    // Recent messages
+    // Recent messages (filter out deleted)
     prisma.message.findMany({
-      where: { receiverId: userId },
+      where: { receiverId: userId, deletedByReceiver: false },
       orderBy: { createdAt: 'desc' },
       take: 5,
       include: {

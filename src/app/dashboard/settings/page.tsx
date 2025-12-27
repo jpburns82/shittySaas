@@ -20,6 +20,17 @@ export default function DashboardSettingsPage() {
   const githubStatus = searchParams.get('github')
   const githubError = searchParams.get('error')
 
+  // Clear GitHub URL params after reading to prevent stale messages on refresh
+  useEffect(() => {
+    if (githubStatus || githubError) {
+      // 5 second delay to allow user to read the message, then clear params
+      const timer = setTimeout(() => {
+        router.replace('/dashboard/settings', { scroll: false })
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [githubStatus, githubError, router])
+
   // GitHub verification state
   const [githubInfo, setGithubInfo] = useState<{
     isConnected: boolean
@@ -353,8 +364,11 @@ export default function DashboardSettingsPage() {
             {githubError === 'github_denied' && 'GitHub authorization was denied.'}
             {githubError === 'github_already_linked' && 'This GitHub account is already linked to another user.'}
             {githubError === 'github_not_configured' && 'GitHub integration is not configured.'}
+            {githubError === 'github_invalid_callback' && 'Invalid callback from GitHub. Please try again.'}
+            {githubError === 'github_token_failed' && 'Failed to authenticate with GitHub. Please try again.'}
+            {githubError === 'github_user_failed' && 'Failed to fetch your GitHub profile. Please try again.'}
             {githubError === 'github_error' && 'An error occurred connecting to GitHub.'}
-            {!['github_denied', 'github_already_linked', 'github_not_configured', 'github_error'].includes(githubError) && 'Failed to connect GitHub.'}
+            {!['github_denied', 'github_already_linked', 'github_not_configured', 'github_invalid_callback', 'github_token_failed', 'github_user_failed', 'github_error'].includes(githubError) && 'Failed to connect GitHub.'}
           </div>
         )}
         <GitHubConnect

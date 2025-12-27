@@ -70,12 +70,13 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://plausible.io",
-              "style-src 'self' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://plausible.io https://static.cloudflareinsights.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: blob: https://*.r2.dev https://*.r2.cloudflarestorage.com https://*.stripe.com https://undeadlist.com",
               "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
-              "connect-src 'self' https://*.stripe.com wss://q.stripe.com https://*.ingest.sentry.io https://plausible.io",
-              "font-src 'self'",
+              "connect-src 'self' https://*.stripe.com wss://q.stripe.com https://*.ingest.sentry.io https://plausible.io https://cloudflareinsights.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "worker-src 'self' blob:",
             ].join('; '),
           },
           {

@@ -23,10 +23,11 @@ export async function GET(request: NextRequest) {
 
     if (otherUserId) {
       // Get conversation with specific user
+      // Filter out messages deleted by the current user
       const where = {
         OR: [
-          { senderId: session.user.id, receiverId: otherUserId },
-          { senderId: otherUserId, receiverId: session.user.id },
+          { senderId: session.user.id, receiverId: otherUserId, deletedBySender: false },
+          { senderId: otherUserId, receiverId: session.user.id, deletedByReceiver: false },
         ],
         ...(listingId ? { listingId } : {}),
       }
@@ -71,8 +72,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all conversations (grouped)
+    // Filter out messages deleted by the current user
     const where = {
-      OR: [{ senderId: session.user.id }, { receiverId: session.user.id }],
+      OR: [
+        { senderId: session.user.id, deletedBySender: false },
+        { receiverId: session.user.id, deletedByReceiver: false },
+      ],
     }
 
     const [messages, total] = await Promise.all([

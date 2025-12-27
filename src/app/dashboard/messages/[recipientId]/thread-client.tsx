@@ -81,6 +81,7 @@ export function ThreadClient({
   const [showWarnBuyerModal, setShowWarnBuyerModal] = useState(false)
   const [showWarnSellerModal, setShowWarnSellerModal] = useState(false)
   const [showSuspendModal, setShowSuspendModal] = useState(false)
+  const [showAdminTools, setShowAdminTools] = useState(false)
   const [reportReason, setReportReason] = useState('')
   const [reportDetails, setReportDetails] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
@@ -217,7 +218,7 @@ export function ThreadClient({
       )}
 
       {/* Messages List */}
-      <div className="flex-1 overflow-y-auto border border-border-dark bg-bg-secondary p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto border border-border-dark bg-bg-secondary p-4 space-y-4 min-h-[300px]">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-text-muted">
             <p>No messages yet. Start the conversation!</p>
@@ -229,6 +230,7 @@ export function ThreadClient({
                 key={message.id}
                 message={message}
                 currentUserId={currentUserId}
+                onDelete={(id) => setMessages((prev) => prev.filter((m) => m.id !== id))}
               />
             ))}
             <div ref={bottomRef} />
@@ -280,71 +282,50 @@ export function ThreadClient({
         </div>
       </div>
 
-      {/* Admin Tools Panel */}
+      {/* Admin Tools Toggle */}
       {isAdmin && (
-        <div className="border border-border-light bg-secondary p-3 mt-2">
-          <h3 className="font-display text-sm mb-2 text-accent-pink">ADMIN TOOLS</h3>
-          <div className="flex flex-wrap gap-2 text-xs mb-2">
-            <a href={`/user/${recipient.username}`} className="btn-secondary px-2 py-1">
-              View Profile
-            </a>
-            <a href={`/admin/users/${recipientId}`} className="btn-secondary px-2 py-1">
-              User Admin
-            </a>
-            {listingSlug && (
-              <a href={`/listing/${listingSlug}`} className="btn-secondary px-2 py-1">
-                View Listing
-              </a>
-            )}
-          </div>
+        <div className="border-t border-border-dark mt-2">
+          <button
+            onClick={() => setShowAdminTools(!showAdminTools)}
+            className="w-full py-2 text-xs text-accent-pink hover:bg-accent-pink/10 flex items-center justify-center gap-1"
+          >
+            <span>{showAdminTools ? '▼' : '▶'}</span>
+            <span className="font-display">ADMIN TOOLS</span>
+            {reportCount > 0 && <span className="ml-1 text-accent-red">({reportCount} reports)</span>}
+          </button>
 
-          {/* Warn/Suspend buttons */}
-          {threadId && (
-            <div className="flex flex-wrap gap-2 text-xs mt-2 pt-2 border-t border-border-dark">
-              {buyer && (
-                <button
-                  onClick={() => setShowWarnBuyerModal(true)}
-                  className="btn-secondary px-2 py-1 text-accent-yellow border-accent-yellow/50 hover:bg-accent-yellow/10"
-                >
-                  ⚠ Warn Buyer
-                </button>
+          {showAdminTools && (
+            <div className="p-2 bg-bg-secondary/50 text-xs space-y-2">
+              <div className="flex flex-wrap gap-1">
+                <a href={`/user/${recipient.username}`} className="btn-secondary px-2 py-1">Profile</a>
+                <a href={`/admin/users/${recipientId}`} className="btn-secondary px-2 py-1">Admin</a>
+                {listingSlug && <a href={`/listing/${listingSlug}`} className="btn-secondary px-2 py-1">Listing</a>}
+              </div>
+              {threadId && (
+                <div className="flex flex-wrap gap-1">
+                  {buyer && (
+                    <button onClick={() => setShowWarnBuyerModal(true)} className="btn-secondary px-2 py-1 text-accent-yellow">
+                      Warn Buyer
+                    </button>
+                  )}
+                  {seller && (
+                    <button onClick={() => setShowWarnSellerModal(true)} className="btn-secondary px-2 py-1 text-accent-yellow">
+                      Warn Seller
+                    </button>
+                  )}
+                  {!isSuspended ? (
+                    <button onClick={() => setShowSuspendModal(true)} className="btn-secondary px-2 py-1 text-accent-red">
+                      Suspend
+                    </button>
+                  ) : (
+                    <button onClick={handleUnsuspend} disabled={actionLoading} className="btn-secondary px-2 py-1 text-accent-green">
+                      {actionLoading ? '...' : 'Unsuspend'}
+                    </button>
+                  )}
+                </div>
               )}
-              {seller && (
-                <button
-                  onClick={() => setShowWarnSellerModal(true)}
-                  className="btn-secondary px-2 py-1 text-accent-yellow border-accent-yellow/50 hover:bg-accent-yellow/10"
-                >
-                  ⚠ Warn Seller
-                </button>
-              )}
-              {!isSuspended ? (
-                <button
-                  onClick={() => setShowSuspendModal(true)}
-                  className="btn-secondary px-2 py-1 text-accent-red border-accent-red hover:bg-accent-red/10"
-                >
-                  &#128274; Suspend Thread
-                </button>
-              ) : (
-                <button
-                  onClick={handleUnsuspend}
-                  disabled={actionLoading}
-                  className="btn-secondary px-2 py-1 text-accent-green border-accent-green/50 hover:bg-accent-green/10"
-                >
-                  {actionLoading ? 'Working...' : '&#128275; Unsuspend Thread'}
-                </button>
-              )}
-            </div>
-          )}
-
-          {reportCount > 0 && (
-            <div className="text-xs text-text-muted mt-2 pt-2 border-t border-border-dark">
-              Reports: {reportCount}
               {lastReport && (
-                <>
-                  {' '}· Last reported: {new Date(lastReport.createdAt).toLocaleDateString()}
-                  <br />
-                  Reason: &quot;{lastReport.reason}&quot;
-                </>
+                <div className="text-text-muted">Last report: {lastReport.reason}</div>
               )}
             </div>
           )}

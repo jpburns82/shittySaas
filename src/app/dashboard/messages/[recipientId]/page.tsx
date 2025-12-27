@@ -139,7 +139,7 @@ export default async function ThreadDetailPage({ params, searchParams }: PagePro
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)] min-h-[500px]">
+    <div className="flex flex-col h-[calc(100vh-160px)] min-h-[600px]">
       {/* Back Link */}
       <div className="mb-4">
         <Link href="/dashboard/messages" className="btn-link text-sm">
@@ -148,8 +148,8 @@ export default async function ThreadDetailPage({ params, searchParams }: PagePro
       </div>
 
       {/* Thread Header */}
-      <div className="card mb-4">
-        <div className="font-display text-lg">
+      <div className="card mb-2 py-2">
+        <div className="font-display text-base">
           {listing ? (
             <>
               RE:{' '}

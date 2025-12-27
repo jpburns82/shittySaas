@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { useSession } from 'next-auth/react'
 import { ArrowLeft, Send, Trash2 } from 'lucide-react'
 import { CATEGORY_LABELS, BACKPAGE_LIMITS } from '@/lib/backpage'
+import { ReportButton } from './report-button'
 
 interface Reply {
   id: string
@@ -145,16 +146,23 @@ export function BackPagePostDetail({ post }: BackPagePostDetailProps) {
             <span className="text-xs px-2 py-0.5 bg-zinc-800 rounded text-text-secondary">
               {CATEGORY_LABELS[post.category] || post.category}
             </span>
-            {(isOwner || isAdmin) && (
-              <button
-                onClick={handleDeletePost}
-                disabled={isDeleting}
-                className="text-text-tertiary hover:text-red-400 transition-colors"
-                title="Delete post"
-              >
-                <Trash2 size={16} />
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              <ReportButton
+                type="post"
+                slug={post.slug}
+                authorId={post.author.id}
+              />
+              {(isOwner || isAdmin) && (
+                <button
+                  onClick={handleDeletePost}
+                  disabled={isDeleting}
+                  className="text-text-tertiary hover:text-red-400 transition-colors"
+                  title="Delete post"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </div>
           </div>
 
           <h1 className="text-xl font-bold text-white mb-4">{post.title}</h1>
@@ -212,15 +220,23 @@ export function BackPagePostDetail({ post }: BackPagePostDetailProps) {
                 <p className="text-text-secondary whitespace-pre-wrap flex-1">
                   {reply.body}
                 </p>
-                {(session?.user?.id === reply.author.id || isAdmin) && (
-                  <button
-                    onClick={() => handleDeleteReply(reply.id)}
-                    className="text-text-tertiary hover:text-red-400 transition-colors ml-2"
-                    title="Delete reply"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                )}
+                <div className="flex items-center gap-2 ml-2">
+                  <ReportButton
+                    type="reply"
+                    slug={post.slug}
+                    replyId={reply.id}
+                    authorId={reply.author.id}
+                  />
+                  {(session?.user?.id === reply.author.id || isAdmin) && (
+                    <button
+                      onClick={() => handleDeleteReply(reply.id)}
+                      className="text-text-tertiary hover:text-red-400 transition-colors"
+                      title="Delete reply"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2 text-xs text-text-tertiary">
                 <span>@{reply.author.username}</span>

@@ -1,6 +1,6 @@
 # UndeadList - Golden Anchor (Source of Truth)
 
-Generated: 2025-12-23
+Generated: 2025-12-28
 
 This document is the authoritative reference for what features exist in the codebase.
 
@@ -272,49 +272,160 @@ This document is the authoritative reference for what features exist in the code
 
 ---
 
-## NOT YET BUILT
-
 ### Escrow/Buyer Protection
-- [ ] True escrow (funds currently transfer directly to seller via Stripe Connect)
-- [ ] escrowStatus field on Purchase
-- [ ] escrowExpiresAt field
-- [ ] Dispute workflow
-- [ ] Funds holding on platform
-- [ ] Auto-release cron job
+- [x] True escrow with tiered holding periods
+- [x] escrowStatus field on Purchase (HOLDING, RELEASED, DISPUTED, REFUNDED)
+- [x] escrowExpiresAt field with automatic calculation
+- [x] Dispute workflow with admin resolution
+- [x] Funds held via Stripe payment intents
+- [x] Auto-release cron job (`/api/cron/process-escrow`)
 
-### Virus Scanning
-- [ ] VirusTotal integration
-- [ ] scanStatus field on ListingFile
-- [ ] fileHash field
-- [ ] Scan processing cron
-- [ ] Malware quarantine
+**Escrow Duration Rules:**
+| Condition | Duration |
+|-----------|----------|
+| Instant DL + Verified Seller + Clean Scan | Instant release |
+| Instant DL + Verified Seller + Unclean | 24 hours |
+| Instant DL + New Seller OR Repository Access | 72 hours |
+| Manual Transfer | 7 days |
+| Domain Transfer | 14 days |
 
-### Rate Limiting / Abuse Prevention
-- [ ] Listing limits per seller tier
-- [ ] Download limits per purchase
-- [ ] Buyer spend limits
-- [ ] Request rate limiting (Upstash configured but unused)
-
-### Trust System
-- [ ] Formal seller tiers (NEW, VERIFIED, TRUSTED, PRO)
-- [ ] Automated tier upgrades based on sales
-- [ ] Trust badges
-
-### Integrations
-- [ ] Discord webhooks (only has community link)
-- [ ] Twilio SMS alerts
-- [ ] GitHub OAuth/verification
-
-### Other Missing
-- [ ] Auto-complete cron for deliveries (autoCompleteAt exists but no job)
-- [ ] Chargeback handling (webhook prepared but no handler)
-- [ ] Download count tracking
-- [ ] Delivery proof system
-- [ ] Two-factor authentication
+**Files:**
+- src/lib/escrow.ts
+- src/lib/stripe-transfers.ts
+- src/app/api/cron/process-escrow/route.ts
+- src/app/api/purchases/[purchaseId]/dispute/route.ts
 
 ---
 
-## ENVIRONMENT VARIABLES (Current)
+### VirusTotal Integration
+- [x] Hash checking (instant, no quota cost)
+- [x] File upload scanning for unknown files
+- [x] scanStatus field on ListingFile (PENDING, CLEAN, SUSPICIOUS, MALICIOUS, ERROR)
+- [x] fileHash field (SHA-256)
+- [x] Scan processing cron (`/api/cron/process-scans`)
+- [x] Malware detection alerts via SMS/email
+
+**Files:**
+- src/lib/virustotal.ts
+- src/app/api/cron/process-scans/route.ts
+
+---
+
+### Rate Limiting & Abuse Prevention
+- [x] Seller listing limits by tier (1/3/10/unlimited)
+- [x] Download limits per purchase (10 downloads)
+- [x] Buyer daily spend limits ($50-$1000 by tier)
+- [x] Request rate limiting via Upstash Redis
+- [x] Auth endpoint protection (5 requests/hour)
+- [x] Password reset protection (10 requests/hour)
+
+**Files:**
+- src/lib/rate-limit.ts
+- src/lib/seller-limits.ts
+- src/lib/buyer-limits.ts
+- src/lib/download-limiter.ts
+
+---
+
+### Trust System
+- [x] Seller tiers: NEW → VERIFIED → TRUSTED → PRO
+- [x] Buyer tiers: NEW → VERIFIED → TRUSTED
+- [x] Automated tier upgrades based on transactions
+- [x] Trust badges in UI
+- [x] Tier-based escrow duration calculation
+
+**Seller Tier Thresholds:**
+| Tier | Sales Required | Listing Limit |
+|------|---------------|---------------|
+| NEW | 0 | 1 |
+| VERIFIED | 1+ | 3 |
+| TRUSTED | 3+ | 10 |
+| PRO | 10+ (or manual) | Unlimited |
+
+**Buyer Tier Thresholds:**
+| Tier | Purchases | Daily Limit |
+|------|-----------|-------------|
+| NEW | 0 | $250 |
+| VERIFIED | 1+ | $500 |
+| TRUSTED | 3+ | $1,000 |
+| Guest | N/A | $50 |
+
+**Files:**
+- src/lib/seller-limits.ts
+- src/lib/buyer-limits.ts
+
+---
+
+### External Integrations
+- [x] Twilio SMS alerts (with email fallback)
+- [x] GitHub OAuth for seller verification
+- [x] GitHub repo ownership verification
+- [x] Sentry error tracking
+- [x] Upstash Redis for rate limiting
+
+**Files:**
+- src/lib/twilio.ts
+- src/lib/github.ts
+- src/app/api/auth/github/route.ts
+- src/app/api/auth/github/callback/route.ts
+
+---
+
+### BackPage Community Board (バックページ)
+- [x] Weekly ephemeral posts (expire every Monday)
+- [x] Categories: GENERAL, SHOW_TELL, LOOKING_FOR, HELP
+- [x] Voting on posts and replies
+- [x] Threaded replies
+- [x] Report system (SPAM, HARASSMENT, SCAM, OFF_TOPIC, OTHER)
+- [x] Admin moderation controls
+- [x] Cleanup cron job
+
+**Files:**
+- src/lib/backpage.ts
+- src/app/api/backpage/* (14 routes)
+- src/app/api/admin/backpage/*
+- src/app/api/cron/cleanup-backpage/route.ts
+
+---
+
+### Security Features
+- [x] CSRF protection (double-submit cookies)
+- [x] CSP headers (Content Security Policy)
+- [x] HSTS, X-Frame-Options, Permissions-Policy
+- [x] Guest JWT authentication for downloads
+- [x] Timing-safe string comparisons
+- [x] Input validation with Zod
+- [x] File type and size validation
+
+**Files:**
+- src/lib/csrf.ts
+- src/lib/download-token.ts
+- next.config.ts (security headers)
+- src/middleware.ts
+
+---
+
+### Cron Jobs
+- [x] `/api/cron/process-escrow` - Release held escrow
+- [x] `/api/cron/cleanup-pending` - Clean stale PENDING purchases
+- [x] `/api/cron/expire-featured` - Expire featured listings
+- [x] `/api/cron/process-scans` - Poll VirusTotal results
+- [x] `/api/cron/cleanup-backpage` - Delete expired BackPage posts
+
+---
+
+## NOT YET BUILT
+
+### Pending Features
+- [ ] Guardian AI content moderation (schema fields exist, no implementation)
+- [ ] Discord webhook notifications
+- [ ] Two-factor authentication
+- [ ] Chargeback webhook handler
+- [ ] Plausible analytics integration (env var exists, not integrated)
+
+---
+
+## ENVIRONMENT VARIABLES
 
 ```env
 # Database
@@ -335,6 +446,7 @@ R2_ACCESS_KEY_ID
 R2_SECRET_ACCESS_KEY
 R2_BUCKET_NAME
 R2_PUBLIC_URL
+NEXT_PUBLIC_R2_PUBLIC_URL
 
 # Email
 RESEND_API_KEY
@@ -344,12 +456,10 @@ GOOGLE_GEMINI_API_KEY
 
 # App
 NEXT_PUBLIC_APP_URL
-```
+NEXT_PUBLIC_APP_NAME
+ADMIN_EMAIL
 
-## ENVIRONMENT VARIABLES (To Add)
-
-```env
-# Twilio SMS
+# Twilio SMS (optional - falls back to email)
 TWILIO_ACCOUNT_SID
 TWILIO_AUTH_TOKEN
 TWILIO_PHONE_NUMBER
@@ -364,35 +474,49 @@ CRON_SECRET
 # GitHub OAuth
 GITHUB_CLIENT_ID
 GITHUB_CLIENT_SECRET
+
+# Rate Limiting
+UPSTASH_REDIS_REST_URL
+UPSTASH_REDIS_REST_TOKEN
+
+# Error Tracking
+SENTRY_DSN
+SENTRY_AUTH_TOKEN
 ```
 
 ---
 
-## DATABASE MODELS (17 Core)
+## DATABASE MODELS (21 Core)
 
 1. User
 2. Listing
 3. ListingFile
-4. Category
-5. Purchase
-6. Message
-7. MessageThread
-8. MessageAttachment
-9. Vote
-10. Comment
-11. Report
-12. UserWarning
-13. FeaturedPurchase
-14. BlockedUser
-15. AuditLog
-16. VerificationToken
-17. PasswordResetToken
+4. ListingView
+5. Category
+6. Purchase
+7. FeaturedPurchase
+8. Message
+9. MessageThread
+10. MessageAttachment
+11. Vote
+12. Comment
+13. Report
+14. UserWarning
+15. BlockedUser
+16. AuditLog
+17. VerificationToken
+18. BackPagePost
+19. BackPageReply
+20. BackPageVote
+21. BackPageReport
 
 ---
 
 ## STATISTICS
 
-- **Total Pages:** 37 page.tsx files
-- **Total Components:** 48+ component files
-- **API Routes:** 50+ endpoints
-- **Email Templates:** 7 types
+- **Total Pages:** 40+ page.tsx files
+- **Total Components:** 50+ component files
+- **API Routes:** 85 endpoints
+- **Email Templates:** 12 types
+- **Cron Jobs:** 5
+- **Lib Modules:** 18

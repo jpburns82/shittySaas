@@ -5,14 +5,18 @@ Indie software marketplace - "the craigslist of Flippa/Acquire/Gumroad"
 Japanese cyberpunk aesthetic / Tokyo underground dark theme
 
 ## Tech Stack
-- Next.js 14 (App Router)
-- PostgreSQL (Neon)
-- Prisma ORM
+- Next.js 15.1.0 (App Router)
+- React 19.0.0
+- TypeScript 5.7.2
+- PostgreSQL (Neon serverless)
+- Prisma 6.1.0 ORM
 - Stripe Connect (Express accounts)
 - Cloudflare R2 (file storage)
 - Resend (email)
-- Twilio (SMS - pending A2P 10DLC approval, email fallback active)
+- Twilio (SMS with email fallback)
 - VirusTotal (file scanning)
+- Upstash Redis (rate limiting)
+- Sentry (error tracking)
 
 ## ABSOLUTE FORBIDDEN ACTIONS
 
@@ -65,7 +69,8 @@ grep -n "bg-zinc-900" src/components/ui/modal.tsx
 ## Working Directory
 
 - All work happens in WSL
-- Project path: `/mnt/c/Users/jesse/Desktop/app projects/sellshittysaas`
+- Project path: `/home/jesse/shittySaas`
+- Docker compose: `/home/jesse/docker/docker-compose.yml`
 
 ## Design System
 
@@ -84,12 +89,13 @@ grep -n "bg-zinc-900" src/components/ui/modal.tsx
 | Phase 1 - Quick Wins | Complete |
 | Phase 2 - Escrow | Complete |
 | Phase 3 - VirusTotal | Complete |
-| Phase 4 - Twilio | Complete (A2P pending, email fallback active) |
+| Phase 4 - Twilio | Complete (email fallback active) |
 | Phase 5 - UI/Badges | Complete |
 | Phase 6 - GitHub Verification | Complete |
-| Phase 7 - Buyer Spend Limits | IN PROGRESS |
-| Phase 8 - Documentation | Pending |
-| Phase 9 - AI Guardian | Pending |
+| Phase 7 - Buyer Spend Limits | Complete |
+| Phase 8 - Documentation | Complete (Dec 28, 2025) |
+| Phase 9 - AI Guardian | Pending (schema fields exist) |
+| Phase 10 - BackPage | Complete (community board) |
 
 ## Security Audit Remediation
 
@@ -99,14 +105,15 @@ grep -n "bg-zinc-900" src/components/ui/modal.tsx
 | Phase 1 - Security Foundation | **COMPLETE** | Rate limiting (P1-002), Guest limits (P1-003), Escrow atomicity (P1-004), Dispute atomicity (P1-005), CSP headers (P1-007) |
 | Phase 2 - Financial Integrity | **COMPLETE** | WWW redirect (P2-004), webhook try-catch (P2-007), cleanup cron (P2-008) |
 | Phase 3 - Stability | **COMPLETE** | Pagination (P2-002, P2-003), CSRF (P2-001), health check (P2-006), enumeration fix (P2-005) |
-| Phase 4 - Quality | Pending | Constants, logging, indexes |
-
-See `.claude/audits/IMPLEMENTATION_PLAN_v2.md` for full details.
+| Phase 4 - Quality | **PARTIAL** | constants.ts done, logger.ts done, indexes pending |
+| Dec 28 Fixes | **COMPLETE** | Guest JWT downloads, free claim routing, download links in emails |
 
 ## Key Reference Files
 
 - `GOLDEN_ANCHOR.md` - Complete project state documentation
-- `src/lib/buyer-limits.ts` - Already exists, needs checkout integration
+- `CHANGELOG.md` - Version history and changes
+- `.claude/plans/` - Implementation plans
+- `src/lib/` - Core business logic (18 modules)
 
 ## Before Making Changes
 

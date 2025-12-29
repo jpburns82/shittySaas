@@ -4,6 +4,33 @@ All notable changes to UndeadList are documented here.
 
 ---
 
+## December 28, 2025 - Production Fixes & Documentation Update
+
+### Fixed
+- **Guest Downloads** - Download API now accepts JWT tokens for guest authentication (was returning 401)
+- **Free Claim Routing** - Guest checkout form now correctly routes FREE items to `/api/purchases/claim` instead of Stripe
+- **Download Links in Emails** - Purchase confirmation emails now include JWT-authenticated download URL for guests
+
+### Security
+- Guest download API accepts JWT tokens alongside sessions
+- Download page passes token to all file download links
+- Verified all 85 API routes are functional
+
+### Documentation
+- **GOLDEN_ANCHOR.md** - Complete rewrite: moved 8 features from "NOT YET BUILT" to "VERIFIED BUILT"
+- **CLAUDE.md** - Updated tech stack versions, phase statuses, working directory
+- **CHANGELOG.md** - Added this entry, fixed Phase 3 fee structure error
+- **README.md** - Added missing features (BackPage, rate limiting, error tracking)
+
+### Files Modified
+- `src/app/api/downloads/[purchaseId]/[fileId]/route.ts`
+- `src/app/download/[purchaseId]/page.tsx`
+- `src/app/api/stripe/webhook/route.ts`
+- `src/app/api/purchases/claim/route.ts`
+- `src/components/payments/guest-checkout-form.tsx`
+
+---
+
 ## Phase 9: Blind Audit & UI Polish (December 21, 2025)
 
 ### Added
@@ -165,7 +192,7 @@ All 13 major feature areas verified working:
 - **Stripe Connect** - Seller onboarding with Express accounts
 - **Checkout Sessions** - Stripe-hosted payment flow
 - **Webhook Handling** - checkout.session.completed, account.updated, payment failures
-- **Platform Fees** - Tiered structure (10% under $100, 8% $100-$1000, 5% over $1000)
+- **Platform Fees** - Tiered structure (2-6% based on sale price, $0.50 minimum)
 - **File Delivery** - Presigned R2 URLs for downloads
 - **Purchase Emails** - Buyer confirmation and seller notification
 - **Seller Dashboard** - Sales history and payout information

@@ -20,16 +20,20 @@ A marketplace for indie developers to buy and sell side projects, abandoned SaaS
 
 ## Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
-- **Language:** TypeScript
-- **Database:** PostgreSQL (Neon)
-- **ORM:** Prisma
-- **Auth:** NextAuth.js
-- **Payments:** Stripe Connect
+- **Framework:** Next.js 15.1.0 (App Router)
+- **Language:** TypeScript 5.7.2
+- **Database:** PostgreSQL (Neon serverless)
+- **ORM:** Prisma 6.1.0
+- **Auth:** NextAuth.js v5
+- **Payments:** Stripe Connect (Express)
 - **Storage:** Cloudflare R2
 - **Email:** Resend
+- **SMS:** Twilio (optional, email fallback)
+- **Rate Limiting:** Upstash Redis
+- **Error Tracking:** Sentry
+- **File Scanning:** VirusTotal
 - **AI:** Google Gemini (template customization)
-- **Styling:** Tailwind CSS
+- **Styling:** Tailwind CSS 4.0
 
 ---
 
@@ -45,10 +49,15 @@ A marketplace for indie developers to buy and sell side projects, abandoned SaaS
 - 💬 **Messaging** — Buyer/seller communication with attachments
 - 🗳️ **Voting** — Reanimate ⚡ or Bury ⚰️ listings
 - 💬 **Comments** — Community discussion on listings
-- ⭐ **Featured Listings** — Promote for visibility
+- ⭐ **Featured Listings** — Promote for visibility ($19.99/week)
 - 🔐 **Admin Panel** — User/listing management, disputes, reports, audit log
 - 📊 **Dashboard** — Sales, purchases, payouts, analytics
-- 💰 **Buyer Limits** — $250-$1000/day spend limits for fraud prevention
+- 💰 **Buyer Limits** — $250-$1000/day spend limits by tier
+- 📋 **BackPage** — Weekly community board (バックページ)
+- 🔒 **CSRF Protection** — Double-submit cookie pattern
+- 📊 **Rate Limiting** — Upstash Redis-powered abuse prevention
+- 🐛 **Error Tracking** — Sentry integration with source maps
+- 👤 **Guest Checkout** — Buy without account, JWT-authenticated downloads
 
 ---
 

@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
       sellerStripeAccountId: listing.seller.stripeAccountId!,
       sellerId: listing.sellerId,
       deliveryMethod: listing.deliveryMethod,
+      purchaseId: purchase.id,
       buyerId: session?.user.id,
       buyerEmail: session?.user.email || guestEmail,
       successUrl: `${origin}/purchase/success?session_id={CHECKOUT_SESSION_ID}&purchaseId=${purchase.id}`,

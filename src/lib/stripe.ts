@@ -64,6 +64,7 @@ interface CreateCheckoutParams {
   sellerStripeAccountId: string
   sellerId: string
   deliveryMethod: string
+  purchaseId: string
   buyerId?: string
   buyerEmail?: string
   successUrl: string
@@ -77,6 +78,7 @@ export async function createCheckoutSession({
   sellerStripeAccountId,
   sellerId,
   deliveryMethod,
+  purchaseId,
   buyerId,
   buyerEmail,
   successUrl,
@@ -104,6 +106,7 @@ export async function createCheckoutSession({
     ],
     payment_intent_data: {
       metadata: {
+        purchaseId,
         listingId,
         buyerId: buyerId || '',
         sellerId,
@@ -117,6 +120,7 @@ export async function createCheckoutSession({
     success_url: successUrl,
     cancel_url: cancelUrl,
     metadata: {
+      purchaseId,
       listingId,
       buyerId: buyerId || '',
       sellerId,

@@ -65,6 +65,43 @@ export function GuestCheckoutForm({
     }
   }
 
+  const handleClaim = async () => {
+    // Validate email
+    if (!email.trim()) {
+      setEmailError('Email is required')
+      return
+    }
+    if (!validateEmail(email)) {
+      setEmailError('Please enter a valid email address')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    setEmailError('')
+
+    try {
+      const res = await fetchWithCSRF('/api/purchases/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listingId, guestEmail: email }),
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        window.location.href = `/purchase/success?purchaseId=${data.data.purchaseId}`
+      } else {
+        setError(data.error || 'Failed to claim listing')
+      }
+    } catch (err) {
+      setError('Failed to claim. Please try again.')
+      console.error('Claim error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (priceType === 'FREE') {
     return (
       <div>
@@ -96,7 +133,7 @@ export function GuestCheckoutForm({
             {error}
           </div>
         )}
-        <Button onClick={handleCheckout} variant="primary" loading={loading} disabled={!email.trim()}>
+        <Button onClick={handleClaim} variant="primary" loading={loading} disabled={!email.trim()}>
           Get for Free
         </Button>
       </div>

@@ -52,6 +52,31 @@ export function CheckoutButton({
   }
 
   if (priceType === 'FREE') {
+    const handleClaim = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetchWithCSRF('/api/purchases/claim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listingId, guestEmail }),
+        })
+
+        const data = await res.json()
+
+        if (data.success) {
+          window.location.href = `/purchase/success?purchaseId=${data.data.purchaseId}`
+        } else {
+          setError(data.error || 'Failed to claim listing')
+        }
+      } catch (err) {
+        setError('Failed to claim. Please try again.')
+        console.error('Claim error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     return (
       <div>
         {error && (
@@ -59,7 +84,7 @@ export function CheckoutButton({
             {error}
           </div>
         )}
-        <Button onClick={handleCheckout} variant="primary" loading={loading} disabled={disabled}>
+        <Button onClick={handleClaim} variant="primary" loading={loading} disabled={disabled}>
           Get for Free
         </Button>
       </div>

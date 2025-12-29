@@ -2,6 +2,9 @@ import type { NextConfig } from 'next'
 import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
+  // Enable standalone output for Docker
+  output: 'standalone',
+
   // Prevent ws package from being bundled (causes production errors)
   serverExternalPackages: ['ws'],
 

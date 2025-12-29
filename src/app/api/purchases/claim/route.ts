@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail, sendGuestDownloadEmail } from '@/lib/email'
 import { validateCSRF } from '@/lib/csrf'
+import { generateDownloadUrl } from '@/lib/download-token'
 
 // POST /api/purchases/claim - Claim a free listing
 export async function POST(request: NextRequest) {
@@ -104,7 +105,14 @@ export async function POST(request: NextRequest) {
     const buyerEmail = session?.user.email || guestEmail
     if (buyerEmail) {
       try {
-        await sendPurchaseConfirmationEmail(buyerEmail, listing.title, 0)
+        // Generate download URL for instant downloads (guests get JWT-authenticated link)
+        const downloadUrl = listing.deliveryMethod === 'INSTANT_DOWNLOAD' && guestEmail
+          ? generateDownloadUrl(purchase.id, guestEmail)
+          : listing.deliveryMethod === 'INSTANT_DOWNLOAD'
+            ? `${process.env.NEXT_PUBLIC_APP_URL}/download/${purchase.id}`
+            : undefined
+
+        await sendPurchaseConfirmationEmail(buyerEmail, listing.title, 0, downloadUrl)
       } catch (e) {
         console.error('Failed to send purchase confirmation:', e)
       }

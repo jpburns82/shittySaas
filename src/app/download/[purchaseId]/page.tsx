@@ -204,7 +204,7 @@ export default async function DownloadPage({ params, searchParams }: Props) {
                   </div>
                 </div>
                 <a
-                  href={`/api/downloads/${purchaseId}/${file.id}`}
+                  href={`/api/downloads/${purchaseId}/${file.id}${token ? `?token=${token}` : ''}`}
                   className="btn btn-primary"
                   download
                 >

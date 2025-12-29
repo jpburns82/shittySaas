@@ -9,6 +9,7 @@ import { alertHighValueSale } from '@/lib/twilio'
 import { getSellerTier } from '@/lib/seller-limits'
 import { getBuyerTier } from '@/lib/buyer-limits'
 import { createLogger } from '@/lib/logger'
+import { generateDownloadUrl } from '@/lib/download-token'
 import Stripe from 'stripe'
 
 const log = createLogger('stripe-webhook')
@@ -176,10 +177,18 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const buyerEmail = purchase.buyer?.email || purchase.guestEmail
   if (buyerEmail) {
     try {
+      // Generate download URL for instant downloads (guests get JWT-authenticated link)
+      const downloadUrl = purchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD' && purchase.guestEmail
+        ? generateDownloadUrl(purchase.id, purchase.guestEmail)
+        : purchase.listing.deliveryMethod === 'INSTANT_DOWNLOAD'
+          ? `${process.env.NEXT_PUBLIC_APP_URL}/download/${purchase.id}`
+          : undefined
+
       await sendPurchaseConfirmationEmail(
         buyerEmail,
         purchase.listing.title,
-        purchase.amountPaidCents
+        purchase.amountPaidCents,
+        downloadUrl
       )
     } catch (error) {
       log.error('Failed to send purchase confirmation email', {

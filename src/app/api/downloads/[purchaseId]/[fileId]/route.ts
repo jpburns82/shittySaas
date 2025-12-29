@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getPresignedDownloadUrl } from '@/lib/r2'
 import { incrementDownloadCount } from '@/lib/download-limiter'
+import { verifyDownloadToken } from '@/lib/download-token'
 
 interface RouteContext {
   params: Promise<{ purchaseId: string; fileId: string }>
@@ -11,15 +12,27 @@ interface RouteContext {
 // GET /api/downloads/[purchaseId]/[fileId] - Get download URL for a file
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
+    const { purchaseId, fileId } = await context.params
     const session = await auth()
-    if (!session) {
+
+    // Check for guest JWT token in query params
+    const token = request.nextUrl.searchParams.get('token')
+    let guestEmailFromToken: string | null = null
+
+    if (token) {
+      const payload = verifyDownloadToken(token)
+      if (payload && payload.purchaseId === purchaseId) {
+        guestEmailFromToken = payload.email
+      }
+    }
+
+    // Require either valid session OR valid guest token
+    if (!session && !guestEmailFromToken) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       )
     }
-
-    const { purchaseId, fileId } = await context.params
 
     // Get purchase and verify ownership
     const purchase = await prisma.purchase.findUnique({
@@ -50,11 +63,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
 
-    // Verify user owns this purchase (check both regular buyer and guest email)
-    const isOwner = purchase.buyerId === session.user.id
-    const isGuestOwner = purchase.guestEmail && purchase.guestEmail === session.user.email
+    // Verify user owns this purchase (check buyer ID, session email, or guest token email)
+    const isOwner = session && purchase.buyerId === session.user.id
+    const isGuestOwnerBySession = session && purchase.guestEmail && purchase.guestEmail === session.user.email
+    const isGuestOwnerByToken = guestEmailFromToken && purchase.guestEmail === guestEmailFromToken
 
-    if (!isOwner && !isGuestOwner) {
+    if (!isOwner && !isGuestOwnerBySession && !isGuestOwnerByToken) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }

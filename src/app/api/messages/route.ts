@@ -271,14 +271,18 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Send email notification if user wants instant notifications
+    // Send email notification if user wants instant notifications (non-blocking)
     if (receiver.email && receiver.messageNotifications === 'instant') {
-      const attachmentCount = attachments?.length || 0
-      await sendMessageNotificationEmail(
-        receiver.email,
-        session.user.username || 'Someone',
-        attachmentCount > 0 ? ` (${attachmentCount} attachment${attachmentCount > 1 ? 's' : ''})` : ''
-      )
+      try {
+        const attachmentCount = attachments?.length || 0
+        await sendMessageNotificationEmail(
+          receiver.email,
+          session.user.username || 'Someone',
+          attachmentCount > 0 ? ` (${attachmentCount} attachment${attachmentCount > 1 ? 's' : ''})` : ''
+        )
+      } catch (error) {
+        console.error('Failed to send message notification email:', error)
+      }
     }
 
     return NextResponse.json({

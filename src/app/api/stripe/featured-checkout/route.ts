@@ -142,6 +142,7 @@ export async function POST(request: NextRequest) {
         type: 'featured_purchase',
         featuredPurchaseId: featuredPurchase.id,
         listingId,
+        sellerId: listing.sellerId,
         duration,
       },
     })

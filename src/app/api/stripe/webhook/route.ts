@@ -314,16 +314,24 @@ async function handleFeaturedPurchaseCompleted(session: Stripe.Checkout.Session)
 
   // Send confirmation email (outside transaction - external service call)
   if (seller?.email) {
-    const durationDays = Math.ceil(
-      (featuredPurchase.endDate.getTime() - featuredPurchase.startDate.getTime()) / (1000 * 60 * 60 * 24)
-    )
-    const listingUrl = `${process.env.NEXT_PUBLIC_APP_URL}/listing/${featuredPurchase.listing.slug}`
+    try {
+      const durationDays = Math.ceil(
+        (featuredPurchase.endDate.getTime() - featuredPurchase.startDate.getTime()) / (1000 * 60 * 60 * 24)
+      )
+      const listingUrl = `${process.env.NEXT_PUBLIC_APP_URL}/listing/${featuredPurchase.listing.slug}`
 
-    await sendFeaturedConfirmationEmail(
-      seller.email,
-      featuredPurchase.listing.title,
-      durationDays,
-      listingUrl
-    )
+      await sendFeaturedConfirmationEmail(
+        seller.email,
+        featuredPurchase.listing.title,
+        durationDays,
+        listingUrl
+      )
+    } catch (error) {
+      log.error('Failed to send featured confirmation email', {
+        sellerEmail: seller.email,
+        featuredPurchaseId: featuredPurchase.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
   }
 }

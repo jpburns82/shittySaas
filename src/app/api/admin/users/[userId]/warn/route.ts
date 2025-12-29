@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { sendWarningEmail } from '@/lib/email'
 
 const VALID_WARNING_REASONS = ['INAPPROPRIATE', 'HARASSMENT', 'SCAM', 'POLICY_VIOLATION', 'OTHER'] as const
 
@@ -33,7 +34,7 @@ export async function POST(
     // Verify user exists
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, username: true },
+      select: { id: true, username: true, email: true },
     })
 
     if (!user) {
@@ -66,6 +67,15 @@ export async function POST(
         },
       },
     })
+
+    // Send warning email to user (non-blocking)
+    if (user.email) {
+      try {
+        await sendWarningEmail(user.email, user.username, reason, notes || undefined)
+      } catch (error) {
+        console.error('Failed to send warning email:', error)
+      }
+    }
 
     return NextResponse.json({
       success: true,

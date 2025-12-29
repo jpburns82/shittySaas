@@ -251,23 +251,37 @@ export async function POST(
       : undefined
 
     if (purchase.buyer?.email) {
-      sendDisputeResolvedBuyerEmail(
-        purchase.buyer.email,
-        purchase.listing.title,
-        resolution,
-        refundAmountForBuyer,
-        notes
-      ).catch((err) => log.error('Failed to send buyer resolution email', { err }))
+      try {
+        const result = await sendDisputeResolvedBuyerEmail(
+          purchase.buyer.email,
+          purchase.listing.title,
+          resolution,
+          refundAmountForBuyer,
+          notes
+        )
+        if (!result.success) {
+          log.error('Failed to send buyer resolution email', { error: result.error })
+        }
+      } catch (err) {
+        log.error('Failed to send buyer resolution email', { err })
+      }
     }
 
     if (purchase.seller.email) {
-      sendDisputeResolvedSellerEmail(
-        purchase.seller.email,
-        purchase.listing.title,
-        resolution,
-        payoutAmountForSeller,
-        notes
-      ).catch((err) => log.error('Failed to send seller resolution email', { err }))
+      try {
+        const result = await sendDisputeResolvedSellerEmail(
+          purchase.seller.email,
+          purchase.listing.title,
+          resolution,
+          payoutAmountForSeller,
+          notes
+        )
+        if (!result.success) {
+          log.error('Failed to send seller resolution email', { error: result.error })
+        }
+      } catch (err) {
+        log.error('Failed to send seller resolution email', { err })
+      }
     }
 
     // Send Twilio alert
